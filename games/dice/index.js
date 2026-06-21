@@ -64,16 +64,13 @@
      * - 定住阶段：最后一帧闪现最终点数
      */
     function animateRoll(container, finalValues, totalDuration, onDone) {
-        var numDice   = finalValues.length;
-        var diceW     = 64;
-        var gap       = 10;
-        // 先读取尺寸，再清空（清空后 offsetWidth 会变成 0）
-        var trayW     = container.offsetWidth  || 280;
-        var trayH     = container.offsetHeight || 100;
+        var numDice = finalValues.length;
+        var diceW   = 64;
+        var gap     = 10;
+        var trayW   = 280;
+        var trayH   = 100;
+        var startX  = (trayW - numDice * diceW - (numDice - 1) * gap) / 2;
         container.innerHTML = '';
-
-        // 计算居中起始x
-        var startX = (trayW - numDice * diceW - (numDice - 1) * gap) / 2;
 
         // 空白骰子面（不显示点数）
         function createBlankDie() {
