@@ -64,13 +64,16 @@
      * - 定住阶段：最后一帧闪现最终点数
      */
     function animateRoll(container, finalValues, totalDuration, onDone) {
-        container.innerHTML = '';
-
         var numDice   = finalValues.length;
         var diceW     = 64;
         var gap       = 10;
+        // 先读取尺寸，再清空（清空后 offsetWidth 会变成 0）
         var trayW     = container.offsetWidth  || 280;
         var trayH     = container.offsetHeight || 100;
+        container.innerHTML = '';
+
+        // 计算居中起始x
+        var startX = (trayW - numDice * diceW - (numDice - 1) * gap) / 2;
 
         // 空白骰子面（不显示点数）
         function createBlankDie() {
@@ -96,7 +99,6 @@
 
         // 预计算每颗骰子的最终停留坐标（碗内居中+随机偏移）
         var finalPositions = [];
-        var startX = (trayW - numDice * diceW - (numDice - 1) * gap) / 2;
         for (var i = 0; i < numDice; i++) {
             finalPositions.push({
                 x:    startX + i * (diceW + gap) + (Math.random() - 0.5) * 12,
@@ -219,6 +221,7 @@
 
         var startTime = null;
         var duration  = 700;
+        var trayH     = 100;
 
         function tick(ts) {
             if (!startTime) startTime = ts;
@@ -255,10 +258,8 @@
                 return;
             }
 
-            requestAnimationFrame(tick);
-        }
-
-        var trayH = container.offsetHeight || 100;
+        requestAnimationFrame(tick);
+    }
         requestAnimationFrame(tick);
     }
 
