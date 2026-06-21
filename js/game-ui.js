@@ -1,16 +1,20 @@
 /* =============================================
    game-ui.js — 共享游戏页面 UI 库
-   提供浮动工具栏（返回主页 + 音效开关）
+   提供工具栏（返回主页 + 音效开关）
    以及统一的 Web Audio API 音效引擎
    ============================================= */
 
 (function () {
+  var injectedStyles = false;
+
   function injectStyles() {
-    if (document.getElementById('gameUiStyles')) return;
+    if (injectedStyles) return;
+    injectedStyles = true;
 
     var style = document.createElement('style');
     style.id = 'gameUiStyles';
     style.textContent = [
+      /* 浮动覆盖风格（固定在视口角落） */
       '.page-floating-controls{position:fixed;top:18px;left:18px;right:18px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:1200;}',
       '.page-floating-controls .left-slot,.page-floating-controls .right-slot{display:flex;gap:10px;}',
       '.page-floating-controls .page-ui-btn{pointer-events:auto;min-width:48px;height:48px;padding:0 14px;border-radius:999px;display:flex;align-items:center;justify-content:center;text-decoration:none;border:none;cursor:pointer;font-size:20px;font-weight:700;line-height:1;box-shadow:0 6px 18px rgba(0,0,0,.22);transition:transform .2s ease,box-shadow .2s ease,opacity .2s ease;background:rgba(255,255,255,.95);color:#256d1b;}',
@@ -18,7 +22,16 @@
       '.page-floating-controls .page-ui-btn:active{transform:scale(.96);}',
       '.page-floating-controls .page-ui-btn.sound-btn{color:#0f766e;}',
       '.page-floating-controls .page-ui-btn.is-muted{opacity:.8;color:#64748b;}',
-      '@media (max-width:700px){.page-floating-controls{top:12px;left:12px;right:12px;}.page-floating-controls .page-ui-btn{min-width:44px;height:44px;padding:0 12px;font-size:18px;}}'
+      '@media (max-width:700px){.page-floating-controls{top:12px;left:12px;right:12px;}.page-floating-controls .page-ui-btn{min-width:44px;height:44px;padding:0 12px;font-size:18px;}}',
+
+      /* 内嵌风格（固定在页面内容区顶部） */
+      '.page-bar{position:sticky;top:0;z-index:200;display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:16px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,.1);}',
+      '.page-bar .bar-btn{width:40px;height:40px;border-radius:999px;display:flex;align-items:center;justify-content:center;text-decoration:none;border:none;cursor:pointer;font-size:18px;font-weight:700;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,.14);transition:transform .18s ease,box-shadow .18s ease;background:#667eea;color:#fff;}',
+      '.page-bar .bar-btn:hover{transform:translateY(-1px) scale(1.04);box-shadow:0 4px 12px rgba(0,0,0,.2);}',
+      '.page-bar .bar-btn:active{transform:scale(.95);}',
+      '.page-bar .bar-btn.sound-btn{background:#4ecdc4;}',
+      '.page-bar .bar-btn.sound-btn.is-muted{background:#ccc;}',
+      '@media (max-width:700px){.page-bar{padding:6px 12px;}.page-bar .bar-btn{width:36px;height:36px;font-size:16px;}}'
     ].join('');
 
     document.head.appendChild(style);
@@ -98,12 +111,15 @@
     };
   }
 
-  function setSoundButtonState(button, muted) {
+  function setSoundButtonState(button, muted, style) {
     button.textContent = muted ? '\ud83d\udd07' : '\ud83d\udd0a';
     button.classList.toggle('is-muted', muted);
   }
 
-  function mount(options) {
+  // style: 'floating' | 'bar'
+  function mount(options, style) {
+    style = style || 'floating';
+
     var settings = Object.assign(
       {
         home: true,
@@ -116,59 +132,56 @@
 
     injectStyles();
 
-    var controls = document.querySelector('.page-floating-controls');
-    if (!controls) {
-      controls = document.createElement('div');
-      controls.className = 'page-floating-controls';
-      document.body.appendChild(controls);
-    }
-
-    var leftSlot = controls.querySelector('.left-slot');
-    if (!leftSlot) {
-      leftSlot = document.createElement('div');
-      leftSlot.className = 'left-slot';
-      controls.appendChild(leftSlot);
-    }
-
-    var rightSlot = controls.querySelector('.right-slot');
-    if (!rightSlot) {
-      rightSlot = document.createElement('div');
-      rightSlot.className = 'right-slot';
-      controls.appendChild(rightSlot);
-    }
-
-    if (settings.home && !document.querySelector('.back-btn') && !controls.querySelector('.home-btn')) {
-      var homeLink = document.createElement('a');
-      homeLink.className = 'page-ui-btn home-btn';
-      homeLink.href = settings.homeHref;
-      homeLink.setAttribute('aria-label', '\u8fd4\u56de\u4e3b\u9875');
-      homeLink.setAttribute('title', '\u8fd4\u56de\u4e3b\u9875');
-      homeLink.textContent = '\u2302';
-      leftSlot.appendChild(homeLink);
+    var container;
+    if (style === 'bar') {
+      container = document.querySelector('.page-bar');
+      if (!container) {
+        container = document.createElement('div');
+        container.className = 'page-bar';
+        var first = document.querySelector('.container > *');
+        if (first) {
+          document.querySelector('.container').insertBefore(container, first);
+        } else {
+          document.querySelector('.container').prepend(container);
+        }
+      }
+    } else {
+      container = document.querySelector('.page-floating-controls');
+      if (!container) {
+        container = document.createElement('div');
+        container.className = 'page-floating-controls';
+        document.body.appendChild(container);
+      }
     }
 
     var audio = null;
     var soundButton = null;
-    if (settings.sound && !controls.querySelector('.sound-btn')) {
+
+    if (settings.home) {
+      var homeLink = document.createElement('a');
+      homeLink.className = 'bar-btn home-btn';
+      homeLink.href = settings.homeHref;
+      homeLink.setAttribute('aria-label', '返回主页');
+      homeLink.setAttribute('title', '返回主页');
+      homeLink.textContent = '\u2302';
+      container.appendChild(homeLink);
+    }
+
+    if (settings.sound) {
       audio = createAudioManager(settings.muted);
       soundButton = document.createElement('button');
       soundButton.type = 'button';
-      soundButton.className = 'page-ui-btn sound-btn';
-      soundButton.setAttribute('aria-label', '\u97f3\u6548\u5f00\u5173');
-      soundButton.setAttribute('title', '\u97f3\u6548\u5f00\u5173');
-      setSoundButtonState(soundButton, audio.muted);
+      soundButton.className = 'bar-btn sound-btn';
+      soundButton.setAttribute('aria-label', '音效开关');
+      soundButton.setAttribute('title', '音效开关');
+      setSoundButtonState(soundButton, audio.muted, style);
       soundButton.addEventListener('click', function () {
-        audio.toggle();
-        setSoundButtonState(soundButton, audio.muted);
-        if (!audio.muted) {
-          audio.play('tap');
-        }
+        audio.ensure();
+        var muted = audio.toggle();
+        setSoundButtonState(soundButton, muted, style);
+        if (!muted) audio.play('tap');
       });
-      rightSlot.appendChild(soundButton);
-    } else if (settings.sound) {
-      soundButton = controls.querySelector('.sound-btn');
-      audio = createAudioManager(settings.muted);
-      setSoundButtonState(soundButton, audio.muted);
+      container.appendChild(soundButton);
     }
 
     return {
@@ -178,13 +191,14 @@
       toggle: function () {
         if (!audio) return true;
         var muted = audio.toggle();
-        if (soundButton) {
-          setSoundButtonState(soundButton, muted);
-        }
+        if (soundButton) setSoundButtonState(soundButton, muted, style);
         return muted;
       },
       isMuted: function () {
         return audio ? audio.muted : true;
+      },
+      getAudio: function () {
+        return audio;
       }
     };
   }

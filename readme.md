@@ -29,6 +29,7 @@
 
 | 游戏 | 文件夹 | 说明 | 难度 |
 |------|--------|------|------|
+| Flappy Bird | `games/flappybird/` | 像素鸟，点击穿越水管间隙 | 4 档 |
 | 贪吃蛇 | `games/snake/` | Canvas 渲染，最高分记录 | 4 档 |
 | 俄罗斯方块 | `games/tetris/` | 墙踢旋转，Hard Drop | 10 档 |
 | 数学挑战 | `games/math/` | 口算练习，连击系统 | 3 档 |
@@ -59,6 +60,9 @@
 - **音效系统**：tap、select、move、drop、clear、success、win、error、lose、pause 等音效
 
 ## 版本历史
+
+### v2.2.0 (2026-06-21)
+- 新增游戏：Flappy Bird（像素鸟），四档难度，Canvas 渲染，像素风小鸟动画
 
 ### v2.1.0 (2026-06-21)
 - 重构：所有游戏迁移至 `games/` 子目录，CSS/JS 从 HTML 中抽取为独立文件

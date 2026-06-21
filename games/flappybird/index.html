@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird - 张七七的游戏乐园</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="page-bar" id="pageBar"></div>
+
+    <div class="floating-decorations">
+        <span class="floating-item">🐦</span>
+        <span class="floating-item">🌵</span>
+        <span class="floating-item">☁️</span>
+        <span class="floating-item">🌿</span>
+        <span class="floating-item">✨</span>
+    </div>
+
+    <header>
+        <div class="logo">🐦 Flappy Bird</div>
+        <p class="subtitle">张七七的游戏乐园 | 点击或按空格让小鸟飞起来！</p>
+    </header>
+
+    <section class="rules-box" aria-label="游戏规则">
+        <h2>玩法说明</h2>
+        <ul>
+            <li>点击屏幕、敲击空格键或按上方向键，让小鸟往上飞。</li>
+            <li>别撞到绿色水管！撞上就 Game Over。</li>
+            <li>穿过一对水管得 1 分，挑战最高分！</li>
+            <li>选择难度，水管间距越小越难。</li>
+        </ul>
+    </section>
+
+    <div class="game-area">
+        <div class="difficulty-select">
+            <button class="btn-diff easy active" onclick="setDifficulty('easy')">简单</button>
+            <button class="btn-diff medium" onclick="setDifficulty('medium')">普通</button>
+            <button class="btn-diff hard" onclick="setDifficulty('hard')">困难</button>
+            <button class="btn-diff expert" onclick="setDifficulty('expert')">👑 疯狂</button>
+        </div>
+
+        <div class="info-bar">
+            <div class="info-box">
+                <h3>🏆 最高分</h3>
+                <p class="value score" id="bestDisplay">0</p>
+            </div>
+            <div class="info-box">
+                <h3>📊 当前</h3>
+                <p class="value score" id="scoreDisplay">0</p>
+            </div>
+        </div>
+
+        <div class="canvas-wrapper" id="canvasWrapper">
+            <canvas id="gameCanvas"></canvas>
+            <div class="start-overlay" id="startOverlay">
+                <div class="overlay-title">点击开始</div>
+                <div class="overlay-hint">空格 / 点击 / 上方向键</div>
+            </div>
+            <div class="game-over-overlay" id="gameOverOverlay">
+                <div class="go-title">Game Over</div>
+                <div class="go-score-label">得分</div>
+                <div class="go-score-value" id="goScore">0</div>
+                <div class="go-best">最高分：<span id="goBest">0</span></div>
+                <button class="btn-retry" onclick="resetGame()">🔄 再来一局</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-new" onclick="resetGame()">🎮 开始游戏</button>
+        </div>
+    </div>
+
+    <script src="../../js/game-ui.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

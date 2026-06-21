@@ -14,13 +14,10 @@
                 this.soundEnabled = true;
                 this.gameActive = false;
                 this.transpositionTable = BoardGameAI.createTranspositionTable(25000);
-
-                // 音效上下文
-                this.audioContext = null;
+                this.ui = null;
 
                 this.initBoard();
                 this.setupEventListeners();
-                this.initSound();
                 this.renderBoard();
                 this.updateStatus('点击"开始游戏"按钮开始');
             }
@@ -68,80 +65,18 @@
                 this.searchDepth = presetDepth[this.difficulty] || 2;
             }
 
-            initSound() {
-                try {
-                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    document.addEventListener('click', () => {
-                        if (this.audioContext && this.audioContext.state === 'suspended') {
-                            this.audioContext.resume();
-                        }
-                    }, { once: true });
-                } catch (e) {
-                    this.audioContext = null;
-                }
-            }
+            initSound() { }
 
             toggleSound() {
-                this.soundEnabled = !this.soundEnabled;
-                const toggle = document.getElementById('soundToggle');
-                toggle.textContent = this.soundEnabled ? '🔊' : '🔇';
-                toggle.classList.toggle('muted', !this.soundEnabled);
+                if (this.ui) {
+                    const muted = this.ui.toggle();
+                    this.soundEnabled = !muted;
+                }
             }
 
             playSound(type) {
-                if (!this.soundEnabled || !this.audioContext) return;
-                
-                try {
-                    const oscillator = this.audioContext.createOscillator();
-                    const gainNode = this.audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(this.audioContext.destination);
-                    
-                    switch (type) {
-                        case 'place':
-                            // 落子声
-                            oscillator.frequency.value = 400;
-                            oscillator.type = 'sine';
-                            gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-                            gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.15);
-                            oscillator.start(this.audioContext.currentTime);
-                            oscillator.stop(this.audioContext.currentTime + 0.15);
-                            break;
-                        case 'win':
-                            // 获胜声
-                            oscillator.frequency.value = 523.25;
-                            oscillator.type = 'triangle';
-                            gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-                            
-                            // 播放和弦
-                            const notes = [523.25, 659.25, 783.99, 1046.50];
-                            notes.forEach((freq, i) => {
-                                const osc = this.audioContext.createOscillator();
-                                const gain = this.audioContext.createGain();
-                                osc.connect(gain);
-                                gain.connect(this.audioContext.destination);
-                                osc.frequency.value = freq;
-                                osc.type = 'triangle';
-                                gain.gain.setValueAtTime(0.2, this.audioContext.currentTime + i * 0.1);
-                                gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + i * 0.1 + 0.3);
-                                osc.start(this.audioContext.currentTime + i * 0.1);
-                                osc.stop(this.audioContext.currentTime + i * 0.1 + 0.3);
-                            });
-                            break;
-                        case 'undo':
-                            // 悔棋声
-                            oscillator.frequency.value = 300;
-                            oscillator.type = 'sine';
-                            gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
-                            gainNode.gain.linearRampToValueAtTime(0.01, this.audioContext.currentTime + 0.2);
-                            oscillator.start(this.audioContext.currentTime);
-                            oscillator.stop(this.audioContext.currentTime + 0.2);
-                            break;
-                    }
-                } catch (e) {
-                    console.log('音效播放失败:', e);
-                }
+                if (!this.soundEnabled || !this.ui) return;
+                this.ui.play(type);
             }
 
             start() {
@@ -679,3 +614,9 @@
         game.applyDifficultyPreset();
         game.updateAiControls();
         game.renderBoard();
+
+        // 统一工具栏：返回主页 + 音效开关
+        const ui = GamePageUI.mount({ home: true, sound: true, muted: !game.soundEnabled }, 'bar');
+
+        // 让 game 通过 GamePageUI 播放音效
+        game.ui = ui;
