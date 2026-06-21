@@ -92,7 +92,6 @@
             log = [];
             updateLog('游戏开始！红方先走');
             updateDisplay();
-            renderBoard();
             initPieces();
         }
 

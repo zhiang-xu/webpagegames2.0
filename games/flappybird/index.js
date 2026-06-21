@@ -122,6 +122,7 @@
     // ---- 扇翅 ----
     function flap() {
         if (gameState === 'idle') {
+            console.log('[flap] idle -> startGame, state was:', gameState, 'bird.y:', bird.y, 'vy:', bird.vy);
             startGame();
             return;
         }
@@ -166,14 +167,19 @@
             return;  // 不执行 playing 逻辑
         }
 
-        if (gameState !== 'playing') return;
+        if (gameState !== 'playing') {
+            if (gameState !== 'idle') console.log('[loop] unexpected state:', gameState);
+            return;
+        }
 
         const cfg   = DIFFICULTY[difficulty];
         const topY  = CEIL_H;
 
         // ---- 物理更新 ----
+        const prevY = bird.y;
         bird.vy = Math.min(bird.vy + GRAVITY * dt, MAX_VY_UP);
         bird.y += bird.vy * dt;
+        console.log('[phys]', gameState, 'vy:', bird.vy, 'y:', bird.y, 'prevY:', prevY, 'dt:', dt);
         bird.rotation = Math.min(Math.max(bird.vy * 5, -30), 80);
         if (bird.flapPhase > 0) bird.flapPhase -= 0.12 * dt;
 
