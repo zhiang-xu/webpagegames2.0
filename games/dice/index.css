@@ -1,0 +1,405 @@
+/* =============================================
+   dice/index.css — 骰子游戏样式
+   ============================================= */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Comic Neue', 'Noto Sans SC', cursive, sans-serif;
+    background: linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: auto;
+    color: #fff;
+}
+
+/* 浮动装饰 */
+.floating-decorations {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+.floating-item {
+    position: absolute;
+    font-size: 2rem;
+    animation: floatUp 8s ease-in-out infinite;
+    opacity: 0.18;
+}
+.floating-item:nth-child(1) { left: 5%; top: 8%;  animation-delay: 0s; }
+.floating-item:nth-child(2) { right: 8%; top: 15%; animation-delay: 2s; }
+.floating-item:nth-child(3) { left: 10%; bottom: 20%; animation-delay: 4s; }
+.floating-item:nth-child(4) { right: 5%; bottom: 10%; animation-delay: 6s; }
+@keyframes floatUp {
+    0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.12; }
+    50%       { transform: translateY(-18px) rotate(15deg); opacity: 0.25; }
+}
+
+/* 头部 */
+header {
+    text-align: center;
+    padding: 18px 20px 8px;
+    position: relative;
+    z-index: 1;
+}
+.logo {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #ffd32a;
+    text-shadow: 3px 3px 0 #ff6b35, 6px 6px 0 rgba(255,107,53,0.4);
+    animation: bounce 2.5s ease-in-out infinite;
+}
+@keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.06); }
+}
+.subtitle {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.7);
+    margin-top: 5px;
+}
+
+/* 模式切换标签 */
+.mode-tabs {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 20px 14px;
+}
+.mode-tab {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    background: rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.6);
+    transition: all 0.25s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.mode-tab:hover {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    transform: translateY(-2px);
+}
+.mode-tab.active {
+    background: linear-gradient(135deg, #ff6b35, #ffd32a);
+    color: #1a1a2e;
+    box-shadow: 0 4px 16px rgba(255,107,53,0.4);
+}
+
+/* 游戏区 */
+.game-area {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 0 20px 24px;
+    width: 100%;
+    max-width: 600px;
+}
+
+/* 规则说明框 */
+.rules-box {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 16px 20px;
+    width: 100%;
+    border: 1px solid rgba(255,211,42,0.25);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+.rules-box h3 {
+    font-size: 0.95rem;
+    color: #ffd32a;
+    margin-bottom: 8px;
+}
+.rules-content {
+    font-size: 0.92rem;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.7;
+}
+
+/* 信息栏 */
+.info-bar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+}
+.info-box {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+    border-radius: 18px;
+    padding: 14px 22px;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.1);
+    min-width: 110px;
+    flex: 1;
+}
+.info-box h3 {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 4px;
+}
+.info-box .value {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+.info-box .value.score { color: #ffd32a; }
+
+/* 面板 */
+.panel {
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(12px);
+    border-radius: 24px;
+    padding: 28px 24px;
+    width: 100%;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* 骰子行 */
+.dice-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    min-height: 80px;
+    align-items: center;
+}
+
+/* 单个骰子 */
+.die {
+    width: 68px;
+    height: 68px;
+    background: linear-gradient(145deg, #ffffff, #e8e8e8);
+    border-radius: 14px;
+    box-shadow:
+        0 6px 18px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.9),
+        inset 0 -1px 0 rgba(0,0,0,0.1);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    padding: 8px;
+    gap: 2px;
+    position: relative;
+    flex-shrink: 0;
+}
+.die.rolling {
+    animation: shakeDice 0.08s linear infinite;
+}
+@keyframes shakeDice {
+    0%   { transform: rotate(0deg)   scale(1.0); }
+    25%  { transform: rotate(12deg)  scale(1.06); }
+    50%  { transform: rotate(-8deg)  scale(0.97); }
+    75%  { transform: rotate(6deg)   scale(1.04); }
+    100% { transform: rotate(-4deg)  scale(0.99); }
+}
+
+.dot {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: transparent;
+}
+.dot.on {
+    background: radial-gradient(circle at 35% 35%, #4a4a4a, #1a1a1a);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+}
+
+/* 结果展示 */
+.result-display {
+    min-height: 52px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.result-text {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+.result-text.win   { color: #4ecdc4; text-shadow: 0 0 12px rgba(78,205,196,0.6); }
+.result-text.lose  { color: #ff6b6b; text-shadow: 0 0 12px rgba(255,107,107,0.5); }
+.result-text.draw  { color: #ffd32a; text-shadow: 0 0 12px rgba(255,211,42,0.5); }
+.result-detail {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.7);
+}
+.result-points {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #ffd32a;
+    text-shadow: 2px 2px 0 rgba(255,107,53,0.5);
+}
+
+/* 押注按钮区 */
+.bet-area {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.bet-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+.btn-bet {
+    width: 120px;
+    height: 70px;
+    border: none;
+    border-radius: 18px;
+    font-size: 1.8rem;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+.btn-bet:active { transform: scale(0.95); }
+.btn-big   { background: linear-gradient(145deg, #ff6b6b, #ee5a5a); color: white; }
+.btn-small { background: linear-gradient(145deg, #4ecdc4, #3dbdb5); color: white; }
+.btn-odd   { background: linear-gradient(145deg, #a29bfe, #6c5ce7); color: white; }
+.btn-even  { background: linear-gradient(145deg, #fd79a8, #e84393); color: white; }
+.btn-bet:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(0,0,0,0.4); }
+.btn-bet.selected {
+    outline: 3px solid #ffd32a;
+    outline-offset: 3px;
+}
+
+/* 操作按钮 */
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.btn {
+    padding: 12px 26px;
+    border: none;
+    border-radius: 28px;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.25);
+}
+.btn-action {
+    background: linear-gradient(135deg, #ff6b35, #ffd32a);
+    color: #1a1a2e;
+    font-size: 1.1rem;
+    padding: 14px 32px;
+}
+.btn-action:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(255,107,53,0.5); }
+.btn-new { background: linear-gradient(135deg, #4ecdc4, #44a3aa); color: white; }
+.btn-roll-more { background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: white; }
+.btn-stand { background: linear-gradient(135deg, #fd79a8, #e84393); color: white; }
+.btn:hover { transform: translateY(-3px); }
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none !important;
+}
+.controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+/* 比大小 */
+.compare-sides {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+    flex-wrap: wrap;
+}
+.side {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 120px;
+}
+.side-label {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.8);
+}
+.side-score {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #ffd32a;
+    min-height: 2.2rem;
+}
+.side-vs {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.3);
+    flex-shrink: 0;
+}
+
+/* 21点 */
+.score-display {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.score-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+.score-label {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.6);
+}
+.score-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #ffd32a;
+    text-shadow: 2px 2px 0 rgba(255,107,53,0.4);
+}
+.score-value.bust {
+    color: #ff6b6b;
+}
+
+/* 移动端 */
+@media (max-width: 500px) {
+    .logo { font-size: 1.7rem; }
+    .info-box { padding: 10px 14px; min-width: 90px; }
+    .info-box .value { font-size: 1.5rem; }
+    .die { width: 58px; height: 58px; padding: 6px; }
+    .btn-bet { width: 100px; height: 60px; font-size: 1.5rem; }
+    .panel { padding: 20px 14px; }
+    .compare-sides { gap: 8px; }
+    .score-display { gap: 14px; }
+}

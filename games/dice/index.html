@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>骰子游戏 - 张七七的游戏乐园</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="page-bar" id="pageBar"></div>
+
+    <div class="floating-decorations">
+        <span class="floating-item">🎲</span>
+        <span class="floating-item">✨</span>
+        <span class="floating-item">⭐</span>
+        <span class="floating-item">🌟</span>
+    </div>
+
+    <header>
+        <div class="logo">🎲 骰子游戏</div>
+        <p class="subtitle">张七七的游戏乐园 | 猜大小 · 比大小 · 猜单双 · 21点</p>
+    </header>
+
+    <!-- 模式切换 -->
+    <div class="mode-tabs" id="modeTabs">
+        <button class="mode-tab active" data-mode="bigsmall">猜大小</button>
+        <button class="mode-tab" data-mode="compare">比大小</button>
+        <button class="mode-tab" data-mode="oddeven">猜单双</button>
+        <button class="mode-tab" data-mode="dice21">21点</button>
+    </div>
+
+    <div class="game-area">
+
+        <!-- 游戏规则 -->
+        <div class="rules-box" id="rulesBox">
+            <h3>📖 玩法说明</h3>
+            <div class="rules-content" id="rulesContent"></div>
+        </div>
+
+        <!-- 信息栏 -->
+        <div class="info-bar">
+            <div class="info-box">
+                <h3>🏆 最高分</h3>
+                <p class="value score" id="bestDisplay">0</p>
+            </div>
+            <div class="info-box">
+                <h3>📊 当前</h3>
+                <p class="value score" id="scoreDisplay">0</p>
+            </div>
+        </div>
+
+        <!-- 主游戏区域 -->
+        <div class="play-area" id="playArea">
+
+            <!-- 猜大小 / 猜单双 面板 -->
+            <div class="panel panel-guess" id="panelGuess">
+                <div class="dice-row" id="diceRow"></div>
+                <div class="result-display" id="resultDisplay"></div>
+                <div class="bet-area" id="betArea">
+                    <div class="bet-buttons" id="bigSmallBtns">
+                        <button class="btn-bet btn-big" id="btn-big">大</button>
+                        <button class="btn-bet btn-small" id="btn-small">小</button>
+                    </div>
+                    <div class="bet-buttons" id="oddEvenBtns" style="display:none;">
+                        <button class="btn-bet btn-odd" id="btn-odd">单</button>
+                        <button class="btn-bet btn-even" id="btn-even">双</button>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-action" id="btnRoll">🎲 掷骰子</button>
+                </div>
+            </div>
+
+            <!-- 比大小 面板 -->
+            <div class="panel panel-compare" id="panelCompare" style="display:none;">
+                <div class="compare-sides">
+                    <div class="side side-player">
+                        <div class="side-label">👤 你</div>
+                        <div class="dice-row" id="playerDiceRow"></div>
+                        <div class="side-score" id="playerTotal">-</div>
+                    </div>
+                    <div class="side-vs">VS</div>
+                    <div class="side side-ai">
+                        <div class="side-label">🤖 电脑</div>
+                        <div class="dice-row" id="aiDiceRow"></div>
+                        <div class="side-score" id="aiTotal">-</div>
+                    </div>
+                </div>
+                <div class="result-display" id="compareResult"></div>
+                <div class="action-buttons">
+                    <button class="btn btn-action" id="btnCompareRoll">🎲 掷骰子</button>
+                </div>
+            </div>
+
+            <!-- 21点 面板 -->
+            <div class="panel panel-21" id="panel21" style="display:none;">
+                <div class="score-display">
+                    <div class="score-box">
+                        <div class="score-label">你的点数</div>
+                        <div class="score-value" id="player21Score">0</div>
+                    </div>
+                    <div class="score-box">
+                        <div class="score-label">电脑点数</div>
+                        <div class="score-value" id="ai21Score">?</div>
+                    </div>
+                </div>
+                <div class="dice-row" id="dice21Row"></div>
+                <div class="result-display" id="result21Display"></div>
+                <div class="action-buttons" id="dice21Actions">
+                    <button class="btn btn-action btn-roll-more" id="btnDraw">➕ 再来一颗</button>
+                    <button class="btn btn-action btn-stand" id="btnStand">✋ 够了，停</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部控制 -->
+        <div class="controls">
+            <button class="btn btn-new" id="btnReplay">🔁 再来一局</button>
+            <button class="btn btn-new" id="btnSwitch">🔄 换个模式</button>
+        </div>
+    </div>
+
+    <script src="../../js/game-ui.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

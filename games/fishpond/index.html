@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>钓鱼吃牌 - Fish Pond</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <!-- 浮动装饰 -->
+  <div class="floating-decorations">
+    <span class="floating-item fi-1">🐟</span>
+    <span class="floating-item fi-2">🌊</span>
+    <span class="floating-item fi-3">🐠</span>
+    <span class="floating-item fi-4">🦀</span>
+    <span class="floating-item fi-5">🐙</span>
+    <span class="floating-item fi-6">🌊</span>
+    <span class="floating-item fi-7">🐡</span>
+    <span class="floating-item fi-8">🦈</span>
+    <span class="floating-item fi-9">🐟</span>
+    <span class="floating-item fi-10">🌊</span>
+    <span class="floating-item fi-11">🦑</span>
+    <span class="floating-item fi-12">🐠</span>
+  </div>
+
+  <!-- 页面工具栏 -->
+  <div class="page-bar">
+    <a href="../../index.html" class="bar-btn home-btn" title="返回主页">⌂</a>
+    <button class="bar-btn sound-btn" id="soundBtn" title="音效开关">🔊</button>
+  </div>
+
+  <!-- 标题区 -->
+  <header>
+    <h1 class="logo">🎣 钓鱼吃牌</h1>
+    <p class="subtitle">Fish Pond · 同点吃牌</p>
+  </header>
+
+  <!-- 游戏规则 -->
+  <div class="rules-box">
+    <h2>📜 游戏规则</h2>
+    <ul>
+      <li>使用一副去掉大小王的牌（52张）</li>
+      <li>电脑发4张明牌放在桌面中央，玩家发13张手牌</li>
+      <li>玩家轮流出牌，出的牌如果和桌面上某张牌面相同（花色不同但点数相同），则吃掉这两张之间的所有牌（含两端）</li>
+      <li>如果桌面上没有匹配的牌，出的牌留在桌面</li>
+      <li>轮换：玩家出完手牌后，从桌面补满4张（如果牌堆还有），然后电脑出牌</li>
+      <li>最后比较双方手中剩余牌数，牌少者赢</li>
+      <li>额外规则：如果吃到桌上所有牌（清台），奖励+3分</li>
+    </ul>
+  </div>
+
+  <!-- 游戏区域 -->
+  <main class="game-area">
+    <!-- 信息栏 -->
+    <div class="info-bar">
+      <div class="info-box">
+        <h3>回合</h3>
+        <div class="value round" id="roundNum">0</div>
+      </div>
+      <div class="info-box">
+        <h3>玩家得分</h3>
+        <div class="value player-score" id="playerScore">0</div>
+      </div>
+      <div class="info-box">
+        <h3>电脑得分</h3>
+        <div class="value ai-score" id="aiScore">0</div>
+      </div>
+      <div class="info-box">
+        <h3>牌堆剩余</h3>
+        <div class="value deck-left" id="deckLeft">35</div>
+      </div>
+    </div>
+
+    <!-- 回合指示器 -->
+    <div class="turn-indicator" id="turnIndicator">
+      <span class="turn-text">🎴 点击"开始游戏"洗牌发牌</span>
+    </div>
+
+    <!-- 电脑区域 -->
+    <div class="hand-section ai-section">
+      <h2>电脑 🖥️ <span class="hand-count" id="aiCardCount">(0张)</span></h2>
+      <div class="cards-container" id="aiCards">
+        <div class="empty-hint">等待发牌...</div>
+      </div>
+    </div>
+
+    <!-- 桌面区域 -->
+    <div class="table-section" id="tableSection">
+      <h2>🏝️ 桌面 <span class="table-count" id="tableCardCount">(0张)</span></h2>
+      <div class="table-cards-container" id="tableCards">
+        <div class="empty-hint">等待发牌...</div>
+      </div>
+      <div class="table-message" id="tableMessage"></div>
+    </div>
+
+    <!-- 吃牌动画区域 -->
+    <div class="capture-zone" id="captureZone"></div>
+
+    <!-- 结果显示 -->
+    <div class="result-display" id="resultDisplay">
+      <div class="result-text" id="resultText"></div>
+    </div>
+
+    <!-- 玩家区域 -->
+    <div class="hand-section player-section">
+      <h2>玩家 👤 <span class="hand-count" id="playerCardCount">(0张)</span></h2>
+      <div class="cards-container" id="playerCards">
+        <div class="empty-hint">等待发牌...</div>
+      </div>
+    </div>
+
+    <!-- 操作提示 -->
+    <div class="action-hint" id="actionHint"></div>
+
+    <!-- 操作按钮 -->
+    <div class="controls" id="gameControls">
+      <button class="btn btn-start" id="btnStart">🎣 开始游戏</button>
+      <button class="btn btn-new" id="btnNew" style="display: none;">🔄 再来一局</button>
+    </div>
+  </main>
+
+  <script src="../../js/game-ui.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>

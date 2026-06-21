@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💰 十点半</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body class="no-select">
+  <!-- Floating Decorations -->
+  <div class="floating-decorations">
+    <span class="deco deco-1">💰</span>
+    <span class="deco deco-2">🪙</span>
+    <span class="deco deco-3">⭐</span>
+    <span class="deco deco-4">✨</span>
+    <span class="deco deco-5">🪙</span>
+    <span class="deco deco-6">💎</span>
+    <span class="deco deco-7">⭐</span>
+    <span class="deco deco-8">✨</span>
+    <span class="deco deco-9">💰</span>
+    <span class="deco deco-10">🪙</span>
+  </div>
+
+  <!-- Page Bar -->
+  <div class="page-bar">
+    <a href="../../index.html" class="bar-btn home-btn" aria-label="返回主页">🏠</a>
+    <button type="button" class="bar-btn sound-btn" aria-label="音效开关" title="音效开关">🔊</button>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Header -->
+    <header class="game-header">
+      <h1 class="game-title">💰 十点半</h1>
+      <p class="game-subtitle">经典纸牌 · 智慧博弈</p>
+    </header>
+
+    <!-- Rules Box -->
+    <section class="rules-box">
+      <h2>📜 游戏规则</h2>
+      <ul class="rules-list">
+        <li>🎴 使用52张牌（去掉大小王）</li>
+        <li>🎯 目标：点数尽量接近但不超过10.5</li>
+        <li>📊 点数计算：2-10按面值，J/Q/K=0.5，A=1或0.5（取最优）</li>
+        <li>🃏 点击「要牌」继续拿牌，「停牌」结束回合</li>
+        <li>💥 超过10.5立即爆掉，当局失败</li>
+        <li>🤖 庄家策略：&lt;7必补，7-8.5可选，≥9必停</li>
+        <li>🏆 最接近10.5者获胜</li>
+      </ul>
+    </section>
+
+    <!-- Game Area -->
+    <main class="game-area">
+      <!-- Dealer Section -->
+      <section class="dealer-section">
+        <h2 class="section-title">🎰 庄家 <span id="dealer-points" class="points-badge">-</span></h2>
+        <div id="dealer-cards" class="cards-container"></div>
+      </section>
+
+      <!-- Center Info -->
+      <div class="center-info">
+        <div id="game-status" class="game-status">
+          <span class="status-text">准备开始</span>
+        </div>
+        <button id="new-game-btn" class="btn btn-primary btn-start">
+          <span>🎮 开始游戏</span>
+        </button>
+      </div>
+
+      <!-- Player Section -->
+      <section class="player-section">
+        <h2 class="section-title">👤 玩家 <span id="player-points" class="points-badge safe">0</span></h2>
+        <div id="player-cards" class="cards-container"></div>
+      </section>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button id="hit-btn" class="btn btn-warning btn-hit" disabled>
+          <span>🃏 要牌</span>
+        </button>
+        <button id="stand-btn" class="btn btn-danger btn-stand" disabled>
+          <span>✋ 停牌</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- Info Bar -->
+    <footer class="info-bar">
+      <div class="stat-item">
+        <span class="stat-label">本局胜场</span>
+        <span id="wins-count" class="stat-value">0</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-label">最佳点数</span>
+        <span id="best-score" class="stat-value">-</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Win Animation Container -->
+  <div id="win-overlay" class="win-overlay hidden">
+    <div class="win-particles"></div>
+  </div>
+
+  <script src="../../js/game-ui.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>

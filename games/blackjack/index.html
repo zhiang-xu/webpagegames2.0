@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>二十一点 - Blackjack</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <!-- 浮动装饰 -->
+  <div class="floating-decorations">
+    <span class="floating-item">🃏</span>
+    <span class="floating-item">♠</span>
+    <span class="floating-item">♥</span>
+    <span class="floating-item">♦</span>
+    <span class="floating-item">♣</span>
+    <span class="floating-item">🂡</span>
+    <span class="floating-item">🂱</span>
+    <span class="floating-item">🎰</span>
+  </div>
+
+  <!-- 页面工具栏 -->
+  <div class="page-bar">
+    <a href="../../index.html" class="bar-btn home-btn" title="返回主页">⌂</a>
+    <button class="bar-btn sound-btn" id="soundBtn" title="音效开关">🔊</button>
+  </div>
+
+  <!-- 标题区 -->
+  <header>
+    <h1 class="logo">🃏 二十一点</h1>
+    <p class="subtitle">挑战庄家，试试你的运气！</p>
+  </header>
+
+  <!-- 游戏规则 -->
+  <div class="rules-box">
+    <h2>📜 游戏规则</h2>
+    <ul>
+      <li>使用一副52张扑克牌（去掉大小王）</li>
+      <li>玩家和庄家各发2张牌，玩家牌明牌，庄家第一张暗牌</li>
+      <li>2-10按牌面计算，J/Q/K=10点，A可以算1点或11点（取最优）</li>
+      <li>玩家可以选择"要牌"增加点数，或"停牌"保持当前点数</li>
+      <li>如果点数超过21点，立刻爆牌输掉</li>
+      <li>玩家停牌后，庄家自动要牌（必须达到17点以上才能停）</li>
+      <li>接近21点获胜，双方都没爆则比较点数大小</li>
+    </ul>
+  </div>
+
+  <!-- 游戏区域 -->
+  <main class="game-area">
+    <!-- 信息栏 -->
+    <div class="info-bar">
+      <div class="info-box">
+        <h3>当前分数</h3>
+        <div class="value score" id="currentScore">0</div>
+      </div>
+      <div class="info-box">
+        <h3>最高纪录</h3>
+        <div class="value best" id="bestScore">0</div>
+      </div>
+      <div class="info-box">
+        <h3>胜场</h3>
+        <div class="value wins" id="wins">0</div>
+      </div>
+    </div>
+
+    <!-- 庄家区域 -->
+    <div class="hand-section dealer-section">
+      <h2>庄家 <span class="hand-score" id="dealerScore"></span></h2>
+      <div class="cards-container" id="dealerCards"></div>
+    </div>
+
+    <!-- 结果显示 -->
+    <div class="result-display" id="resultDisplay">
+      <div class="result-text" id="resultText"></div>
+    </div>
+
+    <!-- 玩家区域 -->
+    <div class="hand-section player-section">
+      <h2>玩家 <span class="hand-score" id="playerScore"></span></h2>
+      <div class="cards-container" id="playerCards"></div>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="controls" id="gameControls">
+      <button class="btn btn-deal" id="btnDeal">发牌</button>
+      <button class="btn btn-hit" id="btnHit" disabled>要牌</button>
+      <button class="btn btn-stand" id="btnStand" disabled>停牌</button>
+      <button class="btn btn-new" id="btnNew" style="display: none;">再来一局</button>
+    </div>
+  </main>
+
+  <script src="../../js/game-ui.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>

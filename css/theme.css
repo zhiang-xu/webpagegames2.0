@@ -233,6 +233,18 @@ header {
 .game-card:nth-child(11) .game-play-btn { background: linear-gradient(135deg, #e74c3c, #c0392b); }
 .game-card:nth-child(12) .game-icon,
 .game-card:nth-child(12) .game-play-btn { background: linear-gradient(135deg, #7cb342, #558b2f); }
+.game-card:nth-child(13) .game-icon,
+.game-card:nth-child(13) .game-play-btn { background: linear-gradient(135deg, #ff8c42, #ff6b35); }
+.game-card:nth-child(14) .game-icon,
+.game-card:nth-child(14) .game-play-btn { background: linear-gradient(135deg, #c0392b, #922b21); }
+.game-card:nth-child(15) .game-icon,
+.game-card:nth-child(15) .game-play-btn { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.game-card:nth-child(16) .game-icon,
+.game-card:nth-child(16) .game-play-btn { background: linear-gradient(135deg, #0ea5e9, #0284c7); }
+.game-card:nth-child(17) .game-icon,
+.game-card:nth-child(17) .game-play-btn { background: linear-gradient(135deg, #7c3aed, #6d28d9); }
+.game-card:nth-child(18) .game-icon,
+.game-card:nth-child(18) .game-play-btn { background: linear-gradient(135deg, #64748b, #475569); }
 
 .game-info {
   padding: 20px;

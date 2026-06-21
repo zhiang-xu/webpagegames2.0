@@ -2,12 +2,18 @@
     const pageAudio = window.GamePageUI.mount({ home: true, sound: true, muted: false });
 
     // ---- 难度配置 ----
+    // pipeInterval: 相邻水管在屏幕上间隔多少帧（60fps基准，与pipeSpeed解耦）
     const DIFFICULTY = {
-        easy:   { pipeSpeed: 2.0, gapHeight: 160, pipeInterval: 220, label: 'easy' },
-        medium: { pipeSpeed: 2.8, gapHeight: 130, pipeInterval: 180, label: 'medium' },
-        hard:   { pipeSpeed: 3.6, gapHeight: 105, pipeInterval: 150, label: 'hard' },
-        expert: { pipeSpeed: 4.5, gapHeight: 82,  pipeInterval: 120, label: 'expert' }
+        easy:   { pipeSpeed: 1.8, gapHeight: 145, pipeInterval: 200, label: 'easy' },
+        medium: { pipeSpeed: 2.5, gapHeight: 120, pipeInterval: 160, label: 'medium' },
+        hard:   { pipeSpeed: 3.2, gapHeight: 100, pipeInterval: 125, label: 'hard' },
+        expert: { pipeSpeed: 4.0, gapHeight: 82,  pipeInterval: 95,  label: 'expert' }
     };
+
+    // ---- 物理常量 ----
+    const GRAVITY    = 0.22;   // 每帧重力加速度
+    const FLAP_POWER = -4.5;   // 扇翅初速度（向上为负）
+    const MAX_VY_UP  = -7.0;   // 向上速度上限，防止一飞冲天
 
     const LOGICAL_W = 320;
     const LOGICAL_H = 480;
@@ -92,6 +98,7 @@
         goOverlay.classList.remove('show');
         overlay.style.display = 'flex';
         gameState = 'idle';
+        startIdleLoop();
         pageAudio.play('start');
     }
 
@@ -104,9 +111,10 @@
 
     function startGame() {
         if (gameState !== 'idle') return;
+        stopIdleLoop();
         overlay.style.display = 'none';
         gameState = 'playing';
-        bird.vy = -6.5;
+        bird.vy = FLAP_POWER;
         pageAudio.play('tap');
         requestAnimationFrame(loop);
     }
@@ -117,7 +125,7 @@
             return;
         }
         if (gameState !== 'playing') return;
-        bird.vy = -6.5;
+        bird.vy = FLAP_POWER;
         bird.flapPhase = 1;
         pageAudio.play('tap');
     }
@@ -152,11 +160,11 @@
         const cfg = DIFFICULTY[difficulty];
         const topY = CEIL_H;
 
-        // 重力 + 移动
-        bird.vy += 0.32 * dt;
+        // 重力 + 移动（速度上限防止冲天）
+        bird.vy = Math.min(bird.vy + GRAVITY * dt, MAX_VY_UP);
         bird.y  += bird.vy * dt;
-        bird.rotation = Math.min(Math.max(bird.vy * 4, -25), 90);
-        if (bird.flapPhase > 0) bird.flapPhase -= 0.15 * dt;
+        bird.rotation = Math.min(Math.max(bird.vy * 5, -30), 80);
+        if (bird.flapPhase > 0) bird.flapPhase -= 0.12 * dt;
 
         // 撞天 / 撞地
         if (bird.y < topY) {
@@ -172,8 +180,8 @@
         // 地板滚动
         groundX = (groundX - cfg.pipeSpeed * dt) % 24;
 
-        // 生成水管
-        pipeTimer += cfg.pipeSpeed * dt;
+        // 生成水管（按帧数计时，与物理速度解耦）
+        pipeTimer += dt;
         if (pipeTimer >= cfg.pipeInterval) {
             pipeTimer = 0;
             const minTop = topY + 50;
@@ -421,10 +429,11 @@
 
     // ---- 闲置状态绘制 ----
     function drawIdle() {
+        // 暂存游戏物理位置，绘制时用正弦浮动替代
+        const savedY = bird.y;
+        bird.y = LOGICAL_H / 2 - 40 + Math.sin(Date.now() * 0.003) * 8;
         draw();
-        // 在小鸟位置画一只漂浮的小鸟
-        const idleY = LOGICAL_H / 2 - 40 + Math.sin(Date.now() * 0.003) * 8;
-        drawBird(bird.x, idleY, 0, Math.abs(Math.sin(Date.now() * 0.008)));
+        bird.y = savedY;
     }
 
     // ---- 输入绑定 ----
@@ -459,10 +468,23 @@
     }
 
     // ---- 闲置动画循环 ----
+    let idleRafId = null;
     function idleLoop() {
-        if (gameState !== 'idle') return;
+        if (gameState !== 'idle') { idleRafId = null; return; }
         drawIdle();
-        requestAnimationFrame(idleLoop);
+        idleRafId = requestAnimationFrame(idleLoop);
+    }
+
+    function startIdleLoop() {
+        if (idleRafId) return;
+        idleRafId = requestAnimationFrame(idleLoop);
+    }
+
+    function stopIdleLoop() {
+        if (idleRafId) {
+            cancelAnimationFrame(idleRafId);
+            idleRafId = null;
+        }
     }
 
     // ---- 读取最高分 ----
@@ -481,7 +503,7 @@
         initBgElements();
         bindInput();
         draw();
-        idleLoop();
+        startIdleLoop();
 
         window.addEventListener('resize', () => {
             computeScale();

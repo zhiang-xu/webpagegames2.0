@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>抽乌龟 - Old Maid</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/base.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <!-- 浮动装饰 -->
+  <div class="floating-decorations">
+    <span class="floating-item">🃏</span>
+    <span class="floating-item">🕷️</span>
+    <span class="floating-item">👻</span>
+    <span class="floating-item">🃟</span>
+    <span class="floating-item">🎴</span>
+    <span class="floating-item">🂡</span>
+    <span class="floating-item">🦇</span>
+    <span class="floating-item">💀</span>
+  </div>
+
+  <!-- 页面工具栏 -->
+  <div class="page-bar">
+    <a href="../../index.html" class="bar-btn home-btn" title="返回主页">⌂</a>
+    <button class="bar-btn sound-btn" id="soundBtn" title="音效开关">🔊</button>
+  </div>
+
+  <!-- 标题区 -->
+  <header>
+    <h1 class="logo">🧛 抽乌龟</h1>
+    <p class="subtitle">抽鬼牌 · Old Maid</p>
+  </header>
+
+  <!-- 游戏规则 -->
+  <div class="rules-box">
+    <h2>📜 游戏规则</h2>
+    <ul>
+      <li>使用24张牌：4种花色 × 6种点数（7、8、9、10、J、Q）</li>
+      <li>其中一张Q作为"乌龟/鬼牌"（🕷️ 蜘蛛标记）</li>
+      <li>玩家和电脑轮流从对方手牌中随机抽取一张</li>
+      <li>抽到的牌如果能与手中某张牌配对（同点数），则丢出这对牌</li>
+      <li>抽到最后如果手里只剩一张"鬼牌"，持有者就输啦！</li>
+    </ul>
+  </div>
+
+  <!-- 游戏区域 -->
+  <main class="game-area">
+    <!-- 状态显示 -->
+    <div class="turn-indicator" id="turnIndicator">
+      <span class="turn-text">🎴 点击"开始游戏"洗牌发牌</span>
+    </div>
+
+    <!-- 信息栏 -->
+    <div class="info-bar">
+      <div class="info-box">
+        <h3>胜场</h3>
+        <div class="value wins" id="wins">0</div>
+      </div>
+      <div class="info-box">
+        <h3>最高连胜</h3>
+        <div class="value best" id="bestStreak">0</div>
+      </div>
+      <div class="info-box">
+        <h3>当前连胜</h3>
+        <div class="value streak" id="currentStreak">0</div>
+      </div>
+    </div>
+
+    <!-- 电脑区域 -->
+    <div class="hand-section ai-section">
+      <h2>电脑 🖥️ <span class="hand-count" id="aiCardCount">(0张)</span></h2>
+      <div class="cards-container" id="aiCards">
+        <div class="empty-hint">等待发牌...</div>
+      </div>
+    </div>
+
+    <!-- 结果显示 -->
+    <div class="result-display" id="resultDisplay">
+      <div class="result-text" id="resultText"></div>
+    </div>
+
+    <!-- 玩家区域 -->
+    <div class="hand-section player-section">
+      <h2>玩家 👤 <span class="hand-count" id="playerCardCount">(0张)</span></h2>
+      <div class="cards-container" id="playerCards">
+        <div class="empty-hint">等待发牌...</div>
+      </div>
+    </div>
+
+    <!-- 操作提示 -->
+    <div class="action-hint" id="actionHint"></div>
+
+    <!-- 操作按钮 -->
+    <div class="controls" id="gameControls">
+      <button class="btn btn-start" id="btnStart">🎴 开始游戏</button>
+      <button class="btn btn-new" id="btnNew" style="display: none;">🔄 再来一局</button>
+    </div>
+  </main>
+
+  <script src="../../js/game-ui.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>

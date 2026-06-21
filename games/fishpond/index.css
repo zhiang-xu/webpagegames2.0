@@ -1,0 +1,952 @@
+/* =============================================
+   index.css — 钓鱼吃牌游戏样式
+   主题：海洋蓝 (#0ea5e9, #0284c7)
+   ============================================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Comic Neue', 'Noto Sans SC', cursive, sans-serif;
+  background: linear-gradient(180deg, #0c2340 0%, #0a3d62 30%, #0284c7 60%, #0ea5e9 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+  padding-bottom: 40px;
+  position: relative;
+}
+
+/* 波浪背景动画 */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(14, 165, 233, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(2, 132, 199, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(56, 189, 248, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 浮动装饰 */
+.floating-decorations {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.floating-item {
+  position: absolute;
+  font-size: 2rem;
+  opacity: 0.15;
+  animation: swim linear infinite;
+}
+
+.fi-1 { top: 5%; left: -5%; animation: swim1 25s linear infinite; }
+.fi-2 { top: 15%; left: -5%; animation: swim2 30s linear infinite; animation-delay: 2s; }
+.fi-3 { top: 25%; left: -5%; animation: swim1 28s linear infinite; animation-delay: 5s; }
+.fi-4 { top: 40%; left: -5%; animation: swim2 35s linear infinite; animation-delay: 8s; }
+.fi-5 { top: 55%; left: -5%; animation: swim1 22s linear infinite; animation-delay: 3s; }
+.fi-6 { top: 70%; left: -5%; animation: swim2 32s linear infinite; animation-delay: 6s; }
+.fi-7 { top: 85%; left: -5%; animation: swim1 26s linear infinite; animation-delay: 1s; }
+.fi-8 { top: 10%; left: -5%; animation: swim3 40s linear infinite; animation-delay: 10s; }
+.fi-9 { top: 35%; left: -5%; animation: swim1 20s linear infinite; animation-delay: 7s; }
+.fi-10 { top: 50%; left: -5%; animation: swim2 38s linear infinite; animation-delay: 12s; }
+.fi-11 { top: 65%; left: -5%; animation: swim3 45s linear infinite; animation-delay: 4s; }
+.fi-12 { top: 80%; left: -5%; animation: swim1 33s linear infinite; animation-delay: 9s; }
+
+@keyframes swim1 {
+  0% { transform: translateX(0) translateY(0) rotate(0deg); }
+  25% { transform: translateX(calc(100vw + 50px)) translateY(-15px) rotate(5deg); }
+  50% { transform: translateX(calc(100vw + 50px)) translateY(10px) rotate(-3deg); }
+  75% { transform: translateX(0) translateY(-10px) rotate(5deg); }
+  100% { transform: translateX(0) translateY(0) rotate(0deg); }
+}
+
+@keyframes swim2 {
+  0% { transform: translateX(0) translateY(0) rotate(0deg); }
+  25% { transform: translateX(calc(100vw + 50px)) translateY(20px) rotate(-5deg); }
+  50% { transform: translateX(calc(100vw + 50px)) translateY(-5px) rotate(3deg); }
+  75% { transform: translateX(0) translateY(15px) rotate(-5deg); }
+  100% { transform: translateX(0) translateY(0) rotate(0deg); }
+}
+
+@keyframes swim3 {
+  0% { transform: translateX(0) translateY(0) rotate(0deg) scale(1); }
+  25% { transform: translateX(calc(100vw + 50px)) translateY(-25px) rotate(8deg) scale(1.1); }
+  50% { transform: translateX(calc(100vw + 50px)) translateY(5px) rotate(-2deg) scale(0.9); }
+  75% { transform: translateX(0) translateY(-20px) rotate(8deg) scale(1.05); }
+  100% { transform: translateX(0) translateY(0) rotate(0deg) scale(1); }
+}
+
+/* 页面工具栏 */
+.page-bar {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 16px;
+  margin: 10px auto;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+.page-bar .bar-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  color: #fff;
+}
+
+.page-bar .bar-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4);
+}
+
+.page-bar .bar-btn:active {
+  transform: scale(0.95);
+}
+
+.page-bar .bar-btn.home-btn {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+}
+
+.page-bar .bar-btn.sound-btn {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+}
+
+.page-bar .bar-btn.sound-btn.is-muted {
+  background: #9ca3af;
+}
+
+/* 标题 */
+header {
+  text-align: center;
+  padding: 15px 20px 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.logo {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 3px 3px 0 #0284c7, 6px 6px 15px rgba(0, 0, 0, 0.3);
+  animation: bob 3s ease-in-out infinite;
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-top: 5px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* 规则框 */
+.rules-box {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 700px);
+  margin: 0 20px 18px;
+  padding: 16px 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 3px dashed #0ea5e9;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+  text-align: left;
+}
+
+.rules-box h2 {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  color: #0284c7;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rules-box ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #374151;
+  line-height: 1.7;
+}
+
+.rules-box li + li {
+  margin-top: 5px;
+}
+
+/* 游戏区域 */
+.game-area {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px 20px;
+  width: 100%;
+  max-width: 900px;
+}
+
+/* 回合指示器 */
+.turn-indicator {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.9), rgba(2, 132, 199, 0.9));
+  padding: 12px 24px;
+  border-radius: 30px;
+  box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+  border: 2px solid rgba(56, 189, 248, 0.5);
+}
+
+.turn-text {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* 信息栏 */
+.info-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.info-box {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 18px;
+  padding: 14px 20px;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  min-width: 95px;
+  border: 2px solid rgba(14, 165, 233, 0.3);
+}
+
+.info-box h3 {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.info-box .value {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.info-box .value.round {
+  color: #0ea5e9;
+}
+
+.info-box .value.player-score {
+  color: #0284c7;
+}
+
+.info-box .value.ai-score {
+  color: #0369a1;
+}
+
+.info-box .value.deck-left {
+  color: #64748b;
+  font-size: 1.4rem;
+}
+
+/* 手牌区域 */
+.hand-section {
+  width: 100%;
+  text-align: center;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  border: 2px solid rgba(14, 165, 233, 0.2);
+  transition: all 0.3s ease;
+}
+
+.hand-section.active {
+  border-color: rgba(14, 165, 233, 0.6);
+  box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+}
+
+.hand-section h2 {
+  color: #f0f9ff;
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.hand-count {
+  font-size: 0.9rem;
+  color: #7dd3fc;
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+/* 桌面区域 */
+.table-section {
+  width: 100%;
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.15) 0%, rgba(2, 132, 199, 0.2) 100%);
+  border-radius: 24px;
+  border: 3px solid rgba(56, 189, 248, 0.4);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    inset 0 2px 20px rgba(56, 189, 248, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.table-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+.table-section h2 {
+  color: #e0f2fe;
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.table-count {
+  font-size: 0.9rem;
+  color: #7dd3fc;
+  font-weight: 400;
+  margin-left: 8px;
+}
+
+/* 牌容器 */
+.cards-container {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 110px;
+  align-items: center;
+  padding: 10px;
+}
+
+.table-cards-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-height: 130px;
+  align-items: center;
+  padding: 15px;
+}
+
+.empty-hint {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1rem;
+  font-style: italic;
+}
+
+.table-message {
+  color: #7dd3fc;
+  font-size: 1rem;
+  font-weight: 700;
+  min-height: 24px;
+  margin-top: 10px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 扑克牌样式 */
+.card {
+  width: 70px;
+  height: 100px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 6px;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: default;
+  animation: dealCard 0.4s ease-out;
+}
+
+/* 海浪纹理边框 */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  border: 2px solid transparent;
+  border-image: repeating-linear-gradient(
+    45deg,
+    #0ea5e9,
+    #0ea5e9 4px,
+    transparent 4px,
+    transparent 8px
+  ) 1;
+  border-radius: 7px;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+@keyframes dealCard {
+  0% {
+    transform: translateY(-80px) rotate(-20deg) scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(8px) rotate(5deg) scale(1.05);
+  }
+  100% {
+    transform: translateY(0) rotate(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.card.clickable {
+  cursor: pointer;
+}
+
+.card.clickable:hover {
+  transform: translateY(-10px) scale(1.08);
+  box-shadow: 0 12px 25px rgba(14, 165, 233, 0.4);
+}
+
+.card.selected {
+  transform: translateY(-15px) scale(1.1);
+  box-shadow: 0 15px 30px rgba(14, 165, 233, 0.5);
+  border: 3px solid #0ea5e9;
+}
+
+/* 牌的角落 */
+.card-corner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.card-corner.bottom {
+  align-self: flex-end;
+  transform: rotate(180deg);
+}
+
+.card-rank {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.card-suit {
+  font-size: 0.9rem;
+}
+
+/* 牌中心 */
+.card-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+}
+
+/* 红心、红方块 */
+.card.red .card-rank,
+.card.red .card-suit,
+.card.red .card-center {
+  color: #dc2626;
+}
+
+/* 黑桃、梅花 */
+.card.black .card-rank,
+.card.black .card-suit,
+.card.black .card-center {
+  color: #1f2937;
+}
+
+/* 牌背面 */
+.card.back {
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%);
+  border: 3px solid #7dd3fc;
+}
+
+.card.back::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 5px,
+    rgba(255, 255, 255, 0.1) 5px,
+    rgba(255, 255, 255, 0.1) 10px
+  );
+}
+
+.card.back .card-center {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 2.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 吃牌动画相关 */
+.card.captured {
+  animation: captured 0.6s ease-out forwards;
+}
+
+@keyframes captured {
+  0% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1.3) translateY(-20px);
+    opacity: 1;
+    box-shadow: 0 0 30px rgba(14, 165, 233, 0.8);
+  }
+  100% {
+    transform: scale(0) translateY(50px);
+    opacity: 0;
+  }
+}
+
+.card.match-highlight {
+  animation: matchGlow 0.5s ease-in-out;
+}
+
+@keyframes matchGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(14, 165, 233, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px 10px rgba(14, 165, 233, 0.6);
+  }
+}
+
+.card.fly-to-player {
+  animation: flyToPlayer 0.5s ease-in forwards;
+}
+
+.card.fly-to-ai {
+  animation: flyToAI 0.5s ease-in forwards;
+}
+
+@keyframes flyToPlayer {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2) translateY(50px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.5) translateY(100px);
+    opacity: 0;
+  }
+}
+
+@keyframes flyToAI {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2) translateY(-50px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.5) translateY(-100px);
+    opacity: 0;
+  }
+}
+
+/* 吃牌动画区域 */
+.capture-zone {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 500;
+}
+
+.capture-splash {
+  position: absolute;
+  font-size: 3rem;
+  animation: splash 0.8s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes splash {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* 清台特效 */
+.table-cleared {
+  animation: tableClear 1s ease-out;
+}
+
+@keyframes tableClear {
+  0% {
+    background: linear-gradient(180deg, rgba(14, 165, 233, 0.15) 0%, rgba(2, 132, 199, 0.2) 100%);
+  }
+  50% {
+    background: linear-gradient(180deg, rgba(56, 189, 248, 0.5) 0%, rgba(14, 165, 233, 0.6) 100%);
+    box-shadow: 0 0 50px rgba(56, 189, 248, 0.8);
+  }
+  100% {
+    background: linear-gradient(180deg, rgba(14, 165, 233, 0.15) 0%, rgba(2, 132, 199, 0.2) 100%);
+  }
+}
+
+/* 结果显示 */
+.result-display {
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.result-text {
+  font-size: 1.6rem;
+  font-weight: 700;
+  padding: 15px 35px;
+  border-radius: 20px;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.4s ease;
+}
+
+.result-text.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.result-text.win {
+  color: #fff;
+  background: linear-gradient(135deg, #0284c7, #0ea5e9);
+  box-shadow: 0 8px 25px rgba(2, 132, 199, 0.5);
+  animation: pulseWin 1s ease-in-out infinite;
+}
+
+.result-text.lose {
+  color: #fff;
+  background: linear-gradient(135deg, #475569, #64748b);
+  box-shadow: 0 8px 25px rgba(71, 85, 105, 0.5);
+}
+
+.result-text.bonus {
+  color: #fff;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
+}
+
+@keyframes pulseWin {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* 操作提示 */
+.action-hint {
+  color: #7dd3fc;
+  font-size: 1rem;
+  min-height: 30px;
+  text-align: center;
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  animation: hintPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* 操作按钮 */
+.controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn {
+  padding: 14px 30px;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-start {
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  color: white;
+}
+
+.btn-start:hover:not(:disabled) {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
+}
+
+.btn-new {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  color: white;
+}
+
+.btn-new:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7dd3fc, #38bdf8);
+  box-shadow: 0 8px 25px rgba(56, 189, 248, 0.4);
+}
+
+/* 发牌动画延迟 */
+.card:nth-child(1) { animation-delay: 0s; }
+.card:nth-child(2) { animation-delay: 0.08s; }
+.card:nth-child(3) { animation-delay: 0.16s; }
+.card:nth-child(4) { animation-delay: 0.24s; }
+.card:nth-child(5) { animation-delay: 0.32s; }
+.card:nth-child(6) { animation-delay: 0.4s; }
+.card:nth-child(7) { animation-delay: 0.48s; }
+.card:nth-child(8) { animation-delay: 0.56s; }
+.card:nth-child(9) { animation-delay: 0.64s; }
+.card:nth-child(10) { animation-delay: 0.72s; }
+.card:nth-child(11) { animation-delay: 0.8s; }
+.card:nth-child(12) { animation-delay: 0.88s; }
+.card:nth-child(13) { animation-delay: 0.96s; }
+
+/* 移动端适配 */
+@media (max-width: 700px) {
+  .logo {
+    font-size: 1.8rem;
+  }
+
+  .rules-box {
+    margin: 0 10px 15px;
+    padding: 14px 16px;
+  }
+
+  .rules-box h2 {
+    font-size: 1rem;
+  }
+
+  .rules-box li {
+    font-size: 0.85rem;
+  }
+
+  .info-bar {
+    gap: 8px;
+  }
+
+  .info-box {
+    padding: 10px 14px;
+    min-width: 80px;
+  }
+
+  .info-box .value {
+    font-size: 1.5rem;
+  }
+
+  .card {
+    width: 55px;
+    height: 80px;
+  }
+
+  .card-rank {
+    font-size: 0.9rem;
+  }
+
+  .card-suit {
+    font-size: 0.7rem;
+  }
+
+  .card-center {
+    font-size: 1.5rem;
+  }
+
+  .cards-container {
+    gap: 5px;
+    min-height: 95px;
+  }
+
+  .table-cards-container {
+    gap: 6px;
+    min-height: 110px;
+    padding: 10px;
+  }
+
+  .hand-section {
+    padding: 12px;
+  }
+
+  .hand-section h2 {
+    font-size: 1rem;
+  }
+
+  .table-section {
+    padding: 15px;
+  }
+
+  .table-section h2 {
+    font-size: 1.1rem;
+  }
+
+  .controls {
+    gap: 8px;
+  }
+
+  .btn {
+    padding: 12px 22px;
+    font-size: 1rem;
+  }
+
+  .result-text {
+    font-size: 1.4rem;
+    padding: 12px 25px;
+  }
+
+  .turn-indicator {
+    padding: 10px 18px;
+  }
+
+  .turn-text {
+    font-size: 1rem;
+  }
+
+  .action-hint {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .card {
+    width: 45px;
+    height: 65px;
+    padding: 4px;
+  }
+
+  .card-rank {
+    font-size: 0.75rem;
+  }
+
+  .card-suit {
+    font-size: 0.6rem;
+  }
+
+  .card-center {
+    font-size: 1.2rem;
+  }
+
+  .table-cards-container {
+    gap: 4px;
+    min-height: 90px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+
+  .info-box .value {
+    font-size: 1.3rem;
+  }
+}
