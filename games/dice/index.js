@@ -94,11 +94,13 @@
             els.push(el);
         }
 
-        // 预计算每颗骰子的最终停留坐标（碗内居中+随机偏移）
+        // 预计算每颗骰子的最终停留坐标（碗内居中）
+        var finalY = (trayH - diceW) / 2;
         var finalPositions = [];
         for (var i = 0; i < numDice; i++) {
             finalPositions.push({
                 x:    startX + i * (diceW + gap),
+                y:    finalY,
                 rot:  Math.random() * 360,
                 delay: i * 60,
                 // 随机旋转方向和速度
@@ -135,10 +137,10 @@
                 if (t < fp.fallDur) {
                     // 阶段1：掉落（0 → fallDur）
                     var pt = t / fp.fallDur;
-                    var y    = (1 - easeOutBounce(pt)) * -(trayH / 2 + 10);
+                    var fallY = (1 - easeOutBounce(pt)) * -(trayH / 2 + 10);
                     var rot  = fp.spinDir * fp.spinSpeed * 3 * pt;
                     var xOff = Math.sin(pt * Math.PI * 3) * 6;
-                    el.style.transform = 'translate(' + (fp.x + xOff).toFixed(1) + 'px,' + y.toFixed(1) + 'px) rotate(' + rot.toFixed(1) + 'deg)';
+                    el.style.transform = 'translate(' + (fp.x + xOff).toFixed(1) + 'px,' + (fp.y + fallY).toFixed(1) + 'px) rotate(' + rot.toFixed(1) + 'deg)';
 
                 } else if (t < 0.72) {
                     // 阶段2：弹跳（fallDur → 0.72）
@@ -154,17 +156,17 @@
                     }
                     var rot = fp.spinDir * fp.spinSpeed * (3 + (1 - pt) * 4) + Math.sin(pt * Math.PI * 6) * 5 * (1 - pt);
                     var xOff = Math.sin(pt * Math.PI * 4) * 6 * (1 - pt);
-                    el.style.transform = 'translate(' + (fp.x + xOff).toFixed(1) + 'px,' + (-bounce).toFixed(1) + 'px) rotate(' + rot.toFixed(1) + 'deg)';
+                    el.style.transform = 'translate(' + (fp.x + xOff).toFixed(1) + 'px,' + (fp.y - bounce).toFixed(1) + 'px) rotate(' + rot.toFixed(1) + 'deg)';
 
                 } else if (t < 0.88) {
                     // 阶段3：静止收敛
                     var pt   = (t - 0.72) / 0.16;
                     var rot  = fp.rot * pt + fp.spinDir * 5 * (1 - pt);
-                    el.style.transform = 'translate(' + fp.x.toFixed(1) + 'px,0px) rotate(' + rot.toFixed(1) + 'deg)';
+                    el.style.transform = 'translate(' + fp.x.toFixed(1) + 'px,' + fp.y.toFixed(1) + 'px) rotate(' + rot.toFixed(1) + 'deg)';
 
                 } else {
                     // 阶段4：完全停止
-                    el.style.transform = 'translate(' + fp.x.toFixed(1) + 'px,0px) rotate(0deg)';
+                    el.style.transform = 'translate(' + fp.x.toFixed(1) + 'px,' + fp.y.toFixed(1) + 'px) rotate(0deg)';
                 }
             }
 
@@ -172,23 +174,25 @@
                 done = true;
                 // 最后一步：替换成带真实点数的骰子
                 for (var j = 0; j < numDice; j++) {
-                    (function (oldEl, val, fx, delay) {
+                    (function (oldEl, val, fx, fy, delay) {
                         setTimeout(function () {
                             var newEl = createDieEl(val);
                             newEl.className = 'die placed';
                             newEl.style.position = 'absolute';
+                            newEl.style.left = '0';
+                            newEl.style.top  = '0';
                             newEl.style.opacity  = '0';
-                            newEl.style.transform = 'translate(' + fx.toFixed(1) + 'px,0px) rotate(720deg) scale(0.6)';
+                            newEl.style.transform = 'translate(' + fx.toFixed(1) + 'px,' + fy.toFixed(1) + 'px) rotate(720deg) scale(0.6)';
                             container.replaceChild(newEl, oldEl);
                             requestAnimationFrame(function () {
                                 requestAnimationFrame(function () {
                                     newEl.style.transition = 'opacity 0.12s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1)';
                                     newEl.style.opacity   = '1';
-                                    newEl.style.transform = 'translate(' + fx.toFixed(1) + 'px,0px) rotate(0deg) scale(1)';
+                                    newEl.style.transform = 'translate(' + fx.toFixed(1) + 'px,' + fy.toFixed(1) + 'px) rotate(0deg) scale(1)';
                                 });
                             });
                         }, delay * 40);
-                    })(els[j], finalValues[j], finalPositions[j].x, j);
+                    })(els[j], finalValues[j], finalPositions[j].x, finalPositions[j].y, j);
                 }
                 setTimeout(onDone, numDice * 40 + 300);
                 return;
