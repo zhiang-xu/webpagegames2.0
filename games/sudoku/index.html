@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔢 数独 - 张七七的游戏乐园</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="floating-decorations">
+        <span class="floating-item">🔢</span>
+        <span class="floating-item">🧩</span>
+        <span class="floating-item">⭐</span>
+        <span class="floating-item">🌟</span>
+        <span class="floating-item">💫</span>
+    </div>
+
+    <header>
+        <div class="logo">🔢 数独</div>
+        <p class="subtitle">张七七的游戏乐园 | 每行、每列、每宫都是1-9！</p>
+    </header>
+
+    <section class="rules-box" aria-label="游戏规则">
+        <h2>玩法说明</h2>
+        <ul>
+            <li>在空白格中填入 1 到 9，让每一行、每一列都不重复。</li>
+            <li>每个 3×3 小宫格里也必须恰好包含 1 到 9。</li>
+            <li>题目里原本给出的数字不能修改，只能填写空格。</li>
+            <li>全部填对就过关，遇到卡住时可以用提示或检查功能帮忙。</li>
+        </ul>
+    </section>
+
+    <div class="game-area">
+        <div class="difficulty-select">
+            <button class="btn-diff easy active" onclick="newGame('easy')">简单</button>
+            <button class="btn-diff medium" onclick="newGame('medium')">中等</button>
+            <button class="btn-diff hard" onclick="newGame('hard')">困难</button>
+        </div>
+
+        <div class="info-bar">
+            <div class="info-box">
+                <h3>⏱ 时间</h3>
+                <p class="value time" id="timeDisplay">00:00</p>
+            </div>
+            <div class="info-box">
+                <h3>❌ 错误</h3>
+                <p class="value errors" id="errorsDisplay">0/3</p>
+            </div>
+            <div class="info-box">
+                <h3>💡 提示</h3>
+                <p class="value hints" id="hintsDisplay">3</p>
+            </div>
+        </div>
+
+        <div class="sudoku-board" id="board"></div>
+
+        <div class="number-pad" id="numberPad"></div>
+
+        <div class="controls">
+            <button class="btn btn-new" onclick="newGame(difficulty)">🔄 新游戏</button>
+            <button class="btn btn-hint" onclick="useHint()">💡 提示</button>
+            <button class="btn btn-check" onclick="checkAnswer()">✅ 检查</button>
+            <button class="btn btn-solve" onclick="giveUp()">🏳 放弃</button>
+        </div>
+    </div>
+
+    <div class="victory-overlay" id="victory">
+        <h2>🎉 恭喜你完成了！</h2>
+        <div class="stats">
+            <p>⏱ 用时：<span id="finalTime">00:00</span></p>
+            <p>❌ 错误：<span id="finalErrors">0</span></p>
+            <p>⭐ 评分：<span id="finalScore">★★★</span></p>
+        </div>
+        <button class="btn-play-again" onclick="newGame(difficulty)">🎮 再来一局</button>
+    </div>
+
+    <script src="../../js/game-ui.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

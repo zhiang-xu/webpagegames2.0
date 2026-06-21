@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧱 俄罗斯方块 - 张七七的游戏乐园</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <!-- 漂浮装饰 -->
+    <div class="floating-decorations">
+        <span class="floating-item">🧱</span>
+        <span class="floating-item">🎮</span>
+        <span class="floating-item">⭐</span>
+        <span class="floating-item">🌟</span>
+        <span class="floating-item">💫</span>
+    </div>
+
+    <header>
+        <div class="logo">🧱 俄罗斯方块</div>
+        <p class="subtitle">张七七的游戏乐园 | 消除越多，分数越高！</p>
+    </header>
+
+    <section class="rules-box" aria-label="游戏规则">
+        <h2>玩法说明</h2>
+        <ul>
+            <li>控制正在下落的方块左右移动、旋转，并选择合适的位置落下。</li>
+            <li>当某一整行被方块填满时，这一行会被消除并加分。</li>
+            <li>消除越多，节奏会越来越快，难度也会提升。</li>
+            <li>如果方块堆到最上面，再也放不下新的方块，游戏就结束。</li>
+        </ul>
+    </section>
+
+    <div class="game-area">
+        <!-- 游戏板 -->
+        <div class="game-board">
+            <canvas id="tetris" width="400" height="800"></canvas>
+            <div class="game-over-overlay" id="gameOver">
+                <h2>💥 游戏结束!</h2>
+                <p class="final-score">最终得分: <span id="finalScore">0</span></p>
+                <button class="btn-restart" onclick="resetGame()">🔄 再来一局</button>
+            </div>
+        </div>
+
+        <!-- 侧边面板 -->
+        <div class="side-panel">
+            <div class="info-box">
+                <h3>🏆 得分</h3>
+                <p class="value score" id="score">0</p>
+            </div>
+            <div class="info-box">
+                <h3>📊 等级</h3>
+                <p class="value level" id="level">1</p>
+            </div>
+            <div class="info-box">
+                <h3>🔢 消除行</h3>
+                <p class="value lines" id="lines">0</p>
+            </div>
+            <div class="next-box">
+                <h3>➡ 下一个</h3>
+                <canvas id="next" width="140" height="140"></canvas>
+            </div>
+            <div class="controls">
+                <button class="btn btn-start" id="startBtn" onclick="startGame()">🎮 开始游戏</button>
+                <button class="btn btn-pause" id="pauseBtn" onclick="togglePause()" style="display:none">⏸ 暂停</button>
+            </div>
+            <div class="controls">
+                <button class="btn btn-easy" id="btnEasy" onclick="setDifficulty('easy')" style="background:linear-gradient(135deg,#4ecdc4,#44a3aa);color:white;">简单</button>
+                <button class="btn btn-medium" id="btnMedium" onclick="setDifficulty('medium')" style="background:linear-gradient(135deg,#ffa751,#ffe259);color:#333;">中等</button>
+                <button class="btn btn-hard" id="btnHard" onclick="setDifficulty('hard')" style="background:linear-gradient(135deg,#ff6b6b,#ee5a5a);color:white;">困难</button>
+            </div>
+            <div class="info-box">
+                <h3>⚡ 速度</h3>
+                <p class="value level" id="speedDisplay">1000ms</p>
+            </div>
+            <div class="info-box">
+                <h3>🎯 难度</h3>
+                <p class="value" id="difficultyDisplay" style="font-size:1.2rem;color:#333;">中等</p>
+            </div>
+            <div class="key-hints">
+                <h4>⌨ 按键说明</h4>
+                <div class="hint"><span class="key">←</span> <span class="key">→</span> 左右移动</div>
+                <div class="hint"><span class="key">↓</span> 加速下落</div>
+                <div class="hint"><span class="key">↑</span> 旋转方块</div>
+                <div class="hint"><span class="key">空格</span> 直接落地</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 移动端控制 -->
+    <div class="mobile-controls">
+        <button class="mobile-btn" ontouchstart="moveLeft(event)">⬅</button>
+        <button class="mobile-btn" ontouchstart="rotate(event)">🔄</button>
+        <button class="mobile-btn" ontouchstart="moveRight(event)">➡</button>
+        <button class="mobile-btn" ontouchstart="dropDown(event)">⬇</button>
+        <button class="mobile-btn rotate" ontouchstart="handleHardDrop(event)">⬇⬇</button>
+    </div>
+
+    <script src="../../js/game-ui.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

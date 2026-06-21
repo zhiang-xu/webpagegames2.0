@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔢 猜数字 - 张七七的游戏乐园</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="floating-decorations">
+        <span class="floating-item">🔢</span>
+        <span class="floating-item">🎯</span>
+        <span class="floating-item">⭐</span>
+        <span class="floating-item">🌟</span>
+        <span class="floating-item">💫</span>
+    </div>
+
+    <header>
+        <div class="logo">🔢 猜数字</div>
+        <p class="subtitle">张七七的游戏乐园 | 猜出1到N之间的神秘数字！</p>
+    </header>
+
+    <section class="rules-box" aria-label="游戏规则">
+        <h2>玩法说明</h2>
+        <ul>
+            <li>先选择难度，系统会在对应范围里悄悄选出一个数字。</li>
+            <li>输入你的猜测后，页面会提示"太大了"还是"太小了"。</li>
+            <li>根据提示不断缩小范围，直到猜中目标数字。</li>
+            <li>猜中的次数越少，分数通常越高。</li>
+        </ul>
+    </section>
+
+    <div class="game-area">
+        <div class="difficulty-select">
+            <button class="btn-diff easy active" onclick="newGame('easy')">简单 (1-50)</button>
+            <button class="btn-diff medium" onclick="newGame('medium')">中等 (1-100)</button>
+            <button class="btn-diff hard" onclick="newGame('hard')">困难 (1-200)</button>
+        </div>
+
+        <div class="info-bar">
+            <div class="info-box">
+                <h3>🔄 已猜</h3>
+                <p class="value attempts" id="attemptsDisplay">0</p>
+            </div>
+            <div class="info-box">
+                <h3>🥇 最佳</h3>
+                <p class="value best" id="bestDisplay">—</p>
+            </div>
+        </div>
+
+        <div class="game-box">
+            <p class="range-display">范围：<span id="rangeDisplay">1 ~ 50</span></p>
+            <div class="hint-box">
+                <p class="hint-text" id="hintText">开始猜吧！</p>
+            </div>
+            <input type="number" class="guess-input" id="guessInput" placeholder="?" min="1" max="200">
+            <button class="btn btn-guess" id="guessBtn" onclick="makeGuess()">🎯 猜一下</button>
+            <div class="guesses-history" id="guessesHistory"></div>
+            <button class="btn btn-new" onclick="newGame(difficulty)">🔄 新游戏</button>
+        </div>
+
+        <div class="number-pad" id="numberPad"></div>
+    </div>
+
+    <div class="victory-overlay" id="victory">
+        <h2>🎉 恭喜你猜对了！</h2>
+        <div class="stats">
+            <p>🎯 目标数字：<span id="targetNumber" style="color:#ffd700;font-weight:700;font-size:1.5rem;">—</span></p>
+            <p>🔄 猜了：<span id="finalAttempts">—</span> 次</p>
+            <p>⭐ 评分：<span id="finalScore">★★★</span></p>
+        </div>
+        <button class="btn-play-again" onclick="newGame(difficulty)">🎮 再玩一次</button>
+    </div>
+
+    <script src="../../js/game-ui.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

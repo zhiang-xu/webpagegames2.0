@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中国象棋 - 人机对战 & 双人模式</title>
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <a href="../../index.html" class="back-btn" title="返回主页">🏠</a>
+    <div class="container">
+        <h1>🀄 中国象棋</h1>
+
+        <section class="rules-box" aria-label="游戏规则">
+            <h2>玩法说明</h2>
+            <ul>
+                <li>红方先走，双方轮流移动自己的棋子，每种棋子都有固定走法。</li>
+                <li>目标是将死对方的将或帅，让对方下一步无法脱困。</li>
+                <li>象不过河、马走日、炮隔子打子，将帅也不能直接照面。</li>
+                <li>可以选择双人模式或人机模式，慢慢熟悉各个棋子的规则。</li>
+            </ul>
+        </section>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="gameMode">游戏模式</label>
+                <select id="gameMode">
+                    <option value="pvp">双人模式</option>
+                    <option value="pve">单人模式（人机）</option>
+                </select>
+            </div>
+            
+            <div class="control-group" id="difficultyGroup" style="display: none;">
+                <label for="difficulty">AI 难度</label>
+                <select id="difficulty">
+                    <option value="easy">初级</option>
+                    <option value="medium" selected>中级</option>
+                    <option value="hard">高级</option>
+                    <option value="expert">专家级</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="playerColor">执子颜色</label>
+                <select id="playerColor">
+                    <option value="red">红棋（先手）</option>
+                    <option value="black">黑棋（后手）</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="status" id="status">请选择游戏模式开始</div>
+
+        <div class="board-container">
+            <div id="board">
+                <svg class="board-art" viewBox="0 0 540 600" aria-hidden="true">
+                    <defs>
+                        <path id="mark-full" d="M-18 -6h11 M-7 -18v11 M18 -6h-11 M7 -18v11 M-18 6h11 M-7 18v-11 M18 6h-11 M7 18v-11" />
+                        <path id="mark-left" d="M18 -6h-11 M7 -18v11 M18 6h-11 M7 18v-11" />
+                        <path id="mark-right" d="M-18 -6h11 M-7 -18v11 M-18 6h11 M-7 18v-11" />
+                    </defs>
+
+                    <rect x="6" y="6" width="528" height="588" fill="none" stroke="#1d130d" stroke-width="2.4" />
+                    <rect x="12" y="12" width="516" height="576" fill="none" stroke="#1d130d" stroke-width="1.6" />
+
+                    <g stroke="#1d130d" stroke-width="1.45" fill="none" stroke-linecap="square">
+                        <line x1="30" y1="30" x2="510" y2="30" />
+                        <line x1="30" y1="90" x2="510" y2="90" />
+                        <line x1="30" y1="150" x2="510" y2="150" />
+                        <line x1="30" y1="210" x2="510" y2="210" />
+                        <line x1="30" y1="270" x2="510" y2="270" />
+                        <line x1="30" y1="330" x2="510" y2="330" />
+                        <line x1="30" y1="390" x2="510" y2="390" />
+                        <line x1="30" y1="450" x2="510" y2="450" />
+                        <line x1="30" y1="510" x2="510" y2="510" />
+                        <line x1="30" y1="570" x2="510" y2="570" />
+
+                        <line x1="30" y1="30" x2="30" y2="570" />
+                        <line x1="90" y1="30" x2="90" y2="270" />
+                        <line x1="90" y1="330" x2="90" y2="570" />
+                        <line x1="150" y1="30" x2="150" y2="270" />
+                        <line x1="150" y1="330" x2="150" y2="570" />
+                        <line x1="210" y1="30" x2="210" y2="270" />
+                        <line x1="210" y1="330" x2="210" y2="570" />
+                        <line x1="270" y1="30" x2="270" y2="270" />
+                        <line x1="270" y1="330" x2="270" y2="570" />
+                        <line x1="330" y1="30" x2="330" y2="270" />
+                        <line x1="330" y1="330" x2="330" y2="570" />
+                        <line x1="390" y1="30" x2="390" y2="270" />
+                        <line x1="390" y1="330" x2="390" y2="570" />
+                        <line x1="450" y1="30" x2="450" y2="270" />
+                        <line x1="450" y1="330" x2="450" y2="570" />
+                        <line x1="510" y1="30" x2="510" y2="570" />
+
+                        <line x1="210" y1="30" x2="330" y2="150" />
+                        <line x1="330" y1="30" x2="210" y2="150" />
+                        <line x1="210" y1="450" x2="330" y2="570" />
+                        <line x1="330" y1="450" x2="210" y2="570" />
+                    </g>
+
+                    <g stroke="#1d130d" stroke-width="1.45" fill="none" stroke-linecap="square">
+                        <use href="#mark-full" transform="translate(90 150)" />
+                        <use href="#mark-full" transform="translate(450 150)" />
+                        <use href="#mark-left" transform="translate(30 210)" />
+                        <use href="#mark-full" transform="translate(150 210)" />
+                        <use href="#mark-full" transform="translate(270 210)" />
+                        <use href="#mark-full" transform="translate(390 210)" />
+                        <use href="#mark-right" transform="translate(510 210)" />
+                        <use href="#mark-left" transform="translate(30 390)" />
+                        <use href="#mark-full" transform="translate(150 390)" />
+                        <use href="#mark-full" transform="translate(270 390)" />
+                        <use href="#mark-full" transform="translate(390 390)" />
+                        <use href="#mark-right" transform="translate(510 390)" />
+                        <use href="#mark-full" transform="translate(90 450)" />
+                        <use href="#mark-full" transform="translate(450 450)" />
+                    </g>
+                </svg>
+                <div class="move-markers" id="moveMarkers"></div>
+                <div class="grid" id="grid"></div>
+                <div class="river"><span>楚 河</span><span>汉 界</span></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button onclick="game.start()">🎯 开始新游戏</button>
+            <button onclick="game.undo()">↩️ 悔棋</button>
+            <button onclick="game.reset()">🔄 重置</button>
+        </div>
+
+        <div class="history">
+            <h3>📜 走棋记录</h3>
+            <div class="history-list" id="historyList"></div>
+        </div>
+    </div>
+
+    <script src="../../js/boardgame-ai.js"></script>
+    <script src="../../js/game-ui.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

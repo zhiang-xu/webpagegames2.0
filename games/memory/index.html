@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🃏 记忆卡片 - 张七七的游戏乐园</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="floating-decorations">
+        <span class="floating-item">🃏</span>
+        <span class="floating-item">⭐</span>
+        <span class="floating-item">🌟</span>
+        <span class="floating-item">💫</span>
+        <span class="floating-item">🎮</span>
+    </div>
+
+    <header>
+        <div class="logo">🃏 记忆卡片</div>
+        <p class="subtitle">张七七的游戏乐园 | 找到所有配对，锻炼记忆力！</p>
+    </header>
+
+    <section class="rules-box" aria-label="游戏规则">
+        <h2>玩法说明</h2>
+        <ul>
+            <li>每次翻开两张卡片，记住它们的位置和图案。</li>
+            <li>两张图案相同就会配对成功，并保持翻开状态。</li>
+            <li>如果两张不同，它们会翻回去，需要继续记忆。</li>
+            <li>把所有卡片全部配对完成就获胜，用时越短、步数越少越厉害。</li>
+        </ul>
+    </section>
+
+    <div class="game-area">
+        <div class="difficulty-select">
+            <button class="btn-diff easy active" onclick="setDifficulty('easy')">简单 (4×4)</button>
+            <button class="btn-diff medium" onclick="setDifficulty('medium')">中等 (4×5)</button>
+            <button class="btn-diff hard" onclick="setDifficulty('hard')">困难 (4×6)</button>
+        </div>
+
+        <div class="info-bar">
+            <div class="info-box">
+                <h3>🔄 步数</h3>
+                <p class="value moves" id="moves">0</p>
+            </div>
+            <div class="info-box">
+                <h3>⏱ 时间</h3>
+                <p class="value time" id="time">00:00</p>
+            </div>
+            <div class="info-box">
+                <h3>🎯 配对</h3>
+                <p class="value" id="pairs">0/0</p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-restart" onclick="initGame()">🔄 重新开始</button>
+        </div>
+
+        <div class="game-grid" id="gameGrid"></div>
+    </div>
+
+    <div class="victory-overlay" id="victory">
+        <h2>🎉 恭喜你赢了！</h2>
+        <div class="stats">
+            <p>⏱ 用时：<span id="finalTime">00:00</span></p>
+            <p>🔄 步数：<span id="finalMoves">0</span></p>
+            <p>⭐ 评分：<span id="finalScore">★★★</span></p>
+        </div>
+        <button class="btn-play-again" onclick="initGame()">🎮 再玩一次</button>
+    </div>
+
+    <script src="../../js/game-ui.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

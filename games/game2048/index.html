@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔢 2048 - 张七七的游戏乐园</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="floating-decorations">
+        <span class="floating-item">🔢</span>
+        <span class="floating-item">🧩</span>
+        <span class="floating-item">⭐</span>
+        <span class="floating-item">🌟</span>
+        <span class="floating-item">💫</span>
+    </div>
+
+    <header>
+        <div class="logo">🔢 2048</div>
+        <p class="subtitle">张七七的游戏乐园 | 两个相同数字合并，挑战2048！</p>
+    </header>
+
+    <section class="rules-box" aria-label="游戏规则">
+        <h2>玩法说明</h2>
+        <ul>
+            <li>用方向键或滑动，让所有数字方块一起朝同一个方向移动。</li>
+            <li>两个相同数字碰到一起会合并成更大的数字。</li>
+            <li>每移动一次，棋盘都会随机出现一个新数字。</li>
+            <li>合成出 2048 就算达成目标；如果棋盘满了且再也不能合并，游戏结束。</li>
+        </ul>
+    </section>
+
+    <div class="game-area">
+        <div class="header-row">
+            <div class="info-bar">
+                <div class="info-box">
+                    <h3>🏆 得分</h3>
+                    <p class="value score" id="score">0</p>
+                </div>
+                <div class="info-box">
+                    <h3>🥇 最高分</h3>
+                    <p class="value best" id="bestScore">0</p>
+                </div>
+            </div>
+            <button class="btn btn-new" onclick="resetGame()">🔄 新游戏</button>
+        </div>
+
+        <div class="game-board" id="gameBoard">
+            <div class="grid-container" id="gridContainer"></div>
+            <div class="game-over-overlay" id="gameOver">
+                <h2>💥 游戏结束!</h2>
+                <p class="final-score">最终得分: <span id="finalScore">0</span></p>
+                <button class="btn-restart" onclick="resetGame()">🔄 再来一局</button>
+            </div>
+            <div class="victory-overlay" id="victory">
+                <h2>🎉 你赢了!</h2>
+                <p>已经凑出了2048！太棒了！</p>
+                <button class="btn-continue" onclick="continueGame()">继续挑战</button>
+                <button class="btn-restart" onclick="resetGame()">🔄 新游戏</button>
+            </div>
+        </div>
+
+        <div class="mobile-hints">
+            <button class="mobile-hint-btn" ontouchstart="handleMobileMove('up')">⬆️</button>
+            <button class="mobile-hint-btn" ontouchstart="handleMobileMove('left')">⬅️</button>
+            <button class="mobile-hint-btn" ontouchstart="handleMobileMove('down')">⬇️</button>
+            <button class="mobile-hint-btn" ontouchstart="handleMobileMove('right')">➡️</button>
+        </div>
+
+        <div class="instructions">
+            <h4>⌨ 操作说明</h4>
+            <p>使用 ⬆️⬇️️️️ 方向键滑动方块，<br>两个相同数字碰撞时会合并成更大的数字！</p>
+        </div>
+    </div>
+
+    <script src="../../js/game-ui.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

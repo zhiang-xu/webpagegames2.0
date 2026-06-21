@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贪吃蛇 - 经典游戏</title>
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🐍 贪吃蛇</h1>
+
+        <section class="rules-box" aria-label="游戏规则">
+            <h2>玩法说明</h2>
+            <ul>
+                <li>用方向键或滑动改变小蛇前进方向，去吃食物。</li>
+                <li>每吃到一次食物，小蛇会变长，分数也会增加。</li>
+                <li>撞到墙壁或自己的身体，游戏就结束。</li>
+                <li>越到后面身体越长，转弯和路线规划会更重要。</li>
+            </ul>
+        </section>
+
+        <div class="score-board">
+            <div class="score-item">
+                <label>当前分数</label>
+                <div class="value" id="score">0</div>
+            </div>
+            <div class="score-item">
+                <label>最高分数</label>
+                <div class="value" id="highScore">0</div>
+            </div>
+        </div>
+
+        <div class="difficulty-select">
+            <label for="difficulty">难度：</label>
+            <select id="difficulty">
+                <option value="easy">简单</option>
+                <option value="medium" selected>中等</option>
+                <option value="hard">困难</option>
+            </select>
+        </div>
+
+        <div class="game-area">
+            <canvas id="gameCanvas" width="600" height="600"></canvas>
+            <div class="game-over-overlay" id="gameOverOverlay">
+                <div class="game-over-text">游戏结束!</div>
+                <div class="final-score">得分: <span id="finalScore">0</span></div>
+                <button class="btn-restart" onclick="game.restart()">再来一次</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn-start" onclick="game.start()">🎮 开始游戏</button>
+            <button class="btn-pause" onclick="game.pause()">⏸️ 暂停</button>
+            <button class="btn-reset" onclick="game.reset()">🔄 重置</button>
+        </div>
+
+        <div class="mobile-controls">
+            <button class="mobile-btn up" onclick="game.changeDirection('up')">↑</button>
+            <button class="mobile-btn left" onclick="game.changeDirection('left')">←</button>
+            <button class="mobile-btn down" onclick="game.changeDirection('down')">↓</button>
+            <button class="mobile-btn right" onclick="game.changeDirection('right')">→</button>
+        </div>
+
+        <p class="instructions">
+            使用方向键或 WASD 控制蛇的移动，吃到食物得分！
+        </p>
+    </div>
+
+    <script src="../../js/game-ui.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

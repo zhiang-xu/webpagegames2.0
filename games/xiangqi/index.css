@@ -1,0 +1,443 @@
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .rules-box {
+            margin: 0 0 18px;
+            padding: 16px 18px;
+            border-radius: 16px;
+            background: #fffaf0;
+            border: 1px solid #ead8b0;
+            box-shadow: 0 10px 24px rgba(139, 69, 19, 0.12);
+        }
+        .rules-box h2 {
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+            color: #8b4513;
+        }
+        .rules-box ul {
+            margin: 0;
+            padding-left: 1.2rem;
+            color: #4b5563;
+            line-height: 1.7;
+        }
+        .rules-box li + li {
+            margin-top: 6px;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #667eea;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            z-index: 1000;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+            background: #f0f4ff;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        select, button {
+            padding: 10px 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        select:focus, button:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .status {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            background: #f0f0f0;
+        }
+
+        .status.red {
+            background: #fce4ec;
+            color: #c62828;
+        }
+
+        .status.black {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .status.winner {
+            background: #e8f5e9;
+            color: #2e7d32;
+            font-size: 1.4em;
+        }
+
+        /* 棋盘容器 */
+        .board-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            overflow: auto;
+            padding: 14px 10px 18px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 棋盘整体 */
+        #board {
+            --board-cell: clamp(34px, 6.2vw, 60px);
+            --board-width: calc(var(--board-cell) * 9);
+            --board-height: calc(var(--board-cell) * 10);
+            position: relative;
+            width: var(--board-width);
+            height: var(--board-height);
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 18%),
+                linear-gradient(180deg, #dccca0 0%, #d6c28f 100%);
+            box-shadow:
+                0 14px 36px rgba(46, 28, 11, 0.24),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+        }
+
+        .board-art {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .grid {
+            position: relative;
+            z-index: 4;
+            width: 100%;
+            height: 100%;
+            display: grid;
+            grid-template-columns: repeat(9, var(--board-cell));
+            grid-template-rows: repeat(10, var(--board-cell));
+        }
+
+        .move-markers {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .cell {
+            width: var(--board-cell);
+            height: var(--board-cell);
+            position: relative;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .river {
+            position: absolute;
+            top: calc(var(--board-cell) * 4.5);
+            left: calc(var(--board-cell) * 1.15);
+            right: calc(var(--board-cell) * 1.15);
+            height: var(--board-cell);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 calc(var(--board-cell) * 0.3);
+            z-index: 2;
+            pointer-events: none;
+            color: #120b06;
+            font-family: 'STKaiti', 'KaiTi', 'SimSun', serif;
+            font-size: calc(var(--board-cell) * 0.88);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+
+        .river span {
+            display: inline-block;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+
+        
+
+        /* 棋子 - 立体木质效果 */
+        .piece {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            font-weight: bold;
+            font-family: 'Microsoft YaHei', 'SimHei', 'KaiTi', serif;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
+            animation: placePiece 0.3s ease-out forwards;
+            overflow: hidden;
+        }
+
+        @keyframes placePiece {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* 红方棋子 - 木质纹理红色 */
+        .piece.red {
+            background: radial-gradient(circle at 30% 30%, #FFDAB9 0%, #DEB887 40%, #C19A6B 100%);
+            color: #CC0000;
+            border: 3px solid #8B4513;
+            box-shadow: 
+                0 6px 15px rgba(0, 0, 0, 0.3),
+                0 3px 6px rgba(0, 0, 0, 0.2),
+                inset 0 -3px 8px rgba(0, 0, 0, 0.15),
+                inset 0 2px 5px rgba(255, 255, 255, 0.4);
+        }
+        .piece.red::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 2px solid rgba(204, 0, 0, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* 黑方棋子 - 木质纹理黑色 */
+        .piece.black {
+            background: radial-gradient(circle at 30% 30%, #F5F5DC 0%, #D2B48C 40%, #A0826D 100%);
+            color: #1A1A1A;
+            border: 3px solid #3D3D3D;
+            box-shadow: 
+                0 6px 15px rgba(0, 0, 0, 0.3),
+                0 3px 6px rgba(0, 0, 0, 0.2),
+                inset 0 -3px 8px rgba(0, 0, 0, 0.15),
+                inset 0 2px 5px rgba(255, 255, 255, 0.4);
+        }
+        .piece.black::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 2px solid rgba(26, 26, 26, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .piece.selected {
+            box-shadow: 
+                0 0 20px rgba(102, 126, 234, 0.9),
+                0 0 40px rgba(102, 126, 234, 0.5),
+                0 8px 20px rgba(0, 0, 0, 0.3),
+                inset 0 -3px 8px rgba(0, 0, 0, 0.15),
+                inset 0 2px 5px rgba(255, 255, 255, 0.4);
+            transform: translate(-50%, -50%) scale(1.15) translateY(-3px);
+            z-index: 15;
+        }
+
+        .piece.last-move {
+            box-shadow: 
+                0 0 15px rgba(255, 193, 7, 0.8),
+                0 0 30px rgba(255, 193, 7, 0.4),
+                0 6px 15px rgba(0, 0, 0, 0.3),
+                inset 0 -3px 8px rgba(0, 0, 0, 0.15),
+                inset 0 2px 5px rgba(255, 255, 255, 0.4);
+        }
+
+        .highlight {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(73, 91, 180, 0.9);
+            background: rgba(73, 91, 180, 0.08);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .highlight::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 4px;
+            height: 4px;
+            background: rgba(73, 91, 180, 0.95);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+        }
+
+        .history {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .history h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 4px 10px;
+            background: white;
+            border-radius: 4px;
+            font-size: 0.85em;
+            border: 1px solid #ddd;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 8px;
+                align-items: flex-start;
+            }
+
+            #board {
+                --board-cell: clamp(28px, 8vw, 42px);
+            }
+
+            .piece {
+                width: calc(var(--board-cell) * .8);
+                height: calc(var(--board-cell) * .8);
+                font-size: .92em;
+            }
+
+            .river {
+                font-size: calc(var(--board-cell) * 0.86);
+            }
+
+            .container {
+                padding: 16px 12px;
+                border-radius: 16px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .controls {
+                gap: 10px;
+            }
+
+            .control-group {
+                min-width: calc(50% - 6px);
+                flex: 1 1 calc(50% - 6px);
+            }
+
+            select, button {
+                width: 100%;
+            }
+        }

@@ -1,0 +1,303 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 900px;
+    width: 95%;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 2.5em;
+}
+
+.rules-box {
+    margin: 0 auto 24px;
+    padding: 16px 18px;
+    max-width: 760px;
+    border-radius: 18px;
+    background: #f3fff7;
+    border: 1px solid #cdeed8;
+    box-shadow: 0 10px 24px rgba(68, 163, 170, 0.14);
+    text-align: left;
+}
+.rules-box h2 {
+    margin-bottom: 10px;
+    font-size: 1.05rem;
+    color: #2d7d68;
+}
+.rules-box ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: #4b5563;
+    line-height: 1.7;
+}
+.rules-box li + li {
+    margin-top: 6px;
+}
+
+.score-board {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 25px;
+}
+
+.score-item {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 20px 35px;
+    border-radius: 15px;
+    min-width: 180px;
+}
+
+.score-item label {
+    display: block;
+    font-size: 1em;
+    opacity: 0.9;
+    margin-bottom: 8px;
+}
+
+.score-item .value {
+    font-size: 3em;
+    font-weight: bold;
+}
+
+.game-area {
+    position: relative;
+    margin: 0 auto 20px;
+}
+
+#gameCanvas {
+    border: 4px solid #667eea;
+    border-radius: 10px;
+    background: #1a1a2e;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+button {
+    padding: 15px 40px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.3em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+
+.btn-start {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.btn-start:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-pause {
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    color: white;
+}
+
+.btn-pause:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+}
+
+.btn-reset {
+    background: linear-gradient(135deg, #4ecdc4, #44a3aa);
+    color: white;
+}
+
+.btn-reset:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+}
+
+/* 移动端控制 */
+.mobile-controls {
+    display: none;
+    grid-template-columns: repeat(3, 60px);
+    grid-template-rows: repeat(2, 60px);
+    gap: 10px;
+    justify-content: center;
+    margin: 20px auto 0;
+    max-width: 200px;
+}
+
+.mobile-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    color: white;
+    font-size: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+}
+
+.mobile-btn:active {
+    transform: scale(0.9);
+}
+
+.mobile-btn.up { grid-column: 2; grid-row: 1; }
+.mobile-btn.left { grid-column: 1; grid-row: 2; }
+.mobile-btn.down { grid-column: 2; grid-row: 2; }
+.mobile-btn.right { grid-column: 3; grid-row: 2; }
+
+/* 游戏结束遮罩 */
+.game-over-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    border-radius: 10px;
+}
+
+.game-over-overlay.show {
+    display: flex;
+}
+
+.game-over-text {
+    color: #ff6b6b;
+    font-size: 2.5em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    animation: pulse 0.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.final-score {
+    color: white;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+}
+
+.btn-restart {
+    background: linear-gradient(135deg, #ffa751, #ffe259);
+    color: #333;
+    padding: 15px 40px;
+    font-size: 1.2em;
+}
+
+.btn-restart:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 167, 81, 0.4);
+}
+
+/* 难度选择 */
+.difficulty-select {
+    margin-bottom: 25px;
+}
+
+.difficulty-select label {
+    color: #666;
+    margin-right: 15px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.difficulty-select select {
+    padding: 10px 20px;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    font-size: 1.2em;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* 提示 */
+.instructions {
+    color: #666;
+    font-size: 1.1em;
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+/* 响应式 */
+@media (max-width: 600px) {
+    .container {
+        padding: 25px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    .score-board {
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .score-item {
+        padding: 15px 25px;
+        min-width: 140px;
+    }
+
+    .score-item .value {
+        font-size: 2.5em;
+    }
+
+    #gameCanvas {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .mobile-controls {
+        display: grid;
+        gap: 15px;
+    }
+
+    .controls {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    button {
+        padding: 12px 25px;
+        font-size: 1.1em;
+    }
+
+    .mobile-btn {
+        width: 70px;
+        height: 70px;
+        font-size: 28px;
+    }
+}

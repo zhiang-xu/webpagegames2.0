@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔢 数学挑战 - 张七七的游戏乐园</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="floating-decorations">
+        <span class="floating-item">🔢</span>
+        <span class="floating-item">✏️</span>
+        <span class="floating-item">🧮</span>
+        <span class="floating-item">⭐</span>
+        <span class="floating-item">🌟</span>
+    </div>
+
+    <header>
+        <div class="logo">🔢 数学挑战</div>
+        <p class="subtitle">张七七的游戏乐园 | 边玩边学，越玩越聪明！</p>
+    </header>
+
+    <section class="rules-box" aria-label="游戏规则">
+        <h2>玩法说明</h2>
+        <ul>
+            <li>先选难度，再根据题目输入正确答案。</li>
+            <li>答对会加分，也会累积连击和时间奖励。</li>
+            <li>答错或跳过会打断连击，并刷新下一道题。</li>
+            <li>在倒计时结束前尽量又快又准，冲更高分数。</li>
+        </ul>
+    </section>
+
+    <div class="game-area">
+        <div class="difficulty-select">
+            <button class="btn-diff easy active" onclick="setDifficulty('easy')">简单</button>
+            <button class="btn-diff medium" onclick="setDifficulty('medium')">中等</button>
+            <button class="btn-diff hard" onclick="setDifficulty('hard')">困难</button>
+        </div>
+
+        <div class="info-bar">
+            <div class="info-box">
+                <h3>🏆 得分</h3>
+                <p class="value score" id="score">0</p>
+            </div>
+            <div class="info-box">
+                <h3>📊 等级</h3>
+                <p class="value level" id="level">1</p>
+            </div>
+            <div class="info-box">
+                <h3>🔥 连击</h3>
+                <p class="value streak" id="streak">0</p>
+            </div>
+            <div class="info-box">
+                <h3>⏱ 时间</h3>
+                <p class="value time" id="timeLeft">30</p>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar" style="width:100%"></div>
+        </div>
+
+        <div class="question-box">
+            <p class="operation" id="operation">加法</p>
+            <p class="equation" id="equation">5 + 3 = ?</p>
+            <input type="number" class="answer-input" id="answerInput" placeholder="?" autocomplete="off">
+            <div id="feedback"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-submit" onclick="checkAnswer()">✅ 提交</button>
+            <button class="btn btn-skip" onclick="skipQuestion()">⏭ 跳过</button>
+        </div>
+    </div>
+
+    <script src="../../js/game-ui.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

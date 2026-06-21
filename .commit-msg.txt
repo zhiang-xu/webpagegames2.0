@@ -1,0 +1,12 @@
+refactor: restructure project - extract CSS/JS, migrate games to games/ directory, unify audio
+
+- Extract shared CSS (css/base.css, css/theme.css) and JS (js/game-ui.js, js/boardgame-ai.js, js/index.js)
+- Migrate all 12 games from flat directories to games/ subdirectory
+- Split each game's inline CSS and JS into separate files (index.css, index.js)
+- Migrate snake and doushouqi from custom SoundManager to shared js/game-ui.js
+- Remove dead CSS (back-btn, sound-toggle styles now handled by game-ui.js)
+- Update root index.html to reference extracted files
+- Update all game links to games/ subdirectory paths
+- Add v1.0.2 to all game readme version histories
+- Update AGENT.md file structure documentation
+- Create empty assets/ directory for future resources

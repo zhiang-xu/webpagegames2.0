@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎖️ 军棋（陆战棋）- 张七七的游戏乐园</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="floating-decorations">
+        <span class="floating-item">🎖️</span>
+        <span class="floating-item">🎯</span>
+        <span class="floating-item">⭐</span>
+        <span class="floating-item">🌟</span>
+        <span class="floating-item">💫</span>
+    </div>
+
+    <header>
+        <div class="logo">🎖️ 军棋（陆战棋）</div>
+        <p class="subtitle">张七七的游戏乐园 | 占领对方军旗，赢得胜利！</p>
+    </header>
+
+    <section class="rules-box" aria-label="游戏规则">
+        <h2>玩法说明</h2>
+        <ul>
+            <li>目标是想办法占领对方的军旗，先做到的一方获胜。</li>
+            <li>大多数棋子按等级比大小，高等级能吃低等级；炸弹会同归于尽。</li>
+            <li>地雷通常不能主动移动，工兵可以排雷，还能沿铁路快速行动。</li>
+            <li>页面支持明棋和暗棋模式，切换后玩法信息展示方式会不同。</li>
+        </ul>
+    </section>
+
+    <div class="game-area">
+        <div class="info-bar">
+            <div class="info-box">
+                <h3>🎯 当前回合</h3>
+                <p class="value turn" id="turnDisplay">红方</p>
+            </div>
+            <div class="info-box">
+                <h3>🎮 模式</h3>
+                <p class="value" id="modeDisplay">明棋</p>
+            </div>
+        </div>
+
+        <div class="board">
+            <div class="board-inner" id="board"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-new" onclick="newGame()">🔄 新游戏</button>
+            <button class="btn btn-mode" onclick="toggleMode()">🔄 切换模式</button>
+        </div>
+
+        <div class="battle-log">
+            <h4>📜 战斗日志</h4>
+            <div id="logContent"></div>
+        </div>
+    </div>
+
+    <div class="victory-overlay" id="victory">
+        <h2>🎉 游戏结束!</h2>
+        <p class="winner" id="winnerText">红方获胜!</p>
+        <button class="btn-play-again" onclick="newGame()">🎮 再来一局</button>
+    </div>
+
+    <script src="../../js/game-ui.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

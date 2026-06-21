@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五子棋 - 人机对战 & 双人模式</title>
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <a href="../../index.html" class="back-btn" title="返回主页">🏠</a>
+    <div class="sound-toggle" id="soundToggle" title="开关音效">🔊</div>
+
+        <div class="container">
+        <h1>🎮 五子棋</h1>
+
+        <section class="rules-box" aria-label="游戏规则">
+            <h2>玩法说明</h2>
+            <ul>
+                <li>黑棋先手，双方轮流在棋盘空位落子。</li>
+                <li>先把自己的棋子连成连续五个，无论横、竖还是斜线，都算获胜。</li>
+                <li>如果棋盘下满还没人连成五子，这局就是平局。</li>
+                <li>可以选择双人对战，也可以和电脑下棋。</li>
+            </ul>
+        </section>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="gameMode">游戏模式</label>
+                <select id="gameMode">
+                    <option value="pvp">双人模式</option>
+                    <option value="pve">单人模式（人机）</option>
+                </select>
+            </div>
+            
+            <div class="control-group" id="difficultyGroup" style="display: none;">
+                <label for="difficulty">AI 难度</label>
+                <select id="difficulty">
+                    <option value="easy">初级</option>
+                    <option value="medium" selected>中级</option>
+                    <option value="hard">高级</option>
+                    <option value="expert">专家级</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="playerColor">执子颜色</label>
+                <select id="playerColor">
+                    <option value="black">黑棋（先手）</option>
+                    <option value="white">白棋（后手）</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="status" id="status">请选择游戏模式开始</div>
+
+        <div class="board-container">
+            <div id="board"></div>
+        </div>
+
+        <div class="controls">
+            <button onclick="game.start()">🎯 开始新游戏</button>
+            <button onclick="game.undo()">↩️ 悔棋</button>
+            <button onclick="game.reset()">🔄 重置</button>
+        </div>
+
+        <div class="history">
+            <h3>📜 落子记录</h3>
+            <div class="history-list" id="historyList"></div>
+        </div>
+    </div>
+
+    <script src="../../js/boardgame-ai.js"></script>
+    <script src="../../js/game-ui.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>
