@@ -179,6 +179,10 @@
             grid-template-columns: repeat(15, var(--board-cell));
             grid-template-rows: repeat(15, var(--board-cell));
             background: #dcb35c;
+            background-image:
+                linear-gradient(to right, #8b6914 1px, transparent 1px),
+                linear-gradient(to bottom, #8b6914 1px, transparent 1px);
+            background-size: var(--board-cell) var(--board-cell);
             border: 3px solid #8b6914;
             border-radius: 4px;
             position: relative;
@@ -190,41 +194,16 @@
             position: relative;
             cursor: pointer;
             touch-action: manipulation;
-            z-index: 1;
-        }
-
-        .cell::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #8b6914;
-            z-index: 1;
-        }
-
-        .cell::after {
-            content: '';
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 1px;
-            background: #8b6914;
-            z-index: 1;
+            background: transparent !important;
+            box-shadow: none !important;
         }
 
         .cell .piece {
             z-index: 10;
         }
 
-        .cell:hover::before {
-            background: #667eea;
-        }
-
-        .cell:hover::after {
-            background: #667eea;
+        .cell:hover {
+            background: rgba(102, 126, 234, 0.25) !important;
         }
 
         .piece {
