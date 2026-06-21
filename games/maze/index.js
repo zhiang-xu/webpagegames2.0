@@ -4,7 +4,7 @@
             easy:   { cols: 31, rows: 31, cellSize: 18 },
             medium: { cols: 61, rows: 61, cellSize: 10 },
             hard:   { cols: 101, rows: 101, cellSize: 9 },
-            expert: { cols: 101, rows: 101, cellSize: 6, fog: true, fogRadius: 10 }
+            expert: { cols: 101, rows: 101, cellSize: 9, fog: true, fogRadius: 10 }
         };
 
         let difficulty = 'easy';
@@ -286,6 +286,32 @@
                 ctx.fillStyle = overlay;
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.restore();
+            }
+
+            // ---- 4. 专家模式：在迷雾上方绘制玩家发光效果 ----
+            if (fogMode) {
+                const cx = player.x * cellSize + cellSize * 0.5;
+                const cy = player.y * cellSize + cellSize * 0.5;
+                // 外发光圈
+                const glowR = cellSize * 0.7;
+                const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
+                glow.addColorStop(0, 'rgba(239,68,68,0.5)');
+                glow.addColorStop(0.5, 'rgba(239,68,68,0.2)');
+                glow.addColorStop(1, 'rgba(239,68,68,0)');
+                ctx.fillStyle = glow;
+                ctx.beginPath();
+                ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
+                ctx.fill();
+                // 红球
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.arc(cx, cy, cellSize * 0.35, 0, Math.PI * 2);
+                ctx.fill();
+                // 白高光
+                ctx.fillStyle = 'rgba(255,255,255,0.6)';
+                ctx.beginPath();
+                ctx.arc(cx - cellSize * 0.1, cy - cellSize * 0.1, cellSize * 0.12, 0, Math.PI * 2);
+                ctx.fill();
             }
         }
 
