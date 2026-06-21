@@ -53,13 +53,14 @@
 
 ## 版本历史
 
-### v2.0.0 (2026-06-21)
-- 从 obsidian-notes2 仓库迁移至独立仓库 webpagegames2.0
-- 集成共享 `game-ui.js` 和 `boardgame-ai.js`
-- 优化 AI 置换表和走法排序
+### v1.0.1 (2026-06-21)
+- 添加游戏 README 文档
 
 ### v1.0.0 (2026-06-21)
-- 初始版本
-- 完整中国象棋规则实现
-- Alpha-Beta 搜索 AI
-- 4 档难度
+- 从 obsidian-notes2 仓库迁移至独立仓库 webpagegames2.0
+- 集成共享 `game-ui.js` 和 `boardgame-ai.js` 浮动工具栏
+- 完整中国象棋规则实现（帅仕相马车炮兵）
+- Alpha-Beta 搜索 AI，置换表和走法排序优化
+- 4 档难度（入门/初级/中级/高级）
+- 悔棋功能和移动历史
+- 将军应将和困毙判定

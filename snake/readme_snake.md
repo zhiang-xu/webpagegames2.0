@@ -38,13 +38,14 @@
 
 ## 版本历史
 
-### v2.0.0 (2026-06-21)
-- 从 obsidian-notes2 仓库迁移至独立仓库 webpagegames2.0
-- 集成共享 `game-ui.js` 浮动工具栏和音效系统
-- 新增地狱难度
+### v1.0.1 (2026-06-21)
+- 添加游戏 README 文档
 
 ### v1.0.0 (2026-06-21)
-- 初始版本
-- Canvas 渲染
-- 3 档难度
-- localStorage 最高分
+- 从 obsidian-notes2 仓库迁移至独立仓库 webpagegames2.0
+- 集成共享 `game-ui.js` 浮动工具栏和音效系统
+- Canvas 渲染，蛇身颜色渐变
+- 4 档难度（简单/中等/困难/地狱）
+- localStorage 最高分记录
+- 触屏方向按钮支持
+- 暂停/继续功能
