@@ -1,7 +1,10 @@
-fix: correct game-ui.js default homeHref and remove duplicate back/sound buttons
+fix: add overflow-y:auto to body and fix align-items for mobile scroll on 5 games
 
-- Fix js/game-ui.js default homeHref from '../index.html' to '../../index.html'
-- Remove duplicate hard-coded back-btn and sound-toggle elements from
-  gomoku, xiangqi, and doushouqi HTML (now handled by game-ui.js)
-- Remove dead .back-btn, .sound-toggle, .icon-btn CSS from those 3 games
-- Fix doushouqi topbar layout after removing icon buttons
+- snake: body align-items center->flex-start, add overflow-y:auto (content was unscrollable on mobile)
+- gomoku: add overflow-y:auto to body (700px breakpoint already switches to flex-start)
+- xiangqi: add overflow-y:auto to body (700px breakpoint already switches to flex-start)
+- junqi: add overflow-y:auto to body
+- game2048: add overflow-y:auto to body
+
+Root cause: body with min-height:100vh + align-items:center traps content
+below the fold with no way to scroll on small viewports.

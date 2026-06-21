@@ -9,6 +9,7 @@
             align-items: center;
             padding: 12px;
             overflow-x: hidden;
+            overflow-y: auto;
         }
 
         .floating-decorations {

@@ -10,9 +10,10 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             padding: 16px;
             overflow-x: hidden;
+            overflow-y: auto;
         }
 
         .container {
