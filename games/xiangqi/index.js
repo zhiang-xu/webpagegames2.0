@@ -14,6 +14,7 @@
                 this.playerColor = 'red';
                 this.aiColor = 'black';
                 this.selectedPiece = null;
+                this.gameActive = false;
                 this.transpositionTable = BoardGameAI.createTranspositionTable(40000);
                 
                 this.initBoard();
@@ -98,6 +99,7 @@
                 this.initBoard();
                 this.currentPlayer = 'red';
                 this.gameOver = false;
+                this.gameActive = true;
                 this.moves = [];
                 this.selectedPiece = null;
                 this.transpositionTable.clear();
@@ -212,6 +214,7 @@
             }
 
             handleClick(row, col) {
+                if (!this.gameActive) return;
                 if (this.gameOver) return;
 
                 if (this.mode === 'pve') {
@@ -870,4 +873,5 @@
         const game = new Xiangqi();
         game.applyDifficultyPreset();
         game.updateAiControls();
-        game.start();
+        game.renderBoard();
+        game.updateStatus('点击"开始游戏"按钮开始');

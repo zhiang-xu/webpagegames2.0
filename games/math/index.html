@@ -34,9 +34,9 @@
 
     <div class="game-area">
         <div class="difficulty-select">
-            <button class="btn-diff easy active" onclick="setDifficulty('easy')">简单</button>
-            <button class="btn-diff medium" onclick="setDifficulty('medium')">中等</button>
-            <button class="btn-diff hard" onclick="setDifficulty('hard')">困难</button>
+            <button class="btn-diff easy active" onclick="setDifficulty('easy'); startGame()">简单</button>
+            <button class="btn-diff medium" onclick="setDifficulty('medium'); startGame()">中等</button>
+            <button class="btn-diff hard" onclick="setDifficulty('hard'); startGame()">困难</button>
         </div>
 
         <div class="info-bar">
@@ -70,6 +70,7 @@
         </div>
 
         <div class="controls">
+            <button class="btn btn-submit" onclick="startGame()">🎮 开始游戏</button>
             <button class="btn btn-submit" onclick="checkAnswer()">✅ 提交</button>
             <button class="btn btn-skip" onclick="skipQuestion()">⏭ 跳过</button>
         </div>

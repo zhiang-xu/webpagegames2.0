@@ -70,6 +70,16 @@
             pageAudio.play('tap');
         }
 
+        function startGame() {
+            gameActive = true;
+            inputEl.disabled = false;
+            guessBtn.disabled = false;
+            hintEl.textContent = '开始猜吧！';
+            hintEl.className = 'hint-text';
+            pageAudio.play('start');
+            inputEl.focus();
+        }
+
         function newGame(diff) {
             difficulty = diff;
             document.querySelectorAll('.btn-diff').forEach(btn => btn.classList.remove('active'));
@@ -77,21 +87,18 @@
 
             targetNumber = Math.floor(Math.random() * DIFFICULTY[diff].max) + 1;
             attempts = 0;
-            gameActive = true;
+            gameActive = false;
 
             rangeEl.textContent = `1 ~ ${DIFFICULTY[diff].max}`;
-            hintEl.textContent = '开始猜吧！';
+            hintEl.textContent = '\u70b9\u51fb"\u5f00\u59cb\u6e38\u620f"\u6309\u94ae\u5f00\u59cb';
             hintEl.className = 'hint-text';
             inputEl.value = '';
-            inputEl.disabled = false;
-            guessBtn.disabled = false;
+            inputEl.disabled = true;
+            guessBtn.disabled = true;
             historyEl.innerHTML = '';
             victoryOverlay.classList.remove('show');
             updateBestDisplay();
             updateAttempts();
-            pageAudio.play('start');
-
-            inputEl.focus();
         }
 
         function updateAttempts() {

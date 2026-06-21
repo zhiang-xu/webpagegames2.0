@@ -12,24 +12,28 @@
                 this.playerColor = 'black';
                 this.aiColor = 'white';
                 this.soundEnabled = true;
+                this.gameActive = false;
                 this.transpositionTable = BoardGameAI.createTranspositionTable(25000);
-                
+
                 // 音效上下文
                 this.audioContext = null;
-                
+
                 this.initBoard();
                 this.setupEventListeners();
                 this.initSound();
+                this.renderBoard();
+                this.updateStatus('点击"开始游戏"按钮开始');
             }
 
             initBoard() {
-                this.board = [];
-                for (let i = 0; i < this.boardSize; i++) {
-                    this.board[i] = [];
-                    for (let j = 0; j < this.boardSize; j++) {
-                        this.board[i][j] = null;
-                    }
+            this.board = [];
+            for (let i = 0; i < this.boardSize; i++) {
+                this.board[i] = [];
+                for (let j = 0; j < this.boardSize; j++) {
+                    this.board[i][j] = null;
                 }
+            }
+            this.gameActive = false;
             }
 
             setupEventListeners() {
@@ -248,6 +252,7 @@
             }
 
             handleClick(row, col) {
+                if (!this.gameActive) return;
                 if (this.gameOver) return;
                 if (this.board[row][col]) return;
 
@@ -677,4 +682,4 @@
         const game = new Gomoku();
         game.applyDifficultyPreset();
         game.updateAiControls();
-        game.start();
+        game.renderBoard();

@@ -34,9 +34,9 @@
 
     <div class="game-area">
         <div class="difficulty-select">
-            <button class="btn-diff easy active" onclick="newGame('easy')">简单</button>
-            <button class="btn-diff medium" onclick="newGame('medium')">中等</button>
-            <button class="btn-diff hard" onclick="newGame('hard')">困难</button>
+            <button class="btn-diff easy active" onclick="newGame('easy'); startGame()">简单</button>
+            <button class="btn-diff medium" onclick="newGame('medium'); startGame()">中等</button>
+            <button class="btn-diff hard" onclick="newGame('hard'); startGame()">困难</button>
         </div>
 
         <div class="info-bar">
@@ -59,7 +59,7 @@
         <div class="number-pad" id="numberPad"></div>
 
         <div class="controls">
-            <button class="btn btn-new" onclick="newGame(difficulty)">🔄 新游戏</button>
+            <button class="btn btn-new" onclick="newGame(difficulty); startGame()">🔄 新游戏</button>
             <button class="btn btn-hint" onclick="useHint()">💡 提示</button>
             <button class="btn btn-check" onclick="checkAnswer()">✅ 检查</button>
             <button class="btn btn-solve" onclick="giveUp()">🏳 放弃</button>
@@ -73,7 +73,7 @@
             <p>❌ 错误：<span id="finalErrors">0</span></p>
             <p>⭐ 评分：<span id="finalScore">★★★</span></p>
         </div>
-        <button class="btn-play-again" onclick="newGame(difficulty)">🎮 再来一局</button>
+        <button class="btn-play-again" onclick="newGame(difficulty); startGame()">🎮 再来一局</button>
     </div>
 
     <script src="../../js/game-ui.js"></script>

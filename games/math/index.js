@@ -37,7 +37,7 @@
             level = 1;
             streak = 0;
             timeLeft = DIFFICULTY[difficulty].time;
-            gameActive = true;
+            gameActive = false;
             stopTimer();
             updateDisplay();
             generateQuestion();
@@ -46,6 +46,10 @@
             feedbackEl.textContent = '';
             timeEl.textContent = timeLeft;
             progressBar.style.width = '100%';
+        }
+
+        function startGame() {
+            gameActive = true;
             startTimer();
             pageAudio.play('start');
         }

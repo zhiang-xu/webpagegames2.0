@@ -5,6 +5,7 @@ let score = 0;
 let bestScore = parseInt(localStorage.getItem('bestScore2048') || '0');
 let gameWon = false;
 let gameOver = false;
+let gameActive = false;
 let tiles = [];
 
 const gridContainer = document.getElementById('gridContainer');
@@ -30,13 +31,21 @@ function initBoard() {
     score = 0;
     gameWon = false;
     gameOver = false;
+    gameActive = false;
     updateScore();
     gameOverOverlay.classList.remove('show');
     victoryOverlay.classList.remove('show');
     clearTiles();
+    render();
+}
+
+function startGame() {
+    initBoard();
+    gameActive = true;
     addNewTile();
     addNewTile();
     render();
+    pageAudio.play('start');
 }
 
 function clearTiles() {
@@ -152,6 +161,7 @@ function moveDown() {
 }
 
 function handleMove(direction) {
+    if (!gameActive) return;
     if (gameOver) return;
 
     const previousScore = score;
@@ -206,11 +216,11 @@ function isGameOver() {
 }
 
 function resetGame() {
-    initBoard();
-    pageAudio.play('start');
+    startGame();
 }
 
 function continueGame() {
+    gameActive = true;
     victoryOverlay.classList.remove('show');
     pageAudio.play('tap');
 }

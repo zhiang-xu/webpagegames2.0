@@ -193,6 +193,7 @@
         this.selected = null;
         this.validMoves = [];
         this.gameOver = false;
+        this.gameActive = false;
         this.turnToken = 0;
         this.history = [];
         this.pieces = [];
@@ -246,10 +247,10 @@
       }
 
       bindEvents() {
-        document.getElementById('newBtn').addEventListener('click', () => this.init());
+        document.getElementById('newBtn').addEventListener('click', () => this.startGame());
         document.getElementById('undoBtn').addEventListener('click', () => this.undo());
         document.getElementById('hintBtn').addEventListener('click', () => this.toggleMode());
-        document.getElementById('againBtn').addEventListener('click', () => this.init());
+        document.getElementById('againBtn').addEventListener('click', () => this.startGame());
         this.modeSel.addEventListener('change', () => {
           this.mode = this.modeSel.value;
           this.difficultyGroup.style.display = this.mode === 'ai' ? '' : 'none';
@@ -264,6 +265,7 @@
       init() {
         this.turnToken += 1;
         this.gameOver = false;
+        this.gameActive = false;
         this.currentPlayer = 'red';
         this.selected = null;
         this.validMoves = [];
@@ -278,6 +280,27 @@
         this.modeSel.value = this.mode;
         this.difficultySel.value = this.difficulty;
         this.updateTurnLabel();
+      }
+
+      startGame() {
+        this.turnToken += 1;
+        this.gameOver = false;
+        this.gameActive = true;
+        this.currentPlayer = 'red';
+        this.selected = null;
+        this.validMoves = [];
+        this.history = [];
+        this.buildTerrain();
+        this.buildPieces();
+        this.buildDecor();
+        this.overlayEl.classList.remove('show');
+        this.render();
+        this.updateStatus(TEXT.redTurnHint);
+        this.difficultyGroup.style.display = this.mode === 'ai' ? '' : 'none';
+        this.modeSel.value = this.mode;
+        this.difficultySel.value = this.difficulty;
+        this.updateTurnLabel();
+        this.ui.play('start');
       }
 
       buildGrid() {
@@ -462,6 +485,7 @@
       }
 
       handleCellClick(row, col) {
+        if (!this.gameActive) return;
         if (this.gameOver) return;
         if (this.mode === 'ai' && this.currentPlayer === 'blue') return;
 

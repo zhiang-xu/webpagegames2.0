@@ -41,6 +41,12 @@
             return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
         }
 
+        function startGame() {
+            gameActive = true;
+            startTimer();
+            pageAudio.play('start');
+        }
+
         function newMaze(diff) {
             difficulty = diff;
             document.querySelectorAll('.btn-diff').forEach(btn => btn.classList.remove('active'));
@@ -58,7 +64,7 @@
             goal = { x: goalCol, y: goalRow };
             steps = 0;
             pathHistory = [{ x: 0, y: 0 }];
-            gameActive = true;
+            gameActive = false;
 
             // 设置画布尺寸
             canvas.width = config.cols * config.cellSize;
@@ -70,8 +76,6 @@
             victoryOverlay.classList.remove('show');
 
             draw();
-            startTimer();
-            pageAudio.play('start');
         }
 
         function generateMaze(cols, rows) {
@@ -378,6 +382,7 @@
         }, { passive: false });
 
         canvas.addEventListener('touchend', (e) => {
+            if (!gameActive) return;
             if (!touchStartX || !touchStartY) return;
             const dx = e.changedTouches[0].clientX - touchStartX;
             const dy = e.changedTouches[0].clientY - touchStartY;

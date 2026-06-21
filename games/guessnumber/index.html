@@ -39,6 +39,10 @@
             <button class="btn-diff hard" onclick="newGame('hard')">困难 (1-200)</button>
         </div>
 
+        <div class="controls" style="margin-bottom:12px">
+            <button class="btn btn-new" onclick="startGame()">🎮 开始游戏</button>
+        </div>
+
         <div class="info-bar">
             <div class="info-box">
                 <h3>🔄 已猜</h3>
@@ -58,7 +62,7 @@
             <input type="number" class="guess-input" id="guessInput" placeholder="?" min="1" max="200">
             <button class="btn btn-guess" id="guessBtn" onclick="makeGuess()">🎯 猜一下</button>
             <div class="guesses-history" id="guessesHistory"></div>
-            <button class="btn btn-new" onclick="newGame(difficulty)">🔄 新游戏</button>
+            <button class="btn btn-new" onclick="newGame(difficulty); startGame()">🔄 新游戏</button>
         </div>
 
         <div class="number-pad" id="numberPad"></div>
@@ -71,7 +75,7 @@
             <p>🔄 猜了：<span id="finalAttempts">—</span> 次</p>
             <p>⭐ 评分：<span id="finalScore">★★★</span></p>
         </div>
-        <button class="btn-play-again" onclick="newGame(difficulty)">🎮 再玩一次</button>
+        <button class="btn-play-again" onclick="newGame(difficulty); startGame()">🎮 再玩一次</button>
     </div>
 
     <script src="../../js/game-ui.js"></script>

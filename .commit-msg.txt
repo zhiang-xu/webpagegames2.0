@@ -1,10 +1,23 @@
-fix: add overflow-y:auto to body and fix align-items for mobile scroll on 5 games
+refactor: unify game start flow — all games now require explicit click to begin
 
-- snake: body align-items center->flex-start, add overflow-y:auto (content was unscrollable on mobile)
-- gomoku: add overflow-y:auto to body (700px breakpoint already switches to flex-start)
-- xiangqi: add overflow-y:auto to body (700px breakpoint already switches to flex-start)
-- junqi: add overflow-y:auto to body
-- game2048: add overflow-y:auto to body
+Every game now shows a "ready" state on page load where:
+- Controls are blocked (no keyboard/touch input accepted)
+- Timer does NOT start automatically
 
-Root cause: body with min-height:100vh + align-items:center traps content
-below the fold with no way to scroll on small viewports.
+Users must click "开始游戏" (or equivalent) to truly start.
+
+Games fixed:
+- snake: already correct (isRunning guard)
+- gomoku: added gameActive, removed auto-start call, shows waiting msg
+- xiangqi: added gameActive, removed auto-start, shows waiting msg
+- doushouqi: added startGame() method, gameActive guard in handleCellClick
+- memory: added gameActive + newGame wrapper, flipCard guarded
+- sudoku: split newGame (board only) + startGame (timer + gameActive)
+- game2048: split initBoard (no tiles) + startGame (add tiles + gameActive)
+- math: split resetGame (no timer) + startGame (timer + gameActive), added btn
+- guessnumber: split newGame (disabled inputs) + startGame (enabled + hint reset)
+- maze: split newMaze (draw only) + startGame (timer + gameActive), added btn
+- junqi: added gameActive guard to handleCellClick
+- tetris: already correct (startGame exists)
+
+Also: maze canvas touchend now checks gameActive.

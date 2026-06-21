@@ -14,6 +14,7 @@
         let moves = 0;
         let timer = null;
         let seconds = 0;
+        let gameActive = false;
         let gameStarted = false;
         let gameWon = false;
 
@@ -61,6 +62,7 @@
 
         function initGame() {
             stopTimer();
+            gameActive = false;
             gameStarted = false;
             gameWon = false;
             flippedCards = [];
@@ -109,10 +111,20 @@
             });
 
             document.getElementById('victory').classList.remove('show');
+        }
+
+        function startGame() {
+            gameActive = true;
             pageAudio.play('start');
         }
 
+        function newGame() {
+            initGame();
+            startGame();
+        }
+
         function flipCard(card) {
+            if (!gameActive) return;
             if (gameWon) return;
             if (flippedCards.length >= 2) return;
             if (card.classList.contains('flipped')) return;

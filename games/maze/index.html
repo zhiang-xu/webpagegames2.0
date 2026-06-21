@@ -34,9 +34,9 @@
 
     <div class="game-area">
         <div class="difficulty-select">
-            <button class="btn-diff easy active" onclick="newMaze('easy')">简单 (10×10)</button>
-            <button class="btn-diff medium" onclick="newMaze('medium')">中等 (15×15)</button>
-            <button class="btn-diff hard" onclick="newMaze('hard')">困难 (20×20)</button>
+            <button class="btn-diff easy active" onclick="newMaze('easy'); startGame()">简单 (10×10)</button>
+            <button class="btn-diff medium" onclick="newMaze('medium'); startGame()">中等 (15×15)</button>
+            <button class="btn-diff hard" onclick="newMaze('hard'); startGame()">困难 (20×20)</button>
         </div>
 
         <div class="info-bar">
@@ -62,6 +62,7 @@
         </div>
 
         <div class="controls">
+            <button class="btn btn-new" onclick="startGame()">🎮 开始游戏</button>
             <button class="btn btn-new" onclick="newMaze(difficulty)">🔄 新迷宫</button>
             <button class="btn btn-hint" onclick="showHint()">💡 提示</button>
             <button class="btn btn-solve" onclick="solveMaze()">🗺 看答案</button>

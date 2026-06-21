@@ -113,7 +113,7 @@
             stopTimer();
             errors = 0;
             hints = 3;
-            gameActive = true;
+            gameActive = false;
             selectedCell = null;
             victoryOverlay.classList.remove('show');
 
@@ -138,11 +138,13 @@
             renderBoard();
             renderNumberPad();
             updateInfo();
+        }
+
+        function startGame() {
+            gameActive = true;
             startTimer();
             pageAudio.play('start');
         }
-
-        function renderBoard() {
             boardEl.innerHTML = '';
             for (let r = 0; r < 9; r++) {
                 for (let c = 0; c < 9; c++) {
