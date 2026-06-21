@@ -38,13 +38,38 @@
             to { transform: rotate(360deg); }
         }
 
-        /* 棋盘悬停效果 */
-        #board:hover .cell:not(.has-piece)::before,
-        #board:hover .cell:not(.has-piece)::after {
-            background: rgba(102, 126, 234, 0.5);
+        /* ---- 棋盘 ---- */
+        #board {
+            --board-cell: clamp(24px, 5.4vw, 50px);
+            display: grid;
+            grid-template-columns: repeat(15, var(--board-cell));
+            grid-template-rows: repeat(15, var(--board-cell));
+            width: calc(15 * var(--board-cell));
+            height: calc(15 * var(--board-cell));
+            background-color: #dcb35c;
+            background-image:
+                repeating-linear-gradient(to right, #8b6914 0px, #8b6914 1px, transparent 1px, transparent var(--board-cell)),
+                repeating-linear-gradient(to bottom, #8b6914 0px, #8b6914 1px, transparent 1px, transparent var(--board-cell));
+            border: 3px solid #8b6914;
+            border-radius: 4px;
+            position: relative;
         }
 
-        .container {
+        .cell {
+            width: var(--board-cell);
+            height: var(--board-cell);
+            position: relative;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .cell .piece {
+            z-index: 10;
+        }
+
+        .cell:hover {
+            background: rgba(102, 126, 234, 0.25);
+        }
             background: white;
             border-radius: 20px;
             padding: 26px;
@@ -103,7 +128,7 @@
             font-size: 0.9em;
         }
 
-        select, button {
+        select {
             padding: 10px 20px;
             border: 2px solid #ddd;
             border-radius: 8px;
@@ -112,16 +137,26 @@
             transition: all 0.3s;
         }
 
-        select:focus, button:focus {
+        select:focus {
             outline: none;
             border-color: #667eea;
         }
 
         button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
             background: #667eea;
             color: white;
-            border: none;
-            font-weight: 600;
+        }
+
+        button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #667eea;
         }
 
         button:hover {
@@ -178,11 +213,12 @@
             display: grid;
             grid-template-columns: repeat(15, var(--board-cell));
             grid-template-rows: repeat(15, var(--board-cell));
-            background: #dcb35c;
+            width: calc(15 * var(--board-cell));
+            height: calc(15 * var(--board-cell));
+            background-color: #dcb35c;
             background-image:
-                linear-gradient(to right, #8b6914 1px, transparent 1px),
-                linear-gradient(to bottom, #8b6914 1px, transparent 1px);
-            background-size: var(--board-cell) var(--board-cell);
+                repeating-linear-gradient(to right, #8b6914 0px, #8b6914 1px, transparent 1px, transparent var(--board-cell)),
+                repeating-linear-gradient(to bottom, #8b6914 0px, #8b6914 1px, transparent 1px, transparent var(--board-cell));
             border: 3px solid #8b6914;
             border-radius: 4px;
             position: relative;
@@ -231,14 +267,6 @@
                 transform: translate(-50%, -50%) scale(1);
                 opacity: 1;
             }
-        }
-
-        .piece.black {
-            background: radial-gradient(circle at 30% 30%, #444, #111);
-        }
-
-        .piece.white {
-            background: radial-gradient(circle at 30% 30%, #fff, #ccc);
         }
 
         .piece.black {
@@ -374,4 +402,9 @@
             select, button {
                 width: 100%;
             }
+        }
+
+        /* 覆盖 base.css 的 button 重置，确保按钮有边框 */
+        button {
+            border: none;
         }
