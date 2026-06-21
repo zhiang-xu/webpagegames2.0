@@ -153,6 +153,7 @@
                 this.initBoard();
                 this.currentPlayer = 'black';
                 this.gameOver = false;
+                this.gameActive = true;
                 this.moves = [];
                 this.transpositionTable.clear();
                 this.renderBoard();
