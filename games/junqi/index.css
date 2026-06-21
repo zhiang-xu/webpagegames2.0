@@ -127,21 +127,22 @@
         /* 棋盘 */
         .board {
             position: relative;
-            background: #f5f5dc;
             border-radius: 10px;
-            padding: 15px;
+            padding: 0;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             border: 3px solid #8b7355;
+            background: url(images/board.png) center/cover no-repeat;
+            width: 600px;
+            height: 750px;
         }
 
         .board-inner {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
             display: grid;
             grid-template-columns: repeat(12, 1fr);
             grid-template-rows: repeat(10, 1fr);
             gap: 0;
-            width: min(96vw, 600px);
-            height: min(calc(96vw * 5 / 6), 500px);
-            position: relative;
         }
 
         .cell {
@@ -150,44 +151,45 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            border: 1px solid #c9b896;
             transition: all 0.2s;
             touch-action: manipulation;
-            min-width: 20px;
-            min-height: 20px;
+            min-width: 0;
+            min-height: 0;
             width: 100%;
             height: 100%;
+            background: transparent;
         }
-        .cell:hover { background: rgba(102, 126, 234, 0.15); }
-        .cell.selected { background: rgba(255, 215, 0, 0.5) !important; }
+        .cell:hover { background: rgba(255, 255, 255, 0.08); }
+        .cell.selected { background: rgba(255, 215, 0, 0.45) !important; }
         .cell.valid-move::before {
             content: '';
             position: absolute;
-            width: 20px;
-            height: 20px;
-            background: rgba(78, 205, 196, 0.6);
+            width: 16px;
+            height: 16px;
+            background: rgba(78, 205, 196, 0.65);
             border-radius: 50%;
             z-index: 5;
+            border: 2px solid rgba(255,255,255,0.5);
         }
         .cell.valid-capture::before {
             content: '';
             position: absolute;
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 107, 107, 0.3);
+            width: 60%;
+            height: 60%;
+            background: rgba(255, 107, 107, 0.35);
             border-radius: 50%;
             z-index: 5;
+            border: 2px solid rgba(255,255,255,0.4);
         }
 
-        /* 地形 */
-        .terrain-river { background: linear-gradient(135deg, #74b9ff, #0984e3); }
-        .terrain-railway { background: repeating-linear-gradient(45deg, #dfe6e9, #dfe6e9 10px, #b2bec3 10px, #b2bec3 12px); }
-        .terrain-highway { background: #dfe6e9; }
-        .terrain-trap { background: repeating-linear-gradient(45deg, #636e72, #636e72 5px, #2d3436 5px, #2d3436 8px); }
-        .terrain-base { background: linear-gradient(135deg, #fdcb6e, #f39c12); }
-        .terrain-flag { background: linear-gradient(135deg, #e74c3c, #c0392b); }
-        .terrain-bomb { background: repeating-linear-gradient(45deg, #e17055, #e17055 5px, #d63031 5px, #d63031 8px); }
-        .terrain-mine { background: repeating-linear-gradient(45deg, #2d3436, #2d3436 5px, #636e72 5px, #636e72 8px); }
+        /* 地形：全部透明，背景图片提供棋盘视觉 */
+        .terrain-barracks,
+        .terrain-highway,
+        .terrain-big-base,
+        .terrain-corner-base {
+            background: transparent;
+            box-shadow: none;
+        }
 
         /* 棋子 */
         .piece {
@@ -349,7 +351,10 @@
         @media (max-width: 768px) {
             body { padding: 8px; }
             .logo { font-size: 1.8rem; }
-            .board-inner { width: min(96vw, 360px); height: min(calc(96vw * 5 / 6), 300px); }
+            .board {
+                width: min(96vw, 360px);
+                height: min(calc(96vw * 1.25), 450px);
+            }
             .piece { font-size: 0.6rem; }
             .info-box { padding: 12px 16px; min-width: 100px; }
             .info-box .value { font-size: 1.2rem; }

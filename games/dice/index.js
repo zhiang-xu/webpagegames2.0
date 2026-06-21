@@ -137,7 +137,6 @@
         document.getElementById('oddEvenBtns').style.display = newMode === 'oddeven'   ? '' : 'none';
 
         showRules(newMode);
-        if (newMode === 'dice21') ensure21ButtonReady();
         resetRound();
     }
 
@@ -167,24 +166,13 @@
 
     // ===================== 掷骰主按钮 =====================
     document.getElementById('btnRoll').addEventListener('click', function () {
-        if (mode === 'dice21') {
-            console.log('[dice] start21Game called, game21Over=', game21Over, 'isRolling=', isRolling);
-            start21Game();
-        } else {
-            doGuessRoll();
-        }
+        if (mode === 'dice21') return; // 21点用独立的 btnStart21
+        doGuessRoll();
     });
 
-    // ===================== 模式切换 =====================
-    function ensure21ButtonReady() {
-        var btnRoll = document.getElementById('btnRoll');
-        if (btnRoll) {
-            btnRoll.style.display = '';
-            btnRoll.textContent   = '🎮 开始游戏';
-            btnRoll.disabled = false;
-        }
-        set21Buttons(false, false);
-    }
+    document.getElementById('btnStart21').addEventListener('click', function () {
+        if (mode === 'dice21') start21Game();
+    });
 
     document.getElementById('btnCompareRoll').addEventListener('click', doCompareRoll);
 
@@ -294,18 +282,18 @@
         showResult('dice21', '');
         set21Buttons(false, false);
 
-        var btnRoll = document.getElementById('btnRoll');
-        if (btnRoll) {
-            btnRoll.style.display = '';
-            btnRoll.textContent   = '🎮 开始游戏';
-            btnRoll.disabled = false;
+        var btnStart = document.getElementById('btnStart21');
+        if (btnStart) {
+            btnStart.style.display = '';
+            btnStart.textContent   = '🎮 开始游戏';
+            btnStart.disabled = false;
         }
     }
 
     function start21Game() {
         if (isRolling || game21Over) return;
-        var btnRoll = document.getElementById('btnRoll');
-        if (btnRoll) btnRoll.style.display = 'none';
+        var btnStart = document.getElementById('btnStart21');
+        if (btnStart) btnStart.style.display = 'none';
 
         p21Dice.push(rollDie());
         ai21Dice.push(rollDie());

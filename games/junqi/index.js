@@ -16,53 +16,51 @@
         };
 
         // ============ 棋盘布局 ============
+        // 严格对照参考图 08362718_1.jpg（简化版，无河流）
         // 10行 x 12列
         // 地形标记
         const TERRAIN = {
             EMPTY: 0,
-            RAILWAY: 1,    // 铁路（工兵飞）
-            HIGHWAY: 2,    // 公路
-            RIVER: 3,      // 河流（工兵可过）
-            TRAP: 4,       // 陷阱
-            BASE: 5,       // 大本营
-            FLAG_BASE: 6   // 军旗大本营
+            BARRACKS: 1,    // 兵站（矩形格，两侧横线连接）
+            HIGHWAY: 2,     // 行营（行4-5 X型斜线连接）
+            BIG_BASE: 3,    // 大本营（圆圈格）
+            BASE_CORNER: 4 // 角大本营（角落矩形）
         };
 
-        // 棋盘地形布局
-        const boardLayout = [
-            // 行0-4: 红方区域
-            [0,1,1,1,1,1,1,1,1,1,1,0],  // 铁路
-            [1,1,1,1,1,1,1,1,1,1,1,1],  // 铁路
-            [2,2,2,2,2,2,2,2,2,2,2,2],  // 公路
-            [1,1,1,1,1,3,3,1,1,1,1,1],  // 铁路+河流
-            [2,2,2,2,2,2,2,2,2,2,2,2],  // 公路
-            // 行5-9: 蓝方区域
-            [2,2,2,2,2,2,2,2,2,2,2,2],  // 公路
-            [1,1,1,1,1,3,3,1,1,1,1,1],  // 铁路+河流
-            [2,2,2,2,2,2,2,2,2,2,2,2],  // 公路
-            [1,1,1,1,1,1,1,1,1,1,1,1],  // 铁路
-            [0,1,1,1,1,1,1,1,1,1,1,0],  // 铁路
+        // 参考图棋盘地形（逐格分析，简化版无河流）
+        const terrainMap = [
+            //   0  1  2  3  4  5  6  7  8  9  10 11
+            /*0*/[4, 1, 1, 1, 1, 1, 1, 1, 1, 1,  1,  4], // 兵站 + 角大本营(0,11)
+            /*1*/[1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  1,  1], // 兵站(X型斜线)
+            /*2*/[1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  1,  1], // 兵站(横线)
+            /*3*/[3, 1, 3, 3, 1, 1, 1, 1, 1, 3,  1,  3], // 大本营行(0,2,3,9,11=圆圈)
+            /*4*/[1, 1, 1, 1, 1, 2, 2, 1, 1, 1,  1,  1], // 行营(X交叉 cols5-6)
+            /*5*/[1, 1, 1, 1, 1, 2, 2, 1, 1, 1,  1,  1], // 行营(X交叉 cols5-6)
+            /*6*/[1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  1,  1], // 兵站(横线)
+            /*7*/[1, 1, 1, 1, 1, 1, 1, 1, 1, 1,  1,  1], // 兵站(横线)
+            /*8*/[3, 3, 3, 1, 1, 1, 1, 1, 1, 3,  3,  3], // 大本营行(0,1,2,9,10,11=圆圈)
+            /*9*/[4, 1, 1, 1, 1, 1, 1, 1, 1, 1,  1,  4], // 兵站 + 角大本营(0,11)
         ];
 
-        // 大本营位置
-        const BASES = [
-            { r: 0, c: 0 }, { r: 0, c: 11 },
-            { r: 9, c: 0 }, { r: 9, c: 11 },
-            { r: 4, c: 5 }, { r: 4, c: 6 },
-            { r: 5, c: 5 }, { r: 5, c: 6 }
-        ];
+        function getTerrain(r, c) {
+            return terrainMap[r][c];
+        }
 
-        // 陷阱位置
-        const TRAPS = [
-            { r: 1, c: 1 }, { r: 1, c: 10 },
-            { r: 8, c: 1 }, { r: 8, c: 10 }
-        ];
+        function isBarracks(r, c) {
+            return terrainMap[r][c] === TERRAIN.BARRACKS;
+        }
 
-        // 军旗大本营
-        const FLAG_BASES = [
-            { r: 0, c: 5 }, { r: 0, c: 6 },
-            { r: 9, c: 5 }, { r: 9, c: 6 }
-        ];
+        function isHighway(r, c) {
+            return terrainMap[r][c] === TERRAIN.HIGHWAY;
+        }
+
+        function isBigBase(r, c) {
+            return terrainMap[r][c] === TERRAIN.BIG_BASE;
+        }
+
+        function isCornerBase(r, c) {
+            return terrainMap[r][c] === TERRAIN.BASE_CORNER;
+        }
 
         // ============ 游戏状态 ============
         let board = [];  // 10x12 棋盘
@@ -133,61 +131,61 @@
 
         function createRedPieces() {
             return [
-                { id: 'r1', type: 'flag', side: 'red', r: 9, c: 5 },
-                { id: 'r2', type: 'bomb', side: 'red', r: 9, c: 4 },
-                { id: 'r3', type: 'bomb', side: 'red', r: 9, c: 7 },
-                { id: 'r4', type: 'mine', side: 'red', r: 8, c: 2 },
-                { id: 'r5', type: 'mine', side: 'red', r: 8, c: 3 },
-                { id: 'r6', type: 'mine', side: 'red', r: 8, c: 8 },
-                { id: 'r7', type: 'mine', side: 'red', r: 8, c: 9 },
-                { id: 'r8', type: 'commander', side: 'red', r: 7, c: 1 },
-                { id: 'r9', type: 'general', side: 'red', r: 7, c: 2 },
-                { id: 'r10', type: 'division', side: 'red', r: 7, c: 3 },
-                { id: 'r11', type: 'brigade', side: 'red', r: 7, c: 4 },
-                { id: 'r12', type: 'regiment', side: 'red', r: 7, c: 6 },
-                { id: 'r13', type: 'battalion', side: 'red', r: 7, c: 7 },
-                { id: 'r14', type: 'company', side: 'red', r: 7, c: 8 },
-                { id: 'r15', type: 'platoon', side: 'red', r: 7, c: 9 },
-                { id: 'r16', type: 'sapper', side: 'red', r: 6, c: 1 },
-                { id: 'r17', type: 'sapper', side: 'red', r: 6, c: 2 },
-                { id: 'r18', type: 'sapper', side: 'red', r: 6, c: 9 },
-                { id: 'r19', type: 'sapper', side: 'red', r: 6, c: 10 },
-                { id: 'r20', type: 'division', side: 'red', r: 0, c: 1 },
-                { id: 'r21', type: 'brigade', side: 'red', r: 0, c: 2 },
-                { id: 'r22', type: 'regiment', side: 'red', r: 0, c: 3 },
-                { id: 'r23', type: 'battalion', side: 'red', r: 0, c: 8 },
-                { id: 'r24', type: 'company', side: 'red', r: 0, c: 9 },
-                { id: 'r25', type: 'platoon', side: 'red', r: 0, c: 10 }
+                { id: 'r1', type: 'flag', side: 'red', r: 4, c: 5 },
+                { id: 'r2', type: 'bomb', side: 'red', r: 5, c: 4 },
+                { id: 'r3', type: 'bomb', side: 'red', r: 5, c: 7 },
+                { id: 'r4', type: 'mine', side: 'red', r: 2, c: 2 },
+                { id: 'r5', type: 'mine', side: 'red', r: 2, c: 3 },
+                { id: 'r6', type: 'mine', side: 'red', r: 2, c: 8 },
+                { id: 'r7', type: 'mine', side: 'red', r: 2, c: 9 },
+                { id: 'r8', type: 'commander', side: 'red', r: 2, c: 1 },
+                { id: 'r9', type: 'general', side: 'red', r: 2, c: 4 },
+                { id: 'r10', type: 'division', side: 'red', r: 2, c: 6 },
+                { id: 'r11', type: 'brigade', side: 'red', r: 2, c: 10 },
+                { id: 'r12', type: 'regiment', side: 'red', r: 2, c: 11 },
+                { id: 'r13', type: 'battalion', side: 'red', r: 3, c: 1 },
+                { id: 'r14', type: 'company', side: 'red', r: 3, c: 10 },
+                { id: 'r15', type: 'platoon', side: 'red', r: 3, c: 9 },
+                { id: 'r16', type: 'sapper', side: 'red', r: 0, c: 3 },
+                { id: 'r17', type: 'sapper', side: 'red', r: 1, c: 4 },
+                { id: 'r18', type: 'sapper', side: 'red', r: 3, c: 0 },
+                { id: 'r19', type: 'sapper', side: 'red', r: 3, c: 11 },
+                { id: 'r20', type: 'division', side: 'red', r: 9, c: 1 },
+                { id: 'r21', type: 'brigade', side: 'red', r: 9, c: 2 },
+                { id: 'r22', type: 'regiment', side: 'red', r: 9, c: 3 },
+                { id: 'r23', type: 'battalion', side: 'red', r: 9, c: 8 },
+                { id: 'r24', type: 'company', side: 'red', r: 9, c: 9 },
+                { id: 'r25', type: 'platoon', side: 'red', r: 9, c: 10 }
             ];
         }
 
         function createBluePieces() {
             return [
-                { id: 'b1', type: 'flag', side: 'blue', r: 0, c: 6 },
-                { id: 'b2', type: 'bomb', side: 'blue', r: 0, c: 4 },
-                { id: 'b3', type: 'bomb', side: 'blue', r: 0, c: 7 },
-                { id: 'b4', type: 'mine', side: 'blue', r: 1, c: 2 },
-                { id: 'b5', type: 'mine', side: 'blue', r: 1, c: 3 },
-                { id: 'b6', type: 'mine', side: 'blue', r: 1, c: 8 },
-                { id: 'b7', type: 'mine', side: 'blue', r: 1, c: 9 },
-                { id: 'b8', type: 'commander', side: 'blue', r: 2, c: 1 },
-                { id: 'b9', type: 'general', side: 'blue', r: 2, c: 2 },
-                { id: 'b10', type: 'division', side: 'blue', r: 2, c: 3 },
-                { id: 'b11', type: 'brigade', side: 'blue', r: 2, c: 4 },
-                { id: 'b12', type: 'regiment', side: 'blue', r: 2, c: 6 },
-                { id: 'b13', type: 'battalion', side: 'blue', r: 2, c: 7 },
-                { id: 'b14', type: 'company', side: 'blue', r: 2, c: 8 },
-                { id: 'b15', type: 'platoon', side: 'blue', r: 2, c: 9 },
-                { id: 'b16', type: 'sapper', side: 'blue', r: 3, c: 1 },
-                { id: 'b17', type: 'sapper', side: 'blue', r: 3, c: 2 },
-                { id: 'b18', type: 'sapper', side: 'blue', r: 3, c: 9 },
-                { id: 'b19', type: 'sapper', side: 'blue', r: 3, c: 10 },
-                { id: 'b20', type: 'division', side: 'blue', r: 9, c: 1 },
-                { id: 'b21', type: 'brigade', side: 'blue', r: 9, c: 2 },
-                { id: 'b22', type: 'regiment', side: 'blue', r: 9, c: 3 },
-                { id: 'b23', type: 'battalion', side: 'blue', r: 9, c: 8 },
-                { id: 'b24', type: 'company', side: 'blue', r: 9, c: 9 },
-                { id: 'b25', type: 'platoon', side: 'blue', r: 9, c: 10 }
+                { id: 'b1', type: 'flag', side: 'blue', r: 5, c: 6 },
+                { id: 'b2', type: 'bomb', side: 'blue', r: 4, c: 4 },
+                { id: 'b3', type: 'bomb', side: 'blue', r: 4, c: 7 },
+                { id: 'b4', type: 'mine', side: 'blue', r: 7, c: 2 },
+                { id: 'b5', type: 'mine', side: 'blue', r: 7, c: 3 },
+                { id: 'b6', type: 'mine', side: 'blue', r: 7, c: 8 },
+                { id: 'b7', type: 'mine', side: 'blue', r: 7, c: 9 },
+                { id: 'b8', type: 'commander', side: 'blue', r: 7, c: 1 },
+                { id: 'b9', type: 'general', side: 'blue', r: 7, c: 4 },
+                { id: 'b10', type: 'division', side: 'blue', r: 7, c: 6 },
+                { id: 'b11', type: 'brigade', side: 'blue', r: 7, c: 10 },
+                { id: 'b12', type: 'regiment', side: 'blue', r: 7, c: 11 },
+                { id: 'b13', type: 'battalion', side: 'blue', r: 6, c: 1 },
+                { id: 'b14', type: 'company', side: 'blue', r: 6, c: 10 },
+                { id: 'b15', type: 'platoon', side: 'blue', r: 6, c: 9 },
+                { id: 'b16', type: 'sapper', side: 'blue', r: 8, c: 8 },
+                { id: 'b17', type: 'sapper', side: 'blue', r: 9, c: 7 },
+                { id: 'b18', type: 'sapper', side: 'blue', r: 6, c: 0 },
+                { id: 'b19', type: 'sapper', side: 'blue', r: 6, c: 11 },
+                { id: 'b20', type: 'division', side: 'blue', r: 0, c: 1 },
+                { id: 'b21', type: 'brigade', side: 'blue', r: 0, c: 2 },
+                { id: 'b22', type: 'regiment', side: 'blue', r: 0, c: 3 },
+                { id: 'b23', type: 'battalion', side: 'blue', r: 0, c: 8 },
+                { id: 'b24', type: 'company', side: 'blue', r: 0, c: 9 },
+                { id: 'b25', type: 'platoon', side: 'blue', r: 0, c: 10 }
             ];
         }
 
@@ -208,14 +206,12 @@
                     cell.dataset.r = r;
                     cell.dataset.c = c;
 
-                    // 地形
+                    // 地形（全部透明，背景图片提供视觉）
                     const terrain = getTerrain(r, c);
-                    if (terrain === TERRAIN.RIVER) cell.classList.add('terrain-river');
-                    else if (terrain === TERRAIN.RAILWAY) cell.classList.add('terrain-railway');
+                    if (terrain === TERRAIN.BARRACKS) cell.classList.add('terrain-barracks');
                     else if (terrain === TERRAIN.HIGHWAY) cell.classList.add('terrain-highway');
-                    else if (terrain === TERRAIN.TRAP) cell.classList.add('terrain-trap');
-                    else if (terrain === TERRAIN.BASE) cell.classList.add('terrain-base');
-                    else if (terrain === TERRAIN.FLAG_BASE) cell.classList.add('terrain-flag');
+                    else if (terrain === TERRAIN.BIG_BASE) cell.classList.add('terrain-big-base');
+                    else if (terrain === TERRAIN.BASE_CORNER) cell.classList.add('terrain-corner-base');
 
                     // 棋子
                     const piece = board[r][c];
@@ -266,95 +262,41 @@
             return el;
         }
 
-        // ============ 地形判断 ============
-        function getTerrain(r, c) {
-            // 大本营
-            if (BASES.some(b => b.r === r && b.c === c)) {
-                if (FLAG_BASES.some(f => f.r === r && f.c === c)) return TERRAIN.FLAG_BASE;
-                return TERRAIN.BASE;
-            }
-            // 陷阱
-            if (TRAPS.some(t => t.r === r && t.c === c)) return TERRAIN.TRAP;
-            // 河流
-            if (r === 3 || r === 6) {
-                if (c >= 5 && c <= 6) return TERRAIN.RIVER;
-            }
-            // 铁路
-            if (r === 0 || r === 1 || r === 8 || r === 9) return TERRAIN.RAILWAY;
-            // 公路
-            return TERRAIN.HIGHWAY;
-        }
-
+        // ============ 移动限制 ============
         function canMoveThrough(r1, c1, r2, c2, piece) {
             const terrain = getTerrain(r2, c2);
-
-            // 工兵可以过河流
-            if (terrain === TERRAIN.RIVER && piece.type !== 'sapper') {
+            // 地雷/军旗/炸弹不能移动
+            if (piece.type === 'mine' || piece.type === 'flag' || piece.type === 'bomb') {
                 return false;
             }
-
-            // 不能进入陷阱（除非是工兵）
-            // 实际上陷阱只是降低防御，不是不能进入
-
             return true;
-        }
-
-        function isRailway(r, c) {
-            return r === 0 || r === 1 || r === 8 || r === 9 || c === 0 || c === 11;
         }
 
         // ============ 移动规则 ============
         function getValidMoves(piece) {
             const moves = [];
             const { r, c, type, side } = piece;
-            const isSapper = type === 'sapper';
+            const currentTerrain = getTerrain(r, c);
+            const isOnHighway = currentTerrain === TERRAIN.HIGHWAY;
 
-            // 检查所有方向
-            const directions = [
-                { dr: -1, dc: 0 }, // 上
-                { dr: 1, dc: 0 },  // 下
-                { dr: 0, dc: -1 }, // 左
-                { dr: 0, dc: 1 }   // 右
-            ];
+            // 四个直行方向（兵站/行营都支持）
+            const ortho = [{ dr: -1, dc: 0 }, { dr: 1, dc: 0 }, { dr: 0, dc: -1 }, { dr: 0, dc: 1 }];
+            // 四个斜行方向（仅行营格支持）
+            const diag = [{ dr: -1, dc: -1 }, { dr: -1, dc: 1 }, { dr: 1, dc: -1 }, { dr: 1, dc: 1 }];
+            const directions = isOnHighway ? [...ortho, ...diag] : ortho;
 
             for (const { dr, dc } of directions) {
-                let nr = r + dr;
-                let nc = c + dc;
+                const nr = r + dr;
+                const nc = c + dc;
+                if (nr < 0 || nr >= 10 || nc < 0 || nc >= 12) continue;
 
-                // 工兵飞棋（铁路）
-                if (isSapper && isRailway(r, c)) {
-                    while (nr >= 0 && nr < 10 && nc >= 0 && nc < 12) {
-                        const target = board[nr][nc];
-                        const terrain = getTerrain(nr, nc);
-
-                        // 河流阻挡
-                        if (terrain === TERRAIN.RIVER) break;
-
-                        if (!target) {
-                            moves.push({ r: nr, c: nc });
-                        } else if (target.side !== side) {
-                            moves.push({ r: nr, c: nc, capture: true });
-                            break;
-                        } else {
-                            break;
-                        }
-
-                        nr += dr;
-                        nc += dc;
-                    }
-                } else {
-                    // 普通移动
-                    if (nr >= 0 && nr < 10 && nc >= 0 && nc < 12) {
-                        const target = board[nr][nc];
-                        if (!target || target.side !== side) {
-                            if (canMoveThrough(r, c, nr, nc, piece)) {
-                                moves.push({ r: nr, c: nc, capture: !!target });
-                            }
-                        }
+                const target = board[nr][nc];
+                if (!target || target.side !== side) {
+                    if (canMoveThrough(r, c, nr, nc, piece)) {
+                        moves.push({ r: nr, c: nc, capture: !!target });
                     }
                 }
             }
-
             return moves;
         }
 
@@ -469,17 +411,33 @@
                 // 普通移动
                 const fromPiece = pieces.find(p => p.id === from.id);
                 board[from.r][from.c] = null;
-                board[toR][toC] = fromPiece;
                 fromPiece.r = toR;
                 fromPiece.c = toC;
-                pageAudio.play('move');
-
                 const terrain = getTerrain(toR, toC);
-                const terrainName = terrain === TERRAIN.RIVER ? '河流' :
-                                   terrain === TERRAIN.TRAP ? '陷阱' :
-                                   terrain === TERRAIN.BASE ? '大本营' :
-                                   terrain === TERRAIN.FLAG_BASE ? '军旗大本营' : '公路';
-                updateLog(`${fromPiece.side === 'red' ? '🔴' : '🔵'} ${PIECES[fromPiece.type].name} 移动到 (${toR+1},${String.fromCharCode(97+toC)}) ${terrainName}`);
+
+                // 敌方大本营判断（简化版：按行归属）
+                // 红方禁区：行0-3的大本营格(3,0)(3,2)(3,3)(3,9)(3,11)
+                // 蓝方禁区：行6-9的大本营格(8,0)(8,1)(8,2)(8,9)(8,10)(8,11)
+                const isEnemyBase = (fromPiece.side === 'red' && terrain === TERRAIN.BIG_BASE) ||
+                                    (fromPiece.side === 'blue' && terrain === TERRAIN.BIG_BASE);
+
+                if (isEnemyBase) {
+                    board[toR][toC] = null;
+                    fromPiece.destroyed = true;
+                    const idx = pieces.findIndex(p => p.id === fromPiece.id);
+                    if (idx !== -1) pieces.splice(idx, 1);
+                    pageAudio.play('error');
+                    updateLog(`${fromPiece.side === 'red' ? '🔴' : '🔵'} ${PIECES[fromPiece.type].name} 误入敌方大本营被消灭`);
+                } else {
+                    // 正常移动
+                    board[toR][toC] = fromPiece;
+                    pageAudio.play('move');
+                    const terrainName = terrain === TERRAIN.BARRACKS ? '兵站' :
+                                       terrain === TERRAIN.HIGHWAY ? '行营' :
+                                       terrain === TERRAIN.BIG_BASE ? '大本营' :
+                                       terrain === TERRAIN.BASE_CORNER ? '角大本营' : '空地';
+                    updateLog(`${fromPiece.side === 'red' ? '🔴' : '🔵'} ${PIECES[fromPiece.type].name} 移动到 (${toR+1},${String.fromCharCode(97+toC)}) ${terrainName}`);
+                }
             }
 
             // 切换回合
