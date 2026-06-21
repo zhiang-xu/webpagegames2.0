@@ -14,7 +14,7 @@
         if (el) el.innerHTML = RULES[mode] || '';
     }
 
-    // ===================== 骰子渲染 =====================
+    // ===================== 骰子 DOM 渲染 =====================
     var DOT_PATTERNS = {
         1: [4],
         2: [0, 8],
@@ -27,6 +27,7 @@
     function createDieEl(value) {
         var el = document.createElement('div');
         el.className = 'die';
+        el.setAttribute('data-face', value);
         for (var i = 0; i < 9; i++) {
             var dot = document.createElement('div');
             dot.className = 'dot' + (DOT_PATTERNS[value].indexOf(i) > -1 ? ' on' : '');
@@ -35,30 +36,149 @@
         return el;
     }
 
-    function renderDice(container, values, rolling) {
+    function renderDiceStatic(container, values) {
         container.innerHTML = '';
         for (var i = 0; i < values.length; i++) {
             var el = createDieEl(values[i]);
-            if (rolling) el.classList.add('rolling');
+            el.classList.add('placed');
             container.appendChild(el);
         }
     }
 
-    function animateRoll(container, finalValues, duration, onDone) {
-        renderDice(container, finalValues, true);
-        var interval = setInterval(function () {
-            var fake = [];
-            for (var i = 0; i < finalValues.length; i++) fake.push(1 + Math.floor(Math.random() * 6));
-            renderDice(container, fake, true);
-        }, 55);
-        setTimeout(function () {
-            clearInterval(interval);
-            renderDice(container, finalValues, false);
-            if (onDone) onDone();
-        }, duration);
+    function rollDie() { return 1 + Math.floor(Math.random() * 6); }
+
+    // ===================== 骰子物理动画 =====================
+
+    function easeOutBack(x) {
+        var c1 = 1.70158;
+        var c3 = c1 + 1;
+        return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
     }
 
-    function rollDie() { return 1 + Math.floor(Math.random() * 6); }
+    function easeOutBounce(x) {
+        var n1 = 7.5625, d1 = 2.75;
+        if (x < 1 / d1)       return n1 * x * x;
+        if (x < 2 / d1)       return n1 * (x -= 1.5 / d1) * x + 0.75;
+        if (x < 2.5 / d1)     return n1 * (x -= 2.25 / d1) * x + 0.9375;
+        return n1 * (x -= 2.625 / d1) * x + 0.984375;
+    }
+
+    function easeInOutQuad(x) {
+        return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+    }
+
+    function cubicBezier(t, p0, p1, p2, p3) {
+        var u = 1 - t;
+        return u * u * u * p0 + 3 * u * u * t * p1 + 3 * u * t * t * p2 + t * t * t * p3;
+    }
+
+    function cubicEase(t) { return cubicBezier(t, 0.33, 0, 0.67, 1); }
+
+    /**
+     * 骰子弹跳动画：
+     * - 每颗骰子有独立的旋转、落点、弹跳高度
+     * - 阶段1（0→25%）：骰子从碗外上方旋转着飞入
+     * - 阶段2（25→100%）：在碗底弹跳3次，逐渐停止
+     * - 最终停在碗内对应位置
+     */
+    function animateRoll(container, finalValues, duration, onDone) {
+        container.innerHTML = '';
+
+        var numDice = finalValues.length;
+        var diceWidth = 64; // px
+        var gap = 10;
+        var totalWidth = numDice * diceWidth + (numDice - 1) * gap;
+
+        for (var i = 0; i < numDice; i++) {
+            var dieEl = createDieEl(finalValues[i]);
+            container.appendChild(dieEl);
+
+            // 计算最终停留的 left 偏移（居中）
+            var finalLeft = (totalWidth / 2) - (diceWidth / 2) - i * (diceWidth + gap);
+
+            // 每颗骰子的随机参数
+            var delay       = i * 40;                                  // 错开落点
+            var randRot     = (Math.random() - 0.5) * 720;             // 总旋转量
+            var randX       = (Math.random() - 0.5) * 30;             // 水平偏移
+            var randBounce1 = 0.25 + Math.random() * 0.15;            // 第一次跳高
+            var randBounce2 = 0.12 + Math.random() * 0.08;             // 第二次跳高
+            var randBounce3 = 0.05 + Math.random() * 0.05;            // 第三次跳高
+
+            // 关键帧：归一化时间 t（0→1），y（向上为正），rot（度数），scale
+            // 碗内底部基准线在 y=0
+            var frames = [
+                // t     y           rot      sx   sy
+                { t: 0,   y: -110,   rot: 0,   sx: 0.4, sy: 0.6 },   // 起始：碗外上方，缩小
+                { t: 0.20, y: 0,     rot: randRot * 0.3, sx: 1.1, sy: 1.0 },  // 落入碗底，旋转中，横向拉伸
+                { t: 0.35, y: -30 * randBounce1, rot: randRot * 0.5,  sx: 1.0, sy: 1.0 },  // 弹起
+                { t: 0.50, y: 0,     rot: randRot * 0.65, sx: 1.0, sy: 1.0 },  // 落下
+                { t: 0.62, y: -15 * randBounce2, rot: randRot * 0.78, sx: 1.0, sy: 1.0 },  // 再弹起（更小）
+                { t: 0.74, y: 0,     rot: randRot * 0.88, sx: 1.0, sy: 1.0 },  // 落下
+                { t: 0.83, y: -5 * randBounce3,  rot: randRot * 0.94, sx: 1.0, sy: 1.0 },  // 微弹
+                { t: 0.90, y: 0,     rot: randRot * 0.97, sx: 1.0, sy: 1.0 },  // 最终落地
+                { t: 1.0,  y: 0,     rot: randRot,        sx: 1.0, sy: 1.0 },  // 固定
+            ];
+
+            // 生成 CSS 关键帧字符串
+            var steps = frames.map(function (f, idx) {
+                // y: 碗内基准向上为正，所以碗底 y=0
+                // 转换为 CSS transform: translateY(-y) 使其向下（CSS y轴向下）
+                var tx = finalLeft + randX;
+                var ty = -f.y;
+                return (idx * 100 / (frames.length - 1)) + '%{transform:translate(' +
+                    tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) rotate(' +
+                    f.rot.toFixed(1) + 'deg) scale(' + f.sx + ',' + f.sy + ')}';
+            }).join('');
+
+            var animName = 'diceRoll_' + i + '_' + Date.now();
+            var styleEl = document.createElement('style');
+            styleEl.textContent = '@keyframes ' + animName + '{' + steps + '}';
+            document.head.appendChild(styleEl);
+
+            // 应用动画：每颗骰子错开 delay ms 落下
+            dieEl.style.animation = animName + ' ' + duration + 'ms ' +
+                'cubic-bezier(0.22,0.61,0.36,1) ' + (delay / 1000) + 's both';
+
+            // 最后一帧改为 ease-out 使停止更自然
+            setTimeout(function (el, fn, d) {
+                return function () {
+                    el.style.animation = '';
+                    el.style.transform = 'translate(' + (finalLeft + randX).toFixed(1) + 'px,0) rotate(' + randRot.toFixed(1) + 'deg)';
+                    setTimeout(function () {
+                        el.style.transform = 'translate(' + finalLeft.toFixed(1) + 'px,0) rotate(0deg)';
+                    }, 80);
+                    setTimeout(function () { el.classList.add('placed'); el.style.transform = ''; el.style.position = 'relative'; el.style.left = ''; }, 250);
+                };
+            }(dieEl, finalValues, delay), duration - delay + 20);
+        }
+
+        setTimeout(onDone, duration + 300);
+    }
+
+    /**
+     * 单颗骰子弹入（21点"再来一颗"）
+     * 骰子从右侧滑入碗内
+     */
+    function animateSingleDie(container, value, onDone) {
+        var el = createDieEl(value);
+        el.style.transform = 'translate(80px, -60px) rotate(360deg) scale(0.5)';
+        el.style.opacity = '0';
+        container.appendChild(el);
+
+        // 触发动画
+        requestAnimationFrame(function () {
+            el.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1), opacity 0.15s ease';
+            el.style.opacity = '1';
+            el.style.transform = 'translate(0, 0) rotate(0deg) scale(1)';
+
+            setTimeout(function () {
+                el.style.transition = '';
+                el.classList.add('placed');
+                el.style.transform = '';
+                if (onDone) onDone();
+            }, 520);
+        });
+    }
 
     // ===================== 状态 =====================
     var mode        = 'bigsmall';
@@ -166,7 +286,7 @@
 
     // ===================== 掷骰主按钮 =====================
     document.getElementById('btnRoll').addEventListener('click', function () {
-        if (mode === 'dice21') return; // 21点用独立的 btnStart21
+        if (mode === 'dice21') return;
         doGuessRoll();
     });
 
@@ -189,7 +309,7 @@
         currentDice = [d1, d2, d3];
         currentSum  = d1 + d2 + d3;
 
-        animateRoll(document.getElementById('diceRow'), currentDice, 850, function () {
+        animateRoll(document.getElementById('diceRow'), currentDice, 900, function () {
             judgeGuess(savedGuess);
             isRolling = false;
         });
@@ -227,13 +347,14 @@
         var ad = [rollDie(), rollDie(), rollDie()];
         playerDice = pd; aiDice = ad;
 
-        var dur = 850;
+        var dur = 900;
+
         animateRoll(document.getElementById('playerDiceRow'), pd, dur, function () {});
         animateRoll(document.getElementById('aiDiceRow'),     ad, dur, function () {});
 
         setTimeout(function () {
-            renderDice(document.getElementById('playerDiceRow'), pd, false);
-            renderDice(document.getElementById('aiDiceRow'),     ad, false);
+            renderDiceStatic(document.getElementById('playerDiceRow'), pd);
+            renderDiceStatic(document.getElementById('aiDiceRow'),     ad);
 
             var pSum = pd[0] + pd[1] + pd[2];
             var aSum = ad[0] + ad[1] + ad[2];
@@ -256,7 +377,7 @@
                 pd.join('+') + '=' + pSum + '  vs  ' + ad.join('+') + '=' + aSum
             ));
             isRolling = false;
-        }, dur + 80);
+        }, dur + 350);
     }
 
     // ===================== 21点 =====================
@@ -292,14 +413,18 @@
 
     function start21Game() {
         if (isRolling || game21Over) return;
+        isRolling = true;
         var btnStart = document.getElementById('btnStart21');
         if (btnStart) btnStart.style.display = 'none';
 
         p21Dice.push(rollDie());
         ai21Dice.push(rollDie());
-        renderDice(document.getElementById('dice21Row'), p21Dice, false);
-        update21Scores();
-        set21Buttons(true, true);
+
+        animateRoll(document.getElementById('dice21Row'), p21Dice, 900, function () {
+            update21Scores();
+            isRolling = false;
+            set21Buttons(true, true);
+        });
     }
 
     function update21Scores() {
@@ -325,11 +450,7 @@
         var d = rollDie();
         p21Dice.push(d);
 
-        var container = document.getElementById('dice21Row');
-        var el = createDieEl(d);
-        container.appendChild(el);
-
-        setTimeout(function () {
+        animateSingleDie(document.getElementById('dice21Row'), d, function () {
             update21Scores();
             isRolling = false;
 
@@ -346,7 +467,7 @@
             } else {
                 set21Buttons(true, true);
             }
-        }, 350);
+        });
     }
 
     function dice21Stand() {
@@ -413,6 +534,7 @@
         p21Dice.forEach(function (v) {
             var el = createDieEl(v);
             el.style.boxShadow = '0 4px 12px rgba(78,205,196,0.5)';
+            el.classList.add('placed');
             row.appendChild(el);
         });
 
@@ -423,6 +545,7 @@
         ai21Dice.forEach(function (v) {
             var el = createDieEl(v);
             el.style.boxShadow = '0 4px 12px rgba(162,155,254,0.5)';
+            el.classList.add('placed');
             row.appendChild(el);
         });
 

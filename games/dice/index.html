@@ -56,7 +56,9 @@
 
             <!-- 猜大小 / 猜单双 面板 -->
             <div class="panel panel-guess" id="panelGuess">
-                <div class="dice-row" id="diceRow"></div>
+                <div class="dice-tray" id="trayGuess">
+                    <div class="dice-zone" id="diceRow"></div>
+                </div>
                 <div class="result-display" id="resultDisplay"></div>
                 <div class="bet-area" id="betArea">
                     <div class="bet-buttons" id="bigSmallBtns">
@@ -75,16 +77,20 @@
 
             <!-- 比大小 面板 -->
             <div class="panel panel-compare" id="panelCompare" style="display:none;">
-                <div class="compare-sides">
-                    <div class="side side-player">
-                        <div class="side-label">👤 你</div>
-                        <div class="dice-row" id="playerDiceRow"></div>
+                <div class="compare-trays">
+                    <div class="compare-tray-wrap">
+                        <div class="tray-label">👤 你</div>
+                        <div class="dice-tray dice-tray-player" id="trayPlayer">
+                            <div class="dice-zone" id="playerDiceRow"></div>
+                        </div>
                         <div class="side-score" id="playerTotal">-</div>
                     </div>
                     <div class="side-vs">VS</div>
-                    <div class="side side-ai">
-                        <div class="side-label">🤖 电脑</div>
-                        <div class="dice-row" id="aiDiceRow"></div>
+                    <div class="compare-tray-wrap">
+                        <div class="tray-label">🤖 电脑</div>
+                        <div class="dice-tray dice-tray-ai" id="trayAI">
+                            <div class="dice-zone" id="aiDiceRow"></div>
+                        </div>
                         <div class="side-score" id="aiTotal">-</div>
                     </div>
                 </div>
@@ -106,7 +112,9 @@
                         <div class="score-value" id="ai21Score">?</div>
                     </div>
                 </div>
-                <div class="dice-row" id="dice21Row"></div>
+                <div class="dice-tray dice-tray-21" id="tray21">
+                    <div class="dice-zone" id="dice21Row"></div>
+                </div>
                 <div class="result-display" id="result21Display"></div>
                 <button class="btn btn-action btn-start21" id="btnStart21">🎮 开始游戏</button>
                 <div class="action-buttons" id="dice21Actions">

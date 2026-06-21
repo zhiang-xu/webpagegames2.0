@@ -176,20 +176,94 @@ header {
     gap: 20px;
 }
 
-/* 骰子行 */
-.dice-row {
+/* ========== 骰盅 / 碗 ========== */
+.dice-tray {
+    position: relative;
+    width: 280px;
+    height: 100px;
     display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-    min-height: 80px;
     align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    background: radial-gradient(ellipse 100% 60% at 50% 100%, rgba(139, 90, 43, 0.35) 0%, rgba(101, 67, 33, 0.15) 60%, transparent 100%);
+    border: 2px solid rgba(180, 120, 50, 0.35);
+    border-top-color: rgba(200, 150, 80, 0.2);
+    box-shadow:
+        inset 0 8px 24px rgba(0,0,0,0.25),
+        inset 0 -2px 8px rgba(255,200,100,0.08),
+        0 4px 16px rgba(0,0,0,0.3);
+    overflow: visible;
 }
 
-/* 单个骰子 */
+.dice-tray::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 26px;
+    background: transparent;
+    border: 1px solid rgba(180,120,50,0.12);
+    pointer-events: none;
+}
+
+/* 木纹高光 */
+.dice-tray::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 10%;
+    width: 80%;
+    height: 3px;
+    border-radius: 50%;
+    background: rgba(255,200,100,0.08);
+    filter: blur(2px);
+}
+
+.dice-zone {
+    position: relative;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    min-height: 68px;
+}
+
+/* ========== 比大小双碗 ========== */
+.compare-trays {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.compare-tray-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+.tray-label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.7);
+}
+.dice-tray-player {
+    border-color: rgba(78, 205, 196, 0.3);
+    background: radial-gradient(ellipse 100% 60% at 50% 100%, rgba(78,205,196,0.12) 0%, transparent 70%);
+}
+.dice-tray-ai {
+    border-color: rgba(162,155,254,0.3);
+    background: radial-gradient(ellipse 100% 60% at 50% 100%, rgba(162,155,254,0.12) 0%, transparent 70%);
+}
+.dice-tray-21 {
+    width: 320px;
+    height: 110px;
+}
+
+/* ========== 骰子 ========== */
 .die {
-    width: 68px;
-    height: 68px;
+    width: 64px;
+    height: 64px;
     background: linear-gradient(145deg, #ffffff, #e8e8e8);
     border-radius: 14px;
     box-shadow:
@@ -203,16 +277,23 @@ header {
     gap: 2px;
     position: relative;
     flex-shrink: 0;
+    will-change: transform;
 }
-.die.rolling {
-    animation: shakeDice 0.08s linear infinite;
+
+/* 骰子落点定位（动画结束后停在碗内） */
+.die.placed {
+    position: relative;
+    animation: none;
 }
-@keyframes shakeDice {
-    0%   { transform: rotate(0deg)   scale(1.0); }
-    25%  { transform: rotate(12deg)  scale(1.06); }
-    50%  { transform: rotate(-8deg)  scale(0.97); }
-    75%  { transform: rotate(6deg)   scale(1.04); }
-    100% { transform: rotate(-4deg)  scale(0.99); }
+
+/* 骰子弹跳动画（JS控制的canvas-free版本） */
+@keyframes dieRollBounce {
+    0%   { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)) scale(var(--s)); }
+    20%  { transform: translate(var(--tx2), var(--ty2)) rotate(var(--rot2)) scale(var(--s2)); }
+    40%  { transform: translate(var(--tx3), var(--ty3)) rotate(var(--rot3)) scale(var(--s3)); }
+    60%  { transform: translate(var(--tx4), var(--ty4)) rotate(var(--rot4)) scale(var(--s4)); }
+    80%  { transform: translate(var(--tx5), var(--ty5)) rotate(var(--rot5)) scale(var(--s5)); }
+    100% { transform: translate(var(--tx6), var(--ty6)) rotate(var(--rot6)) scale(1); }
 }
 
 .dot {
@@ -317,7 +398,6 @@ header {
 .btn-new { background: linear-gradient(135deg, #4ecdc4, #44a3aa); color: white; }
 .btn-roll-more { background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: white; }
 .btn-stand { background: linear-gradient(135deg, #fd79a8, #e84393); color: white; }
-.btn:hover { transform: translateY(-3px); }
 .btn-start21 {
     background: linear-gradient(135deg, #ff6b35, #ffd32a);
     color: #1a1a2e;
@@ -325,6 +405,7 @@ header {
     padding: 14px 36px;
 }
 .btn-start21:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(255,107,53,0.5); }
+.btn:hover { transform: translateY(-3px); }
 .btn:disabled {
     opacity: 0.4;
     cursor: not-allowed;
@@ -404,9 +485,11 @@ header {
     .logo { font-size: 1.7rem; }
     .info-box { padding: 10px 14px; min-width: 90px; }
     .info-box .value { font-size: 1.5rem; }
-    .die { width: 58px; height: 58px; padding: 6px; }
+    .die { width: 52px; height: 52px; padding: 6px; }
+    .dice-tray { width: 230px; height: 85px; }
+    .dice-tray-21 { width: 260px; height: 90px; }
     .btn-bet { width: 100px; height: 60px; font-size: 1.5rem; }
     .panel { padding: 20px 14px; }
-    .compare-sides { gap: 8px; }
+    .compare-trays { gap: 8px; }
     .score-display { gap: 14px; }
 }
