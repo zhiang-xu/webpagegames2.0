@@ -49,6 +49,14 @@
 
     // ===================== 骰子物理动画 =====================
 
+    function easeOutBounce(x) {
+        var n1 = 7.5625, d1 = 2.75;
+        if (x < 1 / d1)       return n1 * x * x;
+        if (x < 2 / d1)       return n1 * (x -= 1.5 / d1) * x + 0.75;
+        if (x < 2.5 / d1)     return n1 * (x -= 2.25 / d1) * x + 0.9375;
+        return n1 * (x -= 2.625 / d1) * x + 0.984375;
+    }
+
     /**
      * 核心骰子动画引擎：逐帧requestAnimationFrame控制
      * - 翻滚阶段：骰子显示空白面，随机旋转
@@ -61,45 +69,13 @@
         var numDice   = finalValues.length;
         var diceW     = 64;
         var gap       = 10;
-        var totalW    = numDice * diceW + (numDice - 1) * gap;
-
-        // 每颗骰子的物理参数
-        var diceStates = [];
-        for (var i = 0; i < numDice; i++) {
-            var finalLeft = (totalW / 2) - (diceW / 2) - i * (diceW + gap);
-            diceStates.push({
-                finalLeft: finalLeft,
-                // 翻滚阶段
-                spinAngle:    Math.random() * Math.PI * 2,
-                spinSpeed:    0.18 + Math.random() * 0.12,   // 角速度（弧度/帧）
-                spinDir:      Math.random() > 0.5 ? 1 : -1,
-                // 弹跳阶段
-                vx:           (Math.random() - 0.5) * 2.5,
-                vy:           -(3.5 + Math.random() * 2.5),
-                gravity:      0.18,
-                // 落点偏移（碗内）
-                finalX:       finalLeft + (Math.random() - 0.5) * 20,
-                finalY:       0,
-                // 随机量
-                bounceScale:  0.55 + Math.random() * 0.3,     // 弹跳高度因子
-                delay:        i * 55,                         // 错开落碗时间
-                // 轨迹关键点（预计算弹道曲线，让每次弹跳方向/高度不同）
-                bounceX:       [],
-                bounceY:       [],
-            });
-        }
-
-        // 为每颗骰子预生成 3 段弹道的关键帧（用于曲线动画）
-        for (var k = 0; k < diceStates.length; k++) {
-            var s = diceStates[k];
-            // 预计算最终位置周围的散布
-            s.finalX = s.finalLeft + (Math.random() - 0.5) * 16;
-        }
+        var trayW     = container.offsetWidth  || 280;
+        var trayH     = container.offsetHeight || 100;
 
         // 空白骰子面（不显示点数）
         function createBlankDie() {
             var el = document.createElement('div');
-            el.className = 'die die-anim';
+            el.className = 'die';
             for (var i = 0; i < 9; i++) {
                 var dot = document.createElement('div');
                 dot.className = 'dot';
@@ -108,146 +84,117 @@
             return el;
         }
 
-        // 创建骰子DOM
+        // 创建骰子DOM，每颗独立div，绝对定位
         var els = [];
         for (var i = 0; i < numDice; i++) {
             var el = createBlankDie();
             el.style.position = 'absolute';
-            el.style.left = '50%';
-            el.style.top  = '50%';
-            el.style.transform = 'translate(-50%, -50%)';
             el.style.opacity = '0';
             container.appendChild(el);
             els.push(el);
         }
 
-        var startTime  = null;
-        var running     = true;
-        var settled     = new Array(numDice).fill(false);
-        var revealTimer = null;
-
-        // 弹道预计算：每个骰子预先生成一系列 (x,y,rot) 目标点
-        // 分段：下落(0→0.35) → 弹跳(0.35→0.85) → 静止(0.85→1)
-        var TRAJ_STEPS = 80;
-        var trajectories = diceStates.map(function (s) {
-            var pts = [];
-            var trayW  = container.offsetWidth  || 280;
-            var trayH  = container.offsetHeight || 100;
-            var bottomY = trayH / 2 - diceW / 2;   // 碗底部y（向上为正）
-            var startY = -(trayH / 2 + 20);         // 碗上方起点
-
-            // 初始旋转角度
-            var rot = s.spinAngle;
-            var x   = s.finalX;
-            var y   = startY;
-            var phase = 0; // 0=下落, 1=弹跳, 2=静止
-
-            for (var t = 0; t <= TRAJ_STEPS; t++) {
-                var nt = t / TRAJ_STEPS;
-
-                if (nt < 0.30) {
-                    // 下落阶段：快速旋转着掉入碗
-                    var pt = nt / 0.30;
-                    y = startY + (bottomY - startY) * easeOutBounce(pt);
-                    rot += s.spinSpeed * 3 * s.spinDir;
-                    x = s.finalX + Math.sin(pt * Math.PI * 2) * 15;
-                } else if (nt < 0.80) {
-                    // 弹跳阶段：3次弹跳，逐渐停止
-                    var pt = (nt - 0.30) / 0.50;
-                    var b3 = easeOutBounce(pt);
-                    y = bottomY * b3;
-                    // 弹跳时左右晃
-                    x = s.finalX + Math.sin(pt * Math.PI * 4) * 12 * (1 - pt);
-                    // 旋转逐渐减速
-                    rot += s.spinSpeed * (1 - pt * 0.85) * 2 * s.spinDir;
-                } else {
-                    // 静止阶段：微震后定住
-                    var pt = (nt - 0.80) / 0.20;
-                    y = 0;
-                    x = s.finalX * (1 - pt) + s.finalX * pt; // 收敛到finalX
-                    rot += s.spinDir * 0.02 * (1 - pt);
-                }
-
-                pts.push({ x: x, y: y, rot: rot, scale: 1 });
-            }
-            return pts;
-        });
-
-        function getPos(diceIdx, progress) {
-            var pts  = trajectories[diceIdx];
-            var s    = diceStates[diceIdx];
-            var pt   = Math.min(progress, 1);
-            var idx  = Math.min(Math.floor(pt * TRAJ_STEPS), TRAJ_STEPS - 1);
-            var frac = (pt * TRAJ_STEPS) - idx;
-            var p0   = pts[Math.max(0, idx - 1)];
-            var p1   = pts[idx];
-            var p2   = pts[Math.min(TRAJ_STEPS - 1, idx + 1)];
-            var p3   = pts[Math.min(TRAJ_STEPS - 1, idx + 2)];
-            // clamp frac to [0,1]
-            frac = Math.max(0, Math.min(1, frac));
-            return {
-                x:     p1.x + (p2.x - p0.x) * 0.5 * frac,
-                y:     p1.y + (p2.y - p0.y) * 0.5 * frac,
-                rot:   p1.rot + (p2.rot - p1.rot) * frac,
-                scale: 1
-            };
+        // 预计算每颗骰子的最终停留坐标（碗内居中+随机偏移）
+        var finalPositions = [];
+        var startX = (trayW - numDice * diceW - (numDice - 1) * gap) / 2;
+        for (var i = 0; i < numDice; i++) {
+            finalPositions.push({
+                x:    startX + i * (diceW + gap) + (Math.random() - 0.5) * 12,
+                rot:  Math.random() * 360,
+                delay: i * 60,
+                // 随机旋转方向和速度
+                spinDir:   Math.random() > 0.5 ? 1 : -1,
+                spinSpeed: 8 + Math.random() * 6,
+                // 弹跳随机量
+                bounceH: 18 + Math.random() * 16,
+                bounce2:  8 + Math.random() * 8,
+                bounce3:  3 + Math.random() * 4,
+                // 落碗速度
+                fallDur: 0.18 + Math.random() * 0.08,
+            });
         }
 
+        var startTime = null;
+        var done      = false;
+
         function frame(ts) {
-            if (!running) return;
+            if (done) return;
             if (!startTime) startTime = ts;
-            var rawProgress = (ts - startTime) / totalDuration;
+            var elapsed = ts - startTime;
 
             for (var i = 0; i < numDice; i++) {
-                var el = els[i];
-                var s  = diceStates[i];
-                if (settled[i]) continue;
+                var el  = els[i];
+                var fp  = finalPositions[i];
+                // 每颗骰子的相对进度（0~1）
+                var t = Math.max(0, elapsed / totalDuration - fp.delay / totalDuration);
+                t = Math.min(t, 1);
 
-                // 每颗骰子有 delay
-                var progress = Math.max(0, (rawProgress - s.delay / totalDuration) / (1 - s.delay / totalDuration));
-                progress = Math.min(progress, 1);
-
-                var pos;
-                if (progress >= 0.995) {
-                    settled[i] = true;
-                    el.style.transform = 'translate(' + s.finalX.toFixed(1) + 'px,0) rotate(0deg)';
-                    continue;
+                if (el.style.opacity === '0' && elapsed > 30) {
+                    el.style.opacity = '1';
                 }
 
-                pos = getPos(i, progress);
-                var scaleX = 1 + Math.sin(pos.rot * 3) * 0.04; // 轻微横向压缩感（模拟透视）
-                el.style.transform = 'translate(' + pos.x.toFixed(1) + 'px,' + pos.y.toFixed(1) + 'px) rotate(' + (pos.rot * 180 / Math.PI).toFixed(1) + 'deg) scaleX(' + scaleX.toFixed(2) + ')';
-                el.style.opacity = progress < 0.02 ? progress / 0.02 : 1; // 淡入
+                if (t < fp.fallDur) {
+                    // 阶段1：掉落（0 → fallDur）
+                    var pt = t / fp.fallDur;
+                    // 从碗上方落到碗底部
+                    var y    = (1 - easeOutBounce(pt)) * -(trayH / 2 + 10);
+                    var rot  = fp.spinDir * fp.spinSpeed * 3 * pt;
+                    var xOff = Math.sin(pt * Math.PI * 3) * 14;
+                    el.style.transform = 'translate(' + xOff.toFixed(1) + 'px,' + y.toFixed(1) + 'px) rotate(' + rot.toFixed(1) + 'deg)';
+
+                } else if (t < 0.72) {
+                    // 阶段2：弹跳（fallDur → 0.72）
+                    var pt = (t - fp.fallDur) / (0.72 - fp.fallDur);
+                    // 三段弹跳
+                    var subT  = pt / 0.33;
+                    var bounce;
+                    if (subT < 1) {
+                        bounce = fp.bounceH * (1 - easeOutBounce(subT));
+                    } else if (subT < 2) {
+                        bounce = fp.bounce2 * (1 - easeOutBounce(subT - 1));
+                    } else {
+                        bounce = fp.bounce3 * (1 - easeOutBounce(Math.max(0, subT - 2)));
+                    }
+                    var rot = fp.spinDir * fp.spinSpeed * (3 + (1 - pt) * 4) + Math.sin(pt * Math.PI * 6) * 8 * (1 - pt);
+                    var xOff = Math.sin(pt * Math.PI * 4) * 10 * (1 - pt);
+                    el.style.transform = 'translate(' + xOff.toFixed(1) + 'px,' + (-bounce).toFixed(1) + 'px) rotate(' + rot.toFixed(1) + 'deg)';
+
+                } else if (t < 0.88) {
+                    // 阶段3：静止收敛
+                    var pt   = (t - 0.72) / 0.16;
+                    var rot  = fp.rot * pt + fp.spinDir * 5 * (1 - pt);
+                    var xOff = fp.x * pt - (trayW / 2) * (1 - pt);
+                    el.style.transform = 'translate(' + fp.x.toFixed(1) + 'px,0px) rotate(' + rot.toFixed(1) + 'deg)';
+
+                } else {
+                    // 阶段4：完全停止
+                    el.style.transform = 'translate(' + fp.x.toFixed(1) + 'px,0px) rotate(0deg)';
+                }
             }
 
-            if (rawProgress >= 1) {
-                running = false;
-                // 最后一帧：显示真实点数
+            if (elapsed >= totalDuration) {
+                done = true;
+                // 最后一步：替换成带真实点数的骰子
                 for (var j = 0; j < numDice; j++) {
-                    var el2 = els[j];
-                    var sv  = finalValues[j];
-                    var newEl = createDieEl(sv);
-                    newEl.className = 'die placed';
-                    newEl.style.position = 'absolute';
-                    newEl.style.left = '50%';
-                    newEl.style.top  = '50%';
-                    newEl.style.transform = 'translate(-50%, -50%)';
-                    newEl.style.opacity = '0';
-                    container.replaceChild(newEl, el2);
-                    // 闪现最终点数
-                    (function (ne, delay) {
+                    (function (oldEl, val, fx, delay) {
                         setTimeout(function () {
-                            ne.style.transition = 'opacity 0.15s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1)';
-                            ne.style.opacity = '1';
-                            ne.style.transform = 'translate(calc(-50% + ' + diceStates[delay].finalX.toFixed(1) + 'px), -50%)';
-                            setTimeout(function () {
-                                ne.style.transition = '';
-                                ne.style.transform = 'translate(calc(-50% + ' + diceStates[delay].finalX.toFixed(1) + 'px), -50%) rotate(0deg)';
-                            }, 220);
-                        }, delay * 25);
-                    })(newEl, j);
+                            var newEl = createDieEl(val);
+                            newEl.className = 'die placed';
+                            newEl.style.position = 'absolute';
+                            newEl.style.opacity  = '0';
+                            newEl.style.transform = 'translate(' + fx.toFixed(1) + 'px,0px) rotate(720deg) scale(0.6)';
+                            container.replaceChild(newEl, oldEl);
+                            requestAnimationFrame(function () {
+                                requestAnimationFrame(function () {
+                                    newEl.style.transition = 'opacity 0.12s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1)';
+                                    newEl.style.opacity   = '1';
+                                    newEl.style.transform = 'translate(' + fx.toFixed(1) + 'px,0px) rotate(0deg) scale(1)';
+                                });
+                            });
+                        }, delay * 40);
+                    })(els[j], finalValues[j], finalPositions[j].x, j);
                 }
-                setTimeout(onDone, numDice * 25 + 280);
+                setTimeout(onDone, numDice * 40 + 300);
                 return;
             }
 
@@ -262,71 +209,56 @@
      */
     function animateSingleDie(container, value, onDone) {
         var el = createDieEl(value);
-        el.className = 'die die-anim';
-        // 空白面
+        el.className = 'die';
         var dots = el.querySelectorAll('.dot');
         for (var i = 0; i < dots.length; i++) dots[i].classList.remove('on');
         el.style.position = 'absolute';
-        el.style.left = '50%';
-        el.style.top  = '50%';
-        el.style.transform = 'translate(-50%, -50%) rotate(720deg) scale(0.5)';
         el.style.opacity = '0';
+        el.style.transform = 'translate(60px,-80px) rotate(360deg) scale(0.5)';
         container.appendChild(el);
 
         var startTime = null;
-        var duration  = 600;
-        var startX    = 60 + Math.random() * 30;
-        var startY    = -80;
-        var vx        = -1.5 - Math.random() * 1;
-        var vy        = -2;
-        var gravity   = 0.22;
-        var rot       = 0;
-        var rotSpeed  = (Math.random() - 0.5) * 0.3;
-        var settled   = false;
-        var finalX    = 0;
+        var duration  = 700;
 
         function tick(ts) {
             if (!startTime) startTime = ts;
             var elapsed = ts - startTime;
-            var progress = Math.min(elapsed / duration, 1);
+            var t = Math.min(elapsed / duration, 1);
 
-            if (progress < 0.6 && !settled) {
-                // 飞行+弹跳
-                vy += gravity;
-                var cx = startX + vx * (elapsed / 16);
-                var cy = startY + vy * (elapsed / 16);
-                rot += rotSpeed;
-                el.style.transform = 'translate(calc(-50% + ' + cx.toFixed(1) + 'px), calc(-50% + ' + cy.toFixed(1) + 'px)) rotate(' + (rot * 180 / Math.PI).toFixed(1) + 'deg)';
-                el.style.opacity = progress < 0.05 ? progress / 0.05 : '1';
-                requestAnimationFrame(tick);
+            el.style.opacity = t > 0.05 ? '1' : (t / 0.05).toString();
+
+            if (t < 0.55) {
+                var pt = t / 0.55;
+                var y  = -80 + (trayH / 2 + 10) * easeOutBounce(pt);
+                var rot = 360 * (1 + pt * 3);
+                var x  = 60 * (1 - pt);
+                el.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px) rotate(' + rot.toFixed(1) + 'deg)';
             } else {
-                // 静止
-                if (!settled) {
-                    settled = true;
-                    finalX = (Math.random() - 0.5) * 10;
-                }
-                el.style.transform = 'translate(calc(-50% + ' + finalX.toFixed(1) + 'px), -50%) rotate(0deg)';
-
-                if (progress >= 1) {
-                    // 闪现最终点数
-                    var newEl = createDieEl(value);
-                    newEl.className = 'die placed';
-                    newEl.style.position = 'absolute';
-                    newEl.style.left = '50%';
-                    newEl.style.top  = '50%';
-                    newEl.style.transform = 'translate(calc(-50% + ' + finalX.toFixed(1) + 'px), -50%)';
-                    newEl.style.opacity = '0';
-                    container.replaceChild(newEl, el);
-                    setTimeout(function () {
-                        newEl.style.transition = 'opacity 0.12s ease';
-                        newEl.style.opacity = '1';
-                        setTimeout(onDone, 180);
-                    }, 20);
-                    return;
-                }
-                requestAnimationFrame(tick);
+                el.style.transform = 'translate(0px,0px) rotate(0deg)';
             }
+
+            if (t >= 1) {
+                var newEl = createDieEl(value);
+                newEl.className = 'die placed';
+                newEl.style.position = 'absolute';
+                newEl.style.opacity  = '0';
+                newEl.style.transform = 'translate(0px,0px) scale(0.6)';
+                container.replaceChild(newEl, el);
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () {
+                        newEl.style.transition = 'opacity 0.12s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1)';
+                        newEl.style.opacity   = '1';
+                        newEl.style.transform = 'translate(0px,0px) scale(1)';
+                        setTimeout(onDone, 250);
+                    });
+                });
+                return;
+            }
+
+            requestAnimationFrame(tick);
         }
+
+        var trayH = container.offsetHeight || 100;
         requestAnimationFrame(tick);
     }
 
