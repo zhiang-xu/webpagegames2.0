@@ -25,18 +25,20 @@
     <section class="rules-box" aria-label="游戏规则">
         <h2>玩法说明</h2>
         <ul>
-            <li>从起点出发，用方向键或屏幕方向按钮走到终点。</li>
+            <li>从入口出发，用方向键或屏幕方向按钮走到出口（右侧边缘）。</li>
             <li>墙壁不能穿过去，只能沿着通路前进。</li>
-            <li>"提示"会给你下一步帮助，"看答案"会直接显示路线。</li>
+            <li>"提示"会高亮下一步方向，"看答案"会显示完整路线。</li>
             <li>走出迷宫就算胜利，用时越短、步数越少越好。</li>
+            <li class="expert-tip">👑 专家模式：视野受限，只能看到周围一小片区域，其余被迷雾遮挡。</li>
         </ul>
     </section>
 
     <div class="game-area">
         <div class="difficulty-select">
-            <button class="btn-diff easy active" onclick="newMaze('easy'); startGame()">简单 (11×11)</button>
-            <button class="btn-diff medium" onclick="newMaze('medium'); startGame()">中等 (17×17)</button>
-            <button class="btn-diff hard" onclick="newMaze('hard'); startGame()">困难 (23×23)</button>
+            <button class="btn-diff easy active" onclick="newMaze('easy'); startGame()">简单 (31×31)</button>
+            <button class="btn-diff medium" onclick="newMaze('medium'); startGame()">中等 (61×61)</button>
+            <button class="btn-diff hard" onclick="newMaze('hard'); startGame()">困难 (100×100)</button>
+            <button class="btn-diff expert" onclick="newMaze('expert'); startGame()">👑 专家 (100×100)</button>
         </div>
 
         <div class="info-bar">

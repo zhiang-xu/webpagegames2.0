@@ -1,9 +1,10 @@
         const pageAudio = window.GamePageUI.mount({ home: true, sound: true, muted: false });
-        // 难度网格尺寸（奇数保证迷宫对齐）
+        // 难度网格尺寸（奇数保证 Prim 迷宫对齐）
         const DIFFICULTY = {
-            easy:   { cols: 11, rows: 11, cellSize: 34 },
-            medium: { cols: 17, rows: 17, cellSize: 26 },
-            hard:   { cols: 23, rows: 23, cellSize: 20 }
+            easy:   { cols: 31, rows: 31, cellSize: 18 },
+            medium: { cols: 61, rows: 61, cellSize: 10 },
+            hard:   { cols: 101, rows: 101, cellSize: 6 },
+            expert: { cols: 101, rows: 101, cellSize: 6, fog: true, fogRadius: 10 }
         };
 
         let difficulty = 'easy';
@@ -59,15 +60,20 @@
             maze = generateMaze(config.cols, config.rows);
 
             // 设置玩家和终点
-            player = { x: 0, y: 1 };
-            goal = { x: config.cols - 1, y: config.rows - 2 };
+            player = { x: 1, y: 0 };                  // 入口：左上侧边缘
+            goal = { x: config.cols - 2, y: config.rows - 1 }; // 出口：右下侧边缘
             steps = 0;
-            pathHistory = [{ x: 0, y: 1 }];
+            pathHistory = [{ x: 1, y: 0 }];
             gameActive = false;
 
             // 设置画布尺寸
             canvas.width = config.cols * config.cellSize;
             canvas.height = config.rows * config.cellSize;
+            offCanvas.width = canvas.width;
+            offCanvas.height = canvas.height;
+
+            // 专家模式重置已探索格子
+            explored.clear();
 
             stopTimer();
             timeDisplay.textContent = '00:00';
@@ -138,8 +144,8 @@
             }
 
             // 3. 打通入口和出口
-            m[1][0] = 0;
-            m[rows - 2][cols - 1] = 0;
+            m[0][1] = 0;                  // 入口：左侧边缘
+            m[rows - 1][cols - 2] = 0;   // 出口：右侧边缘
 
             return m;
         }
@@ -153,94 +159,134 @@
             return arr;
         }
 
+        // 离屏画布：存放原始迷宫图像（用于迷雾渲染）
+        const offCanvas = document.createElement('canvas');
+        const offCtx = offCanvas.getContext('2d');
+
+        // 已访问过的格子（专家模式迷雾探索）
+        const explored = new Set();
+
+        function inFogRadius(x, y, px, py, radius) {
+            const dist = Math.sqrt((x - px) * (x - px) + (y - py) * (y - py));
+            return dist <= radius;
+        }
+
         function draw() {
             const config = DIFFICULTY[difficulty];
             const cellSize = config.cellSize;
+            const fogMode = config.fog === true;
+            const fogRadius = config.fogRadius || 0;
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // ---- 1. 绘制完整迷宫到底层离屏画布 ----
+            offCtx.clearRect(0, 0, offCanvas.width, offCanvas.height);
 
-            // 画墙壁和路径
             for (let y = 0; y < maze.length; y++) {
-                for (let x = 0; x < maze[y].length; x++) {
+                for (let x = 0; x < maze[0].length; x++) {
                     if (maze[y][x] === 1) {
-                        // 墙壁
-                        const gradient = ctx.createRadialGradient(
+                        const gradient = offCtx.createRadialGradient(
                             x * cellSize + cellSize * 0.3, y * cellSize + cellSize * 0.3, 0,
                             x * cellSize + cellSize * 0.5, y * cellSize + cellSize * 0.5, cellSize * 0.6
                         );
                         gradient.addColorStop(0, '#667eea');
                         gradient.addColorStop(1, '#4a5568');
-                        ctx.fillStyle = gradient;
-                        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                        offCtx.fillStyle = gradient;
+                        offCtx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
 
-                        // 墙壁高光
-                        ctx.fillStyle = 'rgba(255,255,255,0.1)';
-                        ctx.fillRect(x * cellSize, y * cellSize, cellSize, 2);
-                        ctx.fillRect(x * cellSize, y * cellSize, 2, cellSize);
+                        offCtx.fillStyle = 'rgba(255,255,255,0.1)';
+                        offCtx.fillRect(x * cellSize, y * cellSize, cellSize, 2);
+                        offCtx.fillRect(x * cellSize, y * cellSize, 2, cellSize);
                     } else {
-                        // 路径
-                        ctx.fillStyle = '#f8fafc';
-                        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-                        ctx.strokeStyle = 'rgba(203, 213, 225, 0.5)';
-                        ctx.lineWidth = 0.5;
-                        ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                        offCtx.fillStyle = '#f8fafc';
+                        offCtx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                        offCtx.strokeStyle = 'rgba(203, 213, 225, 0.5)';
+                        offCtx.lineWidth = 0.5;
+                        offCtx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
                     }
                 }
             }
 
-            // 画路径历史
+            // 路径历史
             for (let i = 0; i < pathHistory.length; i++) {
                 const p = pathHistory[i];
                 const alpha = 0.15 + (i / pathHistory.length) * 0.2;
-                ctx.fillStyle = `rgba(78, 205, 196, ${alpha})`;
-                ctx.beginPath();
-                ctx.arc(
+                offCtx.fillStyle = `rgba(78, 205, 196, ${alpha})`;
+                offCtx.beginPath();
+                offCtx.arc(
                     p.x * cellSize + cellSize * 0.5,
                     p.y * cellSize + cellSize * 0.5,
                     cellSize * 0.3, 0, Math.PI * 2
                 );
-                ctx.fill();
+                offCtx.fill();
             }
 
-            // 画终点
-            ctx.fillStyle = '#fbbf24';
-            ctx.beginPath();
-            ctx.arc(
-                goal.x * cellSize + cellSize * 0.5,
-                goal.y * cellSize + cellSize * 0.5,
-                cellSize * 0.35, 0, Math.PI * 2
-            );
-            ctx.fill();
-
-            // 终点光晕
-            ctx.fillStyle = 'rgba(251, 191, 36, 0.3)';
-            ctx.beginPath();
-            ctx.arc(
+            // 终点
+            offCtx.fillStyle = 'rgba(251, 191, 36, 0.3)';
+            offCtx.beginPath();
+            offCtx.arc(
                 goal.x * cellSize + cellSize * 0.5,
                 goal.y * cellSize + cellSize * 0.5,
                 cellSize * 0.5, 0, Math.PI * 2
             );
-            ctx.fill();
+            offCtx.fill();
+            offCtx.fillStyle = '#fbbf24';
+            offCtx.beginPath();
+            offCtx.arc(
+                goal.x * cellSize + cellSize * 0.5,
+                goal.y * cellSize + cellSize * 0.5,
+                cellSize * 0.35, 0, Math.PI * 2
+            );
+            offCtx.fill();
 
-            // 画玩家
-            ctx.fillStyle = '#ef4444';
-            ctx.beginPath();
-            ctx.arc(
+            // 玩家
+            offCtx.fillStyle = '#ef4444';
+            offCtx.beginPath();
+            offCtx.arc(
                 player.x * cellSize + cellSize * 0.5,
                 player.y * cellSize + cellSize * 0.5,
                 cellSize * 0.3, 0, Math.PI * 2
             );
-            ctx.fill();
-
-            // 玩家高光
-            ctx.fillStyle = 'rgba(255,255,255,0.4)';
-            ctx.beginPath();
-            ctx.arc(
+            offCtx.fill();
+            offCtx.fillStyle = 'rgba(255,255,255,0.4)';
+            offCtx.beginPath();
+            offCtx.arc(
                 player.x * cellSize + cellSize * 0.35,
                 player.y * cellSize + cellSize * 0.35,
                 cellSize * 0.12, 0, Math.PI * 2
             );
-            ctx.fill();
+            offCtx.fill();
+
+            // ---- 2. 复制离屏画布到主画布 ----
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(offCanvas, 0, 0);
+
+            // ---- 3. 专家模式：应用迷雾遮罩 ----
+            if (fogMode) {
+                const cx = player.x * cellSize + cellSize * 0.5;
+                const cy = player.y * cellSize + cellSize * 0.5;
+                const outerR = fogRadius * cellSize;
+                const innerR = outerR * 0.65; // 内圈完全可见，过渡到外圈
+
+                ctx.save();
+                // 用 destination-in 将迷宫和迷雾叠加：中心透明 → 外圈实黑
+                ctx.globalCompositeOperation = 'destination-in';
+                const grad = ctx.createRadialGradient(cx, cy, innerR, cx, cy, outerR);
+                grad.addColorStop(0, 'rgba(0,0,0,1)');
+                grad.addColorStop(0.6, 'rgba(0,0,0,1)');
+                grad.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.restore();
+
+                // 再覆盖一层深色半透明蒙版，外围完全黑
+                ctx.save();
+                ctx.globalCompositeOperation = 'source-over';
+                const overlay = ctx.createRadialGradient(cx, cy, outerR * 0.7, cx, cy, outerR * 1.4);
+                overlay.addColorStop(0, 'rgba(0,0,0,0)');
+                overlay.addColorStop(1, 'rgba(8,8,30,0.92)');
+                ctx.fillStyle = overlay;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.restore();
+            }
         }
 
         function movePlayer(dx, dy) {
@@ -287,14 +333,14 @@
 
         function showHint() {
             if (!gameActive) return;
+            const config = DIFFICULTY[difficulty];
             const path = bfs(player.x, player.y, goal.x, goal.y);
             if (path && path.length > 1) {
                 pageAudio.play('success');
-                // 高亮前几步
-                const config = DIFFICULTY[difficulty];
+                // 高亮前几步（在当前迷雾层上方绘制，1.5秒后随迷雾重绘消失）
                 for (let i = 1; i < Math.min(5, path.length); i++) {
                     const p = path[i];
-                    ctx.fillStyle = 'rgba(255, 215, 0, 0.6)';
+                    ctx.fillStyle = 'rgba(255, 215, 0, 0.7)';
                     ctx.beginPath();
                     ctx.arc(
                         p.x * config.cellSize + config.cellSize * 0.5,
@@ -354,8 +400,16 @@
                 gameActive = false;
                 stopTimer();
                 pageAudio.play('success');
-                // 画完整路径
                 const config = DIFFICULTY[difficulty];
+                const fogMode = config.fog === true;
+
+                // 专家模式：先去掉迷雾再画答案
+                if (fogMode) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(offCanvas, 0, 0);
+                }
+
+                // 画完整路径
                 for (let i = 0; i < path.length; i++) {
                     const p = path[i];
                     const alpha = 0.3 + (i / path.length) * 0.4;

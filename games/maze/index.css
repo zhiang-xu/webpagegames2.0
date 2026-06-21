@@ -141,6 +141,20 @@
         .btn-diff.easy { background: linear-gradient(135deg, #4ecdc4, #44a3aa); color: white; }
         .btn-diff.medium { background: linear-gradient(135deg, #ffa751, #ffe259); color: #333; }
         .btn-diff.hard { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); color: white; }
+        .btn-diff.expert {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #ffd700;
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+        }
+        .btn-diff.expert:hover {
+            background: linear-gradient(135deg, #7b8ff0, #8d5fc0);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.6), 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        .expert-tip {
+            color: #667eea;
+            font-weight: 700;
+        }
         .btn-diff.active {
             outline: 3px solid white;
             outline-offset: 3px;
