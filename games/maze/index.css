@@ -164,8 +164,9 @@
         .maze-container {
             position: relative;
             border-radius: 10px;
-            overflow: hidden;
+            overflow: auto;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 100%;
         }
 
         canvas#maze {

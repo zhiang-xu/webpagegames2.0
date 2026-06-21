@@ -3,7 +3,7 @@
         const DIFFICULTY = {
             easy:   { cols: 31, rows: 31, cellSize: 18 },
             medium: { cols: 61, rows: 61, cellSize: 10 },
-            hard:   { cols: 101, rows: 101, cellSize: 6 },
+            hard:   { cols: 101, rows: 101, cellSize: 9 },
             expert: { cols: 101, rows: 101, cellSize: 6, fog: true, fogRadius: 10 }
         };
 
