@@ -102,7 +102,7 @@
                     const nx = current.x + dir.dx;
                     const ny = current.y + dir.dy;
 
-                    if (nx > 0 && nx < cols - 1 && ny > 0 && ny < rows - 1 && m[ny][nx] === 1) {
+                    if (nx >= 0 && nx < cols - 1 && ny >= 0 && ny < rows - 1 && m[ny][nx] === 1) {
                         m[ny][nx] = 0;
                         m[current.y + dir.dy / 2][current.x + dir.dx / 2] = 0;
                         stack.push({x: nx, y: ny});
