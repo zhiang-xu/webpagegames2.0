@@ -51,9 +51,11 @@
             // 生成迷宫
             maze = generateMaze(config.cols, config.rows);
 
-            // 设置玩家和终点
+            // 设置玩家和终点（终点必须是奇数行奇数列，和 DFS 连通）
+            const goalRow = config.rows % 2 === 0 ? config.rows - 2 : config.rows - 1;
+            const goalCol = config.cols % 2 === 0 ? config.cols - 2 : config.cols - 1;
             player = { x: 0, y: 0 };
-            goal = { x: config.cols - 1, y: config.rows - 1 };
+            goal = { x: goalCol, y: goalRow };
             steps = 0;
             pathHistory = [{ x: 0, y: 0 }];
             gameActive = true;
@@ -111,6 +113,11 @@
             // 确保起点和终点是通的
             m[0][0] = 0;
             m[rows - 1][cols - 1] = 0;
+            // 目标在奇数行奇数列，保证和起点 (0,0) 连通
+            // DFS 步长为 2，只访问奇数坐标的格子
+            const goalRow = rows % 2 === 0 ? rows - 2 : rows - 1;
+            const goalCol = cols % 2 === 0 ? cols - 2 : cols - 1;
+            m[goalRow][goalCol] = 0;
 
             return m;
         }
