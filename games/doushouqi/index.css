@@ -39,22 +39,9 @@
     .topbar{
       display:flex;
       align-items:center;
-      justify-content:space-between;
-      gap:12px;
+      justify-content:center;
       margin-bottom:10px;
     }
-    .icon-btn,.back-btn{
-      width:50px;height:50px;border-radius:50%;
-      display:grid;place-items:center;
-      border:2px solid rgba(72,137,58,.45);
-      background:rgba(255,255,255,.96);
-      box-shadow:0 10px 20px rgba(0,0,0,.16);
-      text-decoration:none;color:#3f8742;
-      cursor:pointer; user-select:none;
-      flex:0 0 auto;
-    }
-    .back-btn{font-size:24px}
-    .icon-btn{font-size:22px}
     h1{
       margin:0;
       text-align:center;
@@ -459,7 +446,6 @@
       body{padding:8px}
       .shell{padding:12px;border-radius:20px}
       .topbar{gap:8px}
-      .icon-btn,.back-btn{width:44px;height:44px}
       .controls{justify-content:stretch}
       .group{min-width:calc(50% - 6px);flex:1 1 calc(50% - 6px)}
       .controls button{flex:1 1 calc(50% - 6px)}

@@ -109,7 +109,7 @@
         home: true,
         sound: false,
         muted: false,
-        homeHref: '../index.html'
+        homeHref: '../../index.html'
       },
       options || {}
     );
