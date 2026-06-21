@@ -4,6 +4,9 @@ class SnakeGame {
         this.canvas = document.getElementById('gameCanvas');
         this.ctx = this.canvas.getContext('2d');
         this.gridSize = 20;
+        // 先设置 canvas 尺寸，再计算 tileCount
+        this.canvas.width = Math.min(600, window.innerWidth - 100);
+        this.canvas.height = this.canvas.width;
         this.tileCount = this.canvas.width / this.gridSize;
 
         this.ui = GamePageUI.mount({ home: true, sound: true, homeHref: '../../index.html' });

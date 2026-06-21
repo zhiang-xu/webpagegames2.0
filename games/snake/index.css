@@ -80,6 +80,7 @@ h1 {
 .game-area {
     position: relative;
     margin: 0 auto 20px;
+    text-align: center;
 }
 
 #gameCanvas {
