@@ -8,9 +8,9 @@
     };
 
     // ---- 物理常量 ----
-    const GRAVITY    = 0.22;  // 每帧重力加速度（正值 = 向下拉）
-    const FLAP_POWER = -4.5;   // 扇翅初速度（向上为负）
-    const MAX_VY_UP = -7.0;   // 向上速度上限
+    const GRAVITY    = 0.45;  // 每帧重力加速度（正值 = 向下拉）
+    const FLAP_POWER = -7.0;   // 扇翅初速度（向上为负）
+    const MAX_VY_DOWN = 10.0;  // 向下速度上限（防止坠落过快）
 
     const LOGICAL_W = 320;
     const LOGICAL_H = 480;
@@ -122,7 +122,6 @@
     // ---- 扇翅 ----
     function flap() {
         if (gameState === 'idle') {
-            console.log('[flap] idle -> startGame, state was:', gameState, 'bird.y:', bird.y, 'vy:', bird.vy);
             startGame();
             return;
         }
@@ -167,19 +166,14 @@
             return;  // 不执行 playing 逻辑
         }
 
-        if (gameState !== 'playing') {
-            if (gameState !== 'idle') console.log('[loop] unexpected state:', gameState);
-            return;
-        }
+        if (gameState !== 'playing') return;
 
         const cfg   = DIFFICULTY[difficulty];
         const topY  = CEIL_H;
 
         // ---- 物理更新 ----
-        const prevY = bird.y;
-        bird.vy = Math.min(bird.vy + GRAVITY * dt, MAX_VY_UP);
+        bird.vy = Math.min(bird.vy + GRAVITY * dt, MAX_VY_DOWN);
         bird.y += bird.vy * dt;
-        console.log('[phys]', gameState, 'vy:', bird.vy, 'y:', bird.y, 'prevY:', prevY, 'dt:', dt);
         bird.rotation = Math.min(Math.max(bird.vy * 5, -30), 80);
         if (bird.flapPhase > 0) bird.flapPhase -= 0.12 * dt;
 
@@ -221,10 +215,12 @@
             const pLeft  = p.x;
             const pRight = p.x + p.capW;
             const pTopH  = p.topH;
-
+            // 上面管子（含帽）碰撞
             const hitTop = bx < pRight && bx + bw > pLeft && by < pTopH + p.capH;
-            const hitBot = bx < pRight && bx + bw > pLeft &&
-                           by + bh > LOGICAL_H - GROUND_H - (LOGICAL_H - GROUND_H - p.topH - p.gapH);
+            // 下面管子顶部 y
+            const botTop = LOGICAL_H - GROUND_H - p.gapH;
+            // 下面管子帽碰撞（帽下沿 = botTop - p.capH + 2，帽高 = p.capH）
+            const hitBot = bx < pRight && bx + bw > pLeft && by + bh > botTop - p.capH + 2;
 
             if (hitTop || hitBot) { gameOver(); return; }
 
