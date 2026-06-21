@@ -1,8 +1,9 @@
         const pageAudio = window.GamePageUI.mount({ home: true, sound: true, muted: false });
+        // 难度网格尺寸（奇数保证迷宫对齐）
         const DIFFICULTY = {
-            easy:   { cols: 10, rows: 10, cellSize: 36 },
-            medium: { cols: 15, rows: 15, cellSize: 28 },
-            hard:   { cols: 20, rows: 20, cellSize: 22 }
+            easy:   { cols: 11, rows: 11, cellSize: 34 },
+            medium: { cols: 17, rows: 17, cellSize: 26 },
+            hard:   { cols: 23, rows: 23, cellSize: 20 }
         };
 
         let difficulty = 'easy';
@@ -57,13 +58,11 @@
             // 生成迷宫
             maze = generateMaze(config.cols, config.rows);
 
-            // 设置玩家和终点（终点必须是奇数行奇数列，和 DFS 连通）
-            const goalRow = config.rows % 2 === 0 ? config.rows - 2 : config.rows - 1;
-            const goalCol = config.cols % 2 === 0 ? config.cols - 2 : config.cols - 1;
-            player = { x: 0, y: 0 };
-            goal = { x: goalCol, y: goalRow };
+            // 设置玩家和终点
+            player = { x: 0, y: 1 };
+            goal = { x: config.cols - 1, y: config.rows - 2 };
             steps = 0;
-            pathHistory = [{ x: 0, y: 0 }];
+            pathHistory = [{ x: 0, y: 1 }];
             gameActive = false;
 
             // 设置画布尺寸
@@ -82,46 +81,65 @@
             // 初始化全墙
             const m = Array.from({length: rows}, () => Array(cols).fill(1));
 
-            // DFS递归回溯生成迷宫
-            const stack = [{x: 0, y: 0}];
-            m[0][0] = 0;
+            // Prim 算法：生成密集死胡同、高难度迷宫
+            // 1. 将起点加入墙壁列表
+            const wallList = [];
+            const visited = Array.from({length: rows}, () => Array(cols).fill(false));
 
-            const directions = [
-                {dx: 0, dy: -2}, // 上
-                {dx: 2, dy: 0},  // 右
-                {dx: 0, dy: 2},  // 下
-                {dx: -2, dy: 0}  // 左
-            ];
+            // 起点必须是偶数坐标（与墙壁交错）
+            const sx = 1, sy = 1;
+            m[sy][sx] = 0;
+            visited[sy][sx] = true;
 
-            while (stack.length > 0) {
-                const current = stack[stack.length - 1];
-                const dirs = shuffle([...directions]);
-                let found = false;
-
-                for (const dir of dirs) {
-                    const nx = current.x + dir.dx;
-                    const ny = current.y + dir.dy;
-
-                    if (nx >= 0 && nx < cols - 1 && ny >= 0 && ny < rows - 1 && m[ny][nx] === 1) {
-                        m[ny][nx] = 0;
-                        m[current.y + dir.dy / 2][current.x + dir.dx / 2] = 0;
-                        stack.push({x: nx, y: ny});
-                        found = true;
-                        break;
-                    }
+            // 将起点的邻居墙加入列表
+            const dirs = [[0,-1],[1,0],[0,1],[-1,0]];
+            for (const [dx, dy] of dirs) {
+                const nx = sx + dx;
+                const ny = sy + dy;
+                if (nx > 0 && nx < cols - 1 && ny > 0 && ny < rows - 1 && m[ny][nx] === 1) {
+                    wallList.push({x: nx, y: ny, fx: sx, fy: sy});
                 }
-
-                if (!found) stack.pop();
             }
 
-            // 确保起点和终点是通的
-            m[0][0] = 0;
-            m[rows - 1][cols - 1] = 0;
-            // 目标在奇数行奇数列，保证和起点 (0,0) 连通
-            // DFS 步长为 2，只访问奇数坐标的格子
-            const goalRow = rows % 2 === 0 ? rows - 2 : rows - 1;
-            const goalCol = cols % 2 === 0 ? cols - 2 : cols - 1;
-            m[goalRow][goalCol] = 0;
+            // 2. Prim 主循环：随机选墙，打通它
+            while (wallList.length > 0) {
+                const idx = Math.floor(Math.random() * wallList.length);
+                const wall = wallList[idx];
+                wallList.splice(idx, 1);
+
+                const {x: wx, y: wy, fx, fy} = wall;
+
+                // 墙已打通，跳过
+                if (m[wy][wx] === 0) continue;
+
+                // 检查对面格子是否已访问
+                const dx = wx - fx;
+                const dy = wy - fy;
+                const cx = wx + dx;
+                const cy = wy + dy;
+
+                if (cx < 0 || cx >= cols || cy < 0 || cy >= rows) continue;
+                if (visited[cy][cx]) continue;
+
+                // 打通墙壁和对面格子
+                m[wy][wx] = 0;
+                m[cy][cx] = 0;
+                visited[cy][cx] = true;
+
+                // 将对面格子的新邻居墙加入列表
+                for (const [ndx, ndy] of dirs) {
+                    const nnx = cx + ndx;
+                    const nny = cy + ndy;
+                    if (nnx > 0 && nnx < cols - 1 && nny > 0 && nny < rows - 1 &&
+                        m[nny][nnx] === 1 && !visited[nny][nnx]) {
+                        wallList.push({x: nnx, y: nny, fx: cx, fy: cy});
+                    }
+                }
+            }
+
+            // 3. 打通入口和出口
+            m[1][0] = 0;
+            m[rows - 2][cols - 1] = 0;
 
             return m;
         }
@@ -252,7 +270,7 @@
             stopTimer();
 
             const config = DIFFICULTY[difficulty];
-            const minSteps = config.cols + config.rows - 2; // 理论最小步数
+            const minSteps = (config.cols - 1) + (config.rows - 2);
 
             // 评分
             let stars = '★';
@@ -331,7 +349,7 @@
 
         function solveMaze() {
             if (!gameActive) return;
-            const path = bfs(0, 0, goal.x, goal.y);
+            const path = bfs(player.x, player.y, goal.x, goal.y);
             if (path) {
                 gameActive = false;
                 stopTimer();
