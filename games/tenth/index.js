@@ -429,7 +429,7 @@
       init();
     });
   } else {
-    var ui = GamePageUI.mount({ sound: true, home: true });
+    var ui = GamePageUI.mount({ sound: true, home: true }, 'bar');
     pageAudio = ui;
     init();
   }

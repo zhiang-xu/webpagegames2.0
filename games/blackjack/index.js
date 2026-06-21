@@ -406,4 +406,7 @@
   } else {
     init();
   }
+
+  // 统一工具栏：返回主页 + 音效开关
+  GamePageUI.mount({ home: true, sound: true }, 'bar');
 })();
