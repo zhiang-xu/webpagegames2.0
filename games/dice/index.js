@@ -101,7 +101,7 @@
         var finalPositions = [];
         for (var i = 0; i < numDice; i++) {
             finalPositions.push({
-                x:    startX + i * (diceW + gap) + (Math.random() - 0.5) * 12,
+                x:    startX + i * (diceW + gap),
                 rot:  Math.random() * 360,
                 delay: i * 60,
                 // 随机旋转方向和速度
@@ -138,16 +138,14 @@
                 if (t < fp.fallDur) {
                     // 阶段1：掉落（0 → fallDur）
                     var pt = t / fp.fallDur;
-                    // 从碗上方落到碗底部
                     var y    = (1 - easeOutBounce(pt)) * -(trayH / 2 + 10);
                     var rot  = fp.spinDir * fp.spinSpeed * 3 * pt;
-                    var xOff = Math.sin(pt * Math.PI * 3) * 14;
-                    el.style.transform = 'translate(' + xOff.toFixed(1) + 'px,' + y.toFixed(1) + 'px) rotate(' + rot.toFixed(1) + 'deg)';
+                    var xOff = Math.sin(pt * Math.PI * 3) * 6;
+                    el.style.transform = 'translate(' + (fp.x + xOff).toFixed(1) + 'px,' + y.toFixed(1) + 'px) rotate(' + rot.toFixed(1) + 'deg)';
 
                 } else if (t < 0.72) {
                     // 阶段2：弹跳（fallDur → 0.72）
                     var pt = (t - fp.fallDur) / (0.72 - fp.fallDur);
-                    // 三段弹跳
                     var subT  = pt / 0.33;
                     var bounce;
                     if (subT < 1) {
@@ -157,15 +155,14 @@
                     } else {
                         bounce = fp.bounce3 * (1 - easeOutBounce(Math.max(0, subT - 2)));
                     }
-                    var rot = fp.spinDir * fp.spinSpeed * (3 + (1 - pt) * 4) + Math.sin(pt * Math.PI * 6) * 8 * (1 - pt);
-                    var xOff = Math.sin(pt * Math.PI * 4) * 10 * (1 - pt);
-                    el.style.transform = 'translate(' + xOff.toFixed(1) + 'px,' + (-bounce).toFixed(1) + 'px) rotate(' + rot.toFixed(1) + 'deg)';
+                    var rot = fp.spinDir * fp.spinSpeed * (3 + (1 - pt) * 4) + Math.sin(pt * Math.PI * 6) * 5 * (1 - pt);
+                    var xOff = Math.sin(pt * Math.PI * 4) * 6 * (1 - pt);
+                    el.style.transform = 'translate(' + (fp.x + xOff).toFixed(1) + 'px,' + (-bounce).toFixed(1) + 'px) rotate(' + rot.toFixed(1) + 'deg)';
 
                 } else if (t < 0.88) {
                     // 阶段3：静止收敛
                     var pt   = (t - 0.72) / 0.16;
                     var rot  = fp.rot * pt + fp.spinDir * 5 * (1 - pt);
-                    var xOff = fp.x * pt - (trayW / 2) * (1 - pt);
                     el.style.transform = 'translate(' + fp.x.toFixed(1) + 'px,0px) rotate(' + rot.toFixed(1) + 'deg)';
 
                 } else {
