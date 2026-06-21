@@ -51,9 +51,6 @@
                     this.playerColor = e.target.value;
                     this.aiColor = this.playerColor === 'black' ? 'white' : 'black';
                 });
-
-                // 音效开关
-                document.getElementById('soundToggle').addEventListener('click', () => this.toggleSound());
             }
 
             updateAiControls() {
@@ -72,17 +69,15 @@
             }
 
             initSound() {
-                // 初始化音频上下文
                 try {
                     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    // 浏览器要求用户交互后才能播放音频
                     document.addEventListener('click', () => {
                         if (this.audioContext && this.audioContext.state === 'suspended') {
                             this.audioContext.resume();
                         }
                     }, { once: true });
                 } catch (e) {
-                    console.log('Web Audio API 不支持');
+                    this.audioContext = null;
                 }
             }
 
