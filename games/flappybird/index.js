@@ -1,33 +1,32 @@
 (function () {
-    const pageAudio = window.GamePageUI.mount({ home: true, sound: true, muted: false });
-
     // ---- 难度配置 ----
-    // pipeInterval: 相邻水管在屏幕上间隔多少帧（60fps基准，与pipeSpeed解耦）
     const DIFFICULTY = {
-        easy:   { pipeSpeed: 1.8, gapHeight: 145, pipeInterval: 200, label: 'easy' },
-        medium: { pipeSpeed: 2.5, gapHeight: 120, pipeInterval: 160, label: 'medium' },
-        hard:   { pipeSpeed: 3.2, gapHeight: 100, pipeInterval: 125, label: 'hard' },
-        expert: { pipeSpeed: 4.0, gapHeight: 82,  pipeInterval: 95,  label: 'expert' }
+        easy:   { pipeSpeed: 1.8, gapHeight: 145, pipeInterval: 200 },
+        medium: { pipeSpeed: 2.5, gapHeight: 120, pipeInterval: 160 },
+        hard:   { pipeSpeed: 3.2, gapHeight: 100, pipeInterval: 125 },
+        expert: { pipeSpeed: 4.0, gapHeight: 82,  pipeInterval: 95  }
     };
 
     // ---- 物理常量 ----
-    const GRAVITY    = 0.22;   // 每帧重力加速度
+    const GRAVITY    = 0.22;  // 每帧重力加速度（正值 = 向下拉）
     const FLAP_POWER = -4.5;   // 扇翅初速度（向上为负）
-    const MAX_VY_UP  = -7.0;   // 向上速度上限，防止一飞冲天
+    const MAX_VY_UP = -7.0;   // 向上速度上限
 
     const LOGICAL_W = 320;
     const LOGICAL_H = 480;
     const GROUND_H  = 60;
     const CEIL_H    = 0;
 
-    let difficulty = 'easy';
-    let gameState  = 'idle';   // 'idle' | 'playing' | 'gameover'
-    let score      = 0;
-    let bestScore  = 0;
-    let rafId      = null;
-    let lastTs     = 0;
+    // ---- 状态 ----
+    let difficulty  = 'easy';
+    let gameState   = 'idle';  // 'idle' | 'playing' | 'gameover'
+    let score       = 0;
+    let bestScore   = 0;
+    let rafId       = null;
+    let lastTs      = 0;
+    let idleTime    = 0;       // idle 模式下用于正弦浮动计时
 
-    // 小鸟状态
+    // ---- 小鸟 ----
     let bird = {
         x: 60,
         y: LOGICAL_H / 2 - 40,
@@ -36,17 +35,18 @@
         flapPhase: 0,
     };
 
-    // 水管状态
-    let pipes = [];
+    // ---- 水管 ----
+    let pipes     = [];
     let pipeTimer = 0;
 
-    // 背景元素
-    let clouds = [];
+    // ---- 背景 ----
+    let clouds  = [];
     let groundX = 0;
 
-    const canvas  = document.getElementById('gameCanvas');
-    const ctx     = canvas.getContext('2d');
-    const overlay = document.getElementById('startOverlay');
+    // ---- DOM ----
+    const canvas    = document.getElementById('gameCanvas');
+    const ctx       = canvas.getContext('2d');
+    const overlay   = document.getElementById('startOverlay');
     const goOverlay = document.getElementById('gameOverOverlay');
 
     // ---- 缩放适配 ----
@@ -63,7 +63,7 @@
         canvas.style.height = (LOGICAL_H * scale) + 'px';
     }
 
-    // ---- 初始化 ----
+    // ---- 初始化背景 ----
     function initBgElements() {
         clouds = [];
         for (let i = 0; i < 6; i++) {
@@ -78,12 +78,13 @@
         groundX = 0;
     }
 
+    // ---- 重置游戏 ----
     function resetGame() {
         computeScale();
         initBgElements();
 
-        score    = 0;
-        pipes    = [];
+        score     = 0;
+        pipes     = [];
         pipeTimer = 0;
         bird = {
             x: 60,
@@ -98,10 +99,10 @@
         goOverlay.classList.remove('show');
         overlay.style.display = 'flex';
         gameState = 'idle';
-        startIdleLoop();
-        pageAudio.play('start');
+        idleTime  = 0;
     }
 
+    // ---- 设置难度 ----
     function setDifficulty(diff) {
         difficulty = diff;
         document.querySelectorAll('.btn-diff').forEach(b => b.classList.remove('active'));
@@ -109,16 +110,16 @@
         resetGame();
     }
 
+    // ---- 开始游戏 ----
     function startGame() {
         if (gameState !== 'idle') return;
-        stopIdleLoop();
         overlay.style.display = 'none';
         gameState = 'playing';
         bird.vy = FLAP_POWER;
         pageAudio.play('tap');
-        requestAnimationFrame(loop);
     }
 
+    // ---- 扇翅 ----
     function flap() {
         if (gameState === 'idle') {
             startGame();
@@ -130,6 +131,7 @@
         pageAudio.play('tap');
     }
 
+    // ---- 游戏结束 ----
     function gameOver() {
         gameState = 'gameover';
         pageAudio.play('lose');
@@ -144,31 +146,40 @@
         document.getElementById('scoreDisplay').textContent = score;
         document.getElementById('bestDisplay').textContent  = bestScore;
 
-        setTimeout(() => {
-            goOverlay.classList.add('show');
-        }, 500);
+        setTimeout(() => goOverlay.classList.add('show'), 500);
     }
 
-    // ---- 游戏循环 ----
+    // =========================================================
+    // 统一循环：idle / playing / gameover 状态统一处理
+    // =========================================================
     function loop(ts) {
-        if (gameState !== 'playing') return;
+        rafId = requestAnimationFrame(loop);
 
         if (lastTs === 0) lastTs = ts;
         const dt = Math.min((ts - lastTs) / 16.667, 3);
         lastTs = ts;
 
-        const cfg = DIFFICULTY[difficulty];
-        const topY = CEIL_H;
+        if (gameState === 'idle') {
+            // idle 动画
+            idleTime += dt;
+            drawIdle();
+            return;  // 不执行 playing 逻辑
+        }
 
-        // 重力 + 移动（速度上限防止冲天）
+        if (gameState !== 'playing') return;
+
+        const cfg   = DIFFICULTY[difficulty];
+        const topY  = CEIL_H;
+
+        // ---- 物理更新 ----
         bird.vy = Math.min(bird.vy + GRAVITY * dt, MAX_VY_UP);
-        bird.y  += bird.vy * dt;
+        bird.y += bird.vy * dt;
         bird.rotation = Math.min(Math.max(bird.vy * 5, -30), 80);
         if (bird.flapPhase > 0) bird.flapPhase -= 0.12 * dt;
 
         // 撞天 / 撞地
         if (bird.y < topY) {
-            bird.y = topY;
+            bird.y  = topY;
             bird.vy = 0;
         }
         if (bird.y > LOGICAL_H - GROUND_H - 16) {
@@ -180,55 +191,37 @@
         // 地板滚动
         groundX = (groundX - cfg.pipeSpeed * dt) % 24;
 
-        // 生成水管（按帧数计时，与物理速度解耦）
+        // 生成水管
         pipeTimer += dt;
         if (pipeTimer >= cfg.pipeInterval) {
             pipeTimer = 0;
             const minTop = topY + 50;
             const maxTop = LOGICAL_H - GROUND_H - cfg.gapHeight - 50;
             const topH   = minTop + Math.random() * (maxTop - minTop);
-            pipes.push({
-                x:        LOGICAL_W,
-                topH:     topH,
-                gapH:     cfg.gapHeight,
-                scored:   false,
-                capH:     20,
-                capW:     52,
-            });
+            pipes.push({ x: LOGICAL_W, topH, gapH: cfg.gapHeight, scored: false, capH: 20, capW: 52 });
         }
 
-        // 移动水管 + 检测
+        // 移动水管 + 碰撞 + 计分
         const bw = 30, bh = 22;
         const bx = bird.x - bw / 2;
         const by = bird.y - bh / 2;
 
         for (let i = pipes.length - 1; i >= 0; i--) {
-            const p = pipes[i];
+            const p  = pipes[i];
             p.x -= cfg.pipeSpeed * dt;
 
-            // 出屏移除
-            if (p.x + p.capW < 0) {
-                pipes.splice(i, 1);
-                continue;
-            }
+            if (p.x + p.capW < 0) { pipes.splice(i, 1); continue; }
 
-            // 碰撞检测（矩形 vs 矩形）
-            const pLeft   = p.x;
-            const pRight  = p.x + p.capW;
-            const pTopH   = p.topH;
-            const pBotH   = LOGICAL_H - GROUND_H - p.topH - p.gapH;
+            const pLeft  = p.x;
+            const pRight = p.x + p.capW;
+            const pTopH  = p.topH;
 
-            const hitTop = bx < pRight && bx + bw > pLeft &&
-                            by < pTopH + p.capH;
+            const hitTop = bx < pRight && bx + bw > pLeft && by < pTopH + p.capH;
             const hitBot = bx < pRight && bx + bw > pLeft &&
-                            by + bh > LOGICAL_H - GROUND_H - pBotH;
+                           by + bh > LOGICAL_H - GROUND_H - (LOGICAL_H - GROUND_H - p.topH - p.gapH);
 
-            if (hitTop || hitBot) {
-                gameOver();
-                return;
-            }
+            if (hitTop || hitBot) { gameOver(); return; }
 
-            // 计分（仅第一次穿过时）
             if (!p.scored && bird.x > p.x + p.capW) {
                 p.scored = true;
                 score++;
@@ -238,12 +231,11 @@
         }
 
         draw();
-        rafId = requestAnimationFrame(loop);
     }
 
     // ---- 绘制 ----
     function draw() {
-        const topY = CEIL_H;
+        const topY  = CEIL_H;
         const groundY = LOGICAL_H - GROUND_H;
 
         // 天空渐变
@@ -282,18 +274,15 @@
 
         // 水管
         pipes.forEach(p => {
-            // 水管主体（浅绿色渐变）
             const g1 = ctx.createLinearGradient(p.x, 0, p.x + p.capW, 0);
             g1.addColorStop(0,    '#3db86a');
             g1.addColorStop(0.3,  '#5ecf85');
             g1.addColorStop(0.6,  '#4dbe73');
             g1.addColorStop(1,    '#2e9f58');
 
-            // 上面管子
             ctx.fillStyle = g1;
             ctx.fillRect(p.x, topY, p.capW, p.topH);
 
-            // 上面管子帽
             const capG = ctx.createLinearGradient(p.x - 4, 0, p.x + p.capW + 4, 0);
             capG.addColorStop(0,    '#3db86a');
             capG.addColorStop(0.5,  '#5ecf85');
@@ -301,20 +290,14 @@
             ctx.fillStyle = capG;
             ctx.fillRect(p.x - 4, p.topH - 6, p.capW + 8, p.capH);
 
-            // 上面管子内壁高光
             ctx.fillStyle = 'rgba(255,255,255,0.18)';
             ctx.fillRect(p.x + 6, topY, 8, p.topH);
 
-            // 下面管子
             const botTop = LOGICAL_H - GROUND_H - p.gapH;
             ctx.fillStyle = g1;
             ctx.fillRect(p.x, botTop, p.capW, LOGICAL_H - GROUND_H - botTop);
-
-            // 下面管子帽
             ctx.fillStyle = capG;
             ctx.fillRect(p.x - 4, botTop - p.capH + 2, p.capW + 8, p.capH);
-
-            // 下面管子内壁高光
             ctx.fillStyle = 'rgba(255,255,255,0.18)';
             ctx.fillRect(p.x + 6, botTop, 8, LOGICAL_H - GROUND_H - botTop);
         });
@@ -327,20 +310,16 @@
         ctx.fillStyle = gnd;
         ctx.fillRect(0, groundY, LOGICAL_W, GROUND_H);
 
-        // 地面纹理（竖条纹）
         ctx.fillStyle = 'rgba(0,0,0,0.07)';
-        for (let x = groundX; x < LOGICAL_W; x += 24) {
-            ctx.fillRect(x, groundY, 8, GROUND_H);
-        }
+        for (let x = groundX; x < LOGICAL_W; x += 24) ctx.fillRect(x, groundY, 8, GROUND_H);
 
-        // 地面顶部高亮线
         ctx.fillStyle = '#b8e994';
         ctx.fillRect(0, groundY, LOGICAL_W, 3);
 
         // 小鸟
         drawBird(bird.x, bird.y, bird.rotation, bird.flapPhase);
 
-        // 分数（大字显示）
+        // 分数
         if (gameState === 'playing') {
             ctx.save();
             ctx.font = 'bold 38px "Comic Neue", cursive';
@@ -357,12 +336,18 @@
         }
     }
 
+    // ---- idle 绘制：用正弦让小鸟浮动 ----
+    function drawIdle() {
+        const idleY = LOGICAL_H / 2 - 40 + Math.sin(idleTime * 0.05) * 8;
+        drawBird(bird.x, idleY, 0, Math.abs(Math.sin(idleTime * 0.12)));
+    }
+
+    // ---- 绘制小鸟 ----
     function drawBird(x, y, rotation, flapPhase) {
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(rotation * Math.PI / 180);
 
-        // 翅膀（根据 flapPhase 动画）
         const wingAngle = -0.4 + flapPhase * 0.9;
         ctx.save();
         ctx.rotate(wingAngle);
@@ -372,23 +357,20 @@
         ctx.fill();
         ctx.restore();
 
-        // 身体
         const bodyGrad = ctx.createRadialGradient(-4, -5, 2, 0, 0, 14);
-        bodyGrad.addColorStop(0, '#ffe066');
+        bodyGrad.addColorStop(0,   '#ffe066');
         bodyGrad.addColorStop(0.6, '#f5c842');
-        bodyGrad.addColorStop(1, '#e8a820');
+        bodyGrad.addColorStop(1,   '#e8a820');
         ctx.fillStyle = bodyGrad;
         ctx.beginPath();
         ctx.ellipse(0, 0, 14, 11, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // 白色肚皮
         ctx.fillStyle = '#fffbe6';
         ctx.beginPath();
         ctx.ellipse(2, 4, 8, 7, 0.2, 0, Math.PI * 2);
         ctx.fill();
 
-        // 眼睛（白色底 + 黑色瞳）
         ctx.fillStyle = '#fff';
         ctx.beginPath();
         ctx.arc(7, -4, 6, 0, Math.PI * 2);
@@ -402,7 +384,6 @@
         ctx.arc(10, -5, 1.2, 0, Math.PI * 2);
         ctx.fill();
 
-        // 嘴巴（橙红色）
         ctx.fillStyle = '#ff6b35';
         ctx.beginPath();
         ctx.moveTo(13, -1);
@@ -411,7 +392,6 @@
         ctx.closePath();
         ctx.fill();
 
-        // 头顶呆毛
         ctx.strokeStyle = '#e8a820';
         ctx.lineWidth = 2.5;
         ctx.lineCap = 'round';
@@ -427,64 +407,23 @@
         ctx.restore();
     }
 
-    // ---- 闲置状态绘制 ----
-    function drawIdle() {
-        // 暂存游戏物理位置，绘制时用正弦浮动替代
-        const savedY = bird.y;
-        bird.y = LOGICAL_H / 2 - 40 + Math.sin(Date.now() * 0.003) * 8;
-        draw();
-        bird.y = savedY;
-    }
-
     // ---- 输入绑定 ----
     function bindInput() {
         const wrapper = document.getElementById('canvasWrapper');
 
-        // 键盘
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' || e.key === 'ArrowUp') {
-                e.preventDefault();
-                flap();
-            }
+            if (e.code === 'Space' || e.key === 'ArrowUp') { e.preventDefault(); flap(); }
         });
 
-        // 点击画布
         canvas.addEventListener('mousedown', (e) => { e.preventDefault(); flap(); });
         canvas.addEventListener('touchstart', (e) => { e.preventDefault(); flap(); }, { passive: false });
 
-        // 点击 wrapper（防止冒泡）
         wrapper.addEventListener('mousedown', (e) => {
-            if (gameState === 'idle' || gameState === 'playing') {
-                e.preventDefault();
-                flap();
-            }
+            if (gameState === 'idle' || gameState === 'playing') { e.preventDefault(); flap(); }
         });
         wrapper.addEventListener('touchstart', (e) => {
-            if (gameState === 'idle' || gameState === 'playing') {
-                e.preventDefault();
-                flap();
-            }
+            if (gameState === 'idle' || gameState === 'playing') { e.preventDefault(); flap(); }
         }, { passive: false });
-    }
-
-    // ---- 闲置动画循环 ----
-    let idleRafId = null;
-    function idleLoop() {
-        if (gameState !== 'idle') { idleRafId = null; return; }
-        drawIdle();
-        idleRafId = requestAnimationFrame(idleLoop);
-    }
-
-    function startIdleLoop() {
-        if (idleRafId) return;
-        idleRafId = requestAnimationFrame(idleLoop);
-    }
-
-    function stopIdleLoop() {
-        if (idleRafId) {
-            cancelAnimationFrame(idleRafId);
-            idleRafId = null;
-        }
     }
 
     // ---- 读取最高分 ----
@@ -502,8 +441,7 @@
         loadBest();
         initBgElements();
         bindInput();
-        draw();
-        startIdleLoop();
+        resetGame();
 
         window.addEventListener('resize', () => {
             computeScale();
@@ -516,7 +454,10 @@
     window.resetGame     = resetGame;
 
     init();
-})();
 
-// 统一工具栏：返回主页 + 音效开关
-GamePageUI.mount({ home: true, sound: true }, 'bar');
+    // ---- 统一工具栏（必须在 init 之后） ----
+    const pageAudio = GamePageUI.mount({ home: true, sound: true }, 'bar');
+
+    // ---- 启动统一循环 ----
+    rafId = requestAnimationFrame(loop);
+})();
