@@ -536,3 +536,133 @@ header {
     .compare-trays { gap: 8px; }
     .score-display { gap: 14px; }
 }
+
+/* ============================================
+   猜点数 (guessnum)
+   ============================================ */
+.panel-guessnum { gap: 14px; }
+
+.gn-setup {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 14px;
+}
+.gn-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.gn-label {
+    font-weight: 700;
+    color: #ffe28a;
+    min-width: 92px;
+}
+.gn-chip-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.gn-chip {
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+.gn-chip:hover {
+    background: rgba(255, 255, 255, 0.14);
+    transform: translateY(-1px);
+}
+.gn-chip.selected {
+    background: linear-gradient(135deg, #ffb14a, #ff8c2b);
+    border-color: #ffb14a;
+    color: #2b1700;
+    box-shadow: 0 4px 12px rgba(255, 140, 43, 0.4);
+}
+.gn-chip:disabled,
+.gn-chip.locked {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.gn-guess-area {
+    width: 100%;
+    max-width: 520px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
+.gn-guess-card {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+.gn-guess-card.eliminated {
+    opacity: 0.45;
+    background: rgba(255, 107, 107, 0.12);
+    border-color: rgba(255, 107, 107, 0.5);
+}
+.gn-guess-card.winner {
+    background: linear-gradient(135deg, rgba(46, 213, 115, 0.35), rgba(46, 213, 115, 0.15));
+    border-color: #2ed573;
+    box-shadow: 0 0 18px rgba(46, 213, 115, 0.5);
+}
+.gn-guess-card .gn-card-label {
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.gn-guess-card .gn-card-status {
+    font-size: 0.78rem;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+}
+.gn-guess-card.winner .gn-card-status { background: rgba(46, 213, 115, 0.35); color: #d8ffe5; }
+.gn-guess-card.eliminated .gn-card-status { background: rgba(255, 107, 107, 0.35); color: #ffe1e1; }
+.gn-guess-card input.gn-input {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.25);
+    color: #fff;
+    font-family: inherit;
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-align: center;
+}
+.gn-guess-card input.gn-input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+.gn-guess-card input.gn-input:focus {
+    outline: none;
+    border-color: #ffb14a;
+    box-shadow: 0 0 0 3px rgba(255, 177, 74, 0.25);
+}
+.gn-guess-card .gn-meta {
+    font-size: 0.78rem;
+    color: #b8c5d6;
+    display: flex;
+    justify-content: space-between;
+}

@@ -26,6 +26,7 @@
     <!-- 模式切换 -->
     <div class="mode-tabs" id="modeTabs">
         <button class="mode-tab active" data-mode="bigsmall">猜大小</button>
+        <button class="mode-tab" data-mode="guessnum">猜点数</button>
         <button class="mode-tab" data-mode="compare">比大小</button>
         <button class="mode-tab" data-mode="oddeven">猜单双</button>
         <button class="mode-tab" data-mode="dice21">21点</button>
@@ -129,6 +130,38 @@
                 <button class="btn btn-action btn-start21" id="btnStart21">🎮 开始游戏</button>
                 <div class="action-buttons" id="dice21Actions">
                     <button class="btn btn-action btn-roll-more" id="btnDraw">➕ 再来一颗</button>
+                </div>
+            </div>
+
+            <!-- 猜点数 面板 -->
+            <div class="panel panel-guessnum" id="panelGuessnum" style="display:none;">
+                <div class="gn-setup">
+                    <div class="gn-row">
+                        <span class="gn-label">🎲 骰子数：</span>
+                        <div class="gn-chip-group" id="gnDiceChips">
+                            <button class="gn-chip" data-dice="1">1 颗</button>
+                            <button class="gn-chip" data-dice="2">2 颗</button>
+                            <button class="gn-chip" data-dice="3">3 颗</button>
+                        </div>
+                    </div>
+                    <div class="gn-row">
+                        <span class="gn-label">👥 玩家数：</span>
+                        <div class="gn-chip-group" id="gnPlayerChips">
+                            <button class="gn-chip" data-players="2">2 人</button>
+                            <button class="gn-chip" data-players="3">3 人</button>
+                            <button class="gn-chip" data-players="4">4 人</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="gn-guess-area" id="gnGuessArea"></div>
+
+                <div class="dice-tray" id="trayGuessnum">
+                    <div class="dice-zone" id="guessnumDiceRow"></div>
+                </div>
+                <div class="result-display" id="resultGuessnum"></div>
+                <div class="action-buttons">
+                    <button class="btn btn-action" id="btnGuessnumStart" disabled>🎮 开始游戏</button>
                 </div>
             </div>
         </div>

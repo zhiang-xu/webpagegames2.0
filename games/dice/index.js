@@ -4,9 +4,10 @@
     // ===================== 规则内容 =====================
     var RULES = {
         bigsmall: '🎯 掷三颗骰子，猜测「大」（4-17点）或「小」（3-10点）。<br>豹子（三个相同）通吃，大小皆输！',
-        compare: '🎮 掷三颗骰子比大小，点数大者获胜。<br>点数相同时为平局。',
-        oddeven: '🎯 掷三颗骰子，猜测点数「单」或「双」。<br>3颗骰子之和为单数或双数。',
-        dice21: '🎲 掷骰子，累积点数尽量接近21点。<br>超过21点爆掉，直接输。掷到21点立刻获胜！',
+        compare:  '🎮 掷三颗骰子比大小，点数大者获胜。<br>点数相同时为平局。',
+        oddeven:  '🎯 掷三颗骰子，猜测点数「单」或「双」。<br>3颗骰子之和为单数或双数。',
+        dice21:   '🎲 掷骰子，累积点数尽量接近21点。<br>超过21点爆掉，直接输。掷到21点立刻获胜！',
+        guessnum: '🎲 先选择 1~3 颗骰子和 2~4 位玩家 (A/B/C/D)。<br>每人输入一个猜测点数（范围 = 骰子数 ~ 骰子数×6）。<br>开始后掷出骰子，点数之和最接近者获胜！多人平分时继续掷，直到决出胜者。',
     };
 
     function showRules(mode) {
@@ -326,8 +327,9 @@
             oddeven:  'panelGuess',
             compare:  'panelCompare',
             dice21:   'panel21',
+            guessnum: 'panelGuessnum',
         };
-        ['panelGuess', 'panelCompare', 'panel21'].forEach(function (id) {
+        ['panelGuess', 'panelCompare', 'panel21', 'panelGuessnum'].forEach(function (id) {
             var el = document.getElementById(id);
             if (el) el.style.display = 'none';
         });
@@ -348,7 +350,7 @@
     });
 
     document.getElementById('btnSwitch').addEventListener('click', function () {
-        var modes = ['bigsmall', 'compare', 'oddeven', 'dice21'];
+        var modes = ['bigsmall', 'guessnum', 'compare', 'oddeven', 'dice21'];
         var idx   = modes.indexOf(mode);
         switchMode(modes[(idx + 1) % modes.length]);
     });
@@ -675,6 +677,259 @@
     document.getElementById('btnStopA').addEventListener('click',   function () { stopSide('A'); });
     document.getElementById('btnStopB').addEventListener('click',   function () { stopSide('B'); });
 
+    // ===================== 猜点数 =====================
+    // 状态
+    var gnDiceCount  = 0;     // 1~3
+    var gnPlayerCount = 0;    // 2~4
+    var gnGuesses    = [];    // 玩家猜测输入数组, 长度 = gnPlayerCount
+    var gnCandidates = [];    // 当前轮仍在竞争的玩家下标集合 (尚未淘汰)
+    var gnEliminated = [];    // 已淘汰下标
+    var gnRound      = 0;     // 第几轮 (从 1 开始)
+    var gnTotalRounds = 0;
+    var gnLastResult = null;  // {values:[...], sum: n}
+
+    function gnRange() {
+        return { lo: gnDiceCount, hi: gnDiceCount * 6 };
+    }
+    function gnAllInputValid() {
+        if (!gnDiceCount || !gnPlayerCount) return false;
+        var r = gnRange();
+        for (var i = 0; i < gnGuesses.length; i++) {
+            var v = gnGuesses[i];
+            if (v === null || v === undefined || isNaN(v)) return false;
+            if (v < r.lo || v > r.hi) return false;
+        }
+        return true;
+    }
+
+    function gnRefreshStartBtn() {
+        var btn = document.getElementById('btnGuessnumStart');
+        if (!btn) return;
+        var inGame = gnCandidates.length > 0;
+        if (inGame) {
+            btn.disabled = true;
+            btn.textContent = '🎲 掷骰中…';
+        } else {
+            btn.disabled = !gnAllInputValid();
+            btn.textContent = '🎮 开始游戏';
+        }
+    }
+
+    function gnBuildGuessCards() {
+        var wrap = document.getElementById('gnGuessArea');
+        if (!wrap) return;
+        wrap.innerHTML = '';
+        var r = gnRange();
+        var emoji = ['👤', '🧑', '👨', '👩'];
+        var names = ['玩家A', '玩家B', '玩家C', '玩家D'];
+        for (var i = 0; i < gnPlayerCount; i++) {
+            var card = document.createElement('div');
+            card.className = 'gn-guess-card';
+            card.dataset.idx = i;
+            card.innerHTML =
+                '<div class="gn-card-label">' +
+                    '<span>' + (emoji[i] || '👤') + ' ' + names[i] + '</span>' +
+                    '<span class="gn-card-status">准备中</span>' +
+                '</div>' +
+                '<input class="gn-input" type="number" min="' + r.lo + '" max="' + r.hi + '" placeholder="' + r.lo + '~' + r.hi + '" />' +
+                '<div class="gn-meta"><span>猜测</span><span data-meta="diff">差 —</span></div>';
+            wrap.appendChild(card);
+            var input = card.querySelector('input');
+            (function (idx, inp) {
+                inp.addEventListener('input', function () {
+                    var v = parseInt(inp.value, 10);
+                    gnGuesses[idx] = isNaN(v) ? null : v;
+                    gnRefreshStartBtn();
+                });
+            })(i, input);
+        }
+    }
+
+    function gnApplyCardStates() {
+        var wrap = document.getElementById('gnGuessArea');
+        if (!wrap) return;
+        var cards = wrap.querySelectorAll('.gn-guess-card');
+        for (var i = 0; i < cards.length; i++) {
+            var card = cards[i];
+            var idx = parseInt(card.dataset.idx, 10);
+            var status = card.querySelector('.gn-card-status');
+            var diffEl = card.querySelector('[data-meta="diff"]');
+            card.classList.remove('eliminated', 'winner');
+            var input = card.querySelector('input');
+            input.disabled = false;
+
+            if (gnLastResult) {
+                var sum = gnLastResult.sum;
+                var diff = Math.abs((gnGuesses[idx] || 0) - sum);
+                diffEl.textContent = '差 ' + diff;
+            } else {
+                diffEl.textContent = '差 —';
+            }
+
+            if (gnCandidates.length === 1 && gnCandidates[0] === idx) {
+                card.classList.add('winner');
+                status.textContent = '🏆 冠军';
+                input.disabled = true;
+            } else if (gnEliminated.indexOf(idx) > -1) {
+                card.classList.add('eliminated');
+                status.textContent = '淘汰';
+                input.disabled = true;
+            } else if (gnCandidates.length > 0) {
+                status.textContent = '第 ' + gnRound + ' 轮';
+            } else {
+                status.textContent = '准备中';
+            }
+        }
+    }
+
+    function gnRollOnce(callback) {
+        var dice = [];
+        for (var i = 0; i < gnDiceCount; i++) dice.push(rollDie());
+        var sum = 0; for (var i = 0; i < dice.length; i++) sum += dice[i];
+        gnLastResult = { values: dice, sum: sum };
+        animateRoll(document.getElementById('guessnumDiceRow'), dice, 900, function () {
+            renderDiceStatic(document.getElementById('guessnumDiceRow'), dice);
+            if (callback) callback(dice, sum);
+        });
+    }
+
+    function gnFindClosest() {
+        // 返回差最小的下标数组 (若有并列都包含)
+        var sum = gnLastResult ? gnLastResult.sum : 0;
+        var minDiff = Infinity;
+        for (var i = 0; i < gnCandidates.length; i++) {
+            var idx = gnCandidates[i];
+            var g = gnGuesses[idx] || 0;
+            var d = Math.abs(g - sum);
+            if (d < minDiff) minDiff = d;
+        }
+        var closest = [];
+        for (var i = 0; i < gnCandidates.length; i++) {
+            var idx = gnCandidates[i];
+            var g = gnGuesses[idx] || 0;
+            if (Math.abs(g - sum) === minDiff) closest.push(idx);
+        }
+        return { closest: closest, minDiff: minDiff };
+    }
+
+    function gnJudgeAndContinue() {
+        gnRound++;
+        var res = gnFindClosest();
+        var closest = res.closest;
+        gnApplyCardStates();
+
+        if (closest.length === 1) {
+            // 单人最接近, 胜出
+            var winner = closest[0];
+            var names = ['玩家A', '玩家B', '玩家C', '玩家D'];
+            updateScore(2); pageAudio.play('success');
+            gnCandidates = [winner];
+            gnApplyCardStates();
+            showResult('guessnum', resultHTML(
+                '🏆 ' + names[winner] + ' 获胜！',
+                'win',
+                '骰子：' + gnLastResult.values.join(' + ') + ' = ' + gnLastResult.sum +
+                '  |  胜者猜：' + gnGuesses[winner] + ' (差 ' + res.minDiff + ')'
+            ));
+        } else {
+            // 多人平分
+            if (gnCandidates.length <= 2) {
+                // 2 人: 继续掷直到分出胜负, 不淘汰
+                showResult('guessnum', resultHTML(
+                    '🤝 平分！继续掷骰…',
+                    'draw',
+                    '骰子：' + gnLastResult.values.join(' + ') + ' = ' + gnLastResult.sum +
+                    '  |  候选：' + closest.map(function (i) { return names[i] + '(' + gnGuesses[i] + ')'; }).join(', ')
+                ));
+                setTimeout(function () { gnRollAndJudge(); }, 900);
+            } else {
+                // 3~4 人: 淘汰差最大者, 在剩下的人中继续掷
+                var maxDiff = -1;
+                for (var i = 0; i < gnCandidates.length; i++) {
+                    var idx = gnCandidates[i];
+                    var d = Math.abs((gnGuesses[idx] || 0) - gnLastResult.sum);
+                    if (d > maxDiff) maxDiff = d;
+                }
+                var keep = [];
+                for (var i = 0; i < gnCandidates.length; i++) {
+                    var idx = gnCandidates[i];
+                    var d = Math.abs((gnGuesses[idx] || 0) - gnLastResult.sum);
+                    if (d < maxDiff) keep.push(idx);
+                }
+                // 若 keep 仍含全部人 (说明全部差相同), keep = closest
+                if (keep.length === gnCandidates.length) keep = closest.slice();
+                for (var i = 0; i < gnCandidates.length; i++) {
+                    var idx = gnCandidates[i];
+                    if (keep.indexOf(idx) === -1) gnEliminated.push(idx);
+                }
+                gnCandidates = keep;
+                var names2 = ['玩家A', '玩家B', '玩家C', '玩家D'];
+                showResult('guessnum', resultHTML(
+                    '💥 平分！淘汰差最大者',
+                    'lose',
+                    '骰子：' + gnLastResult.values.join(' + ') + ' = ' + gnLastResult.sum +
+                    '  |  晋级：' + gnCandidates.map(function (i) { return names2[i] + '(' + gnGuesses[i] + ')'; }).join(', ')
+                ));
+                pageAudio.play('error');
+                gnApplyCardStates();
+                setTimeout(function () { gnRollAndJudge(); }, 1100);
+            }
+        }
+    }
+
+    function gnRollAndJudge() {
+        gnRollOnce(function () {
+            setTimeout(gnJudgeAndContinue, 250);
+        });
+    }
+
+    function gnStart() {
+        if (!gnAllInputValid()) return;
+        if (isRolling) return;
+        if (gnDiceCount < 1 || gnPlayerCount < 2) return;
+        // 重置玩家状态 (重新开始游戏时, 输入保留)
+        gnCandidates = [];
+        for (var i = 0; i < gnPlayerCount; i++) gnCandidates.push(i);
+        gnEliminated = [];
+        gnRound = 0;
+        gnLastResult = null;
+        gnRefreshStartBtn();
+        gnApplyCardStates();
+        isRolling = true;
+        gnRollAndJudge();
+    }
+
+    // 绑定骰子数/玩家数 chip
+    document.querySelectorAll('#gnDiceChips .gn-chip').forEach(function (b) {
+        b.addEventListener('click', function () {
+            if (isRolling && gnCandidates.length > 0) return;
+            gnDiceCount = parseInt(b.dataset.dice, 10);
+            document.querySelectorAll('#gnDiceChips .gn-chip').forEach(function (x) {
+                x.classList.toggle('selected', x === b);
+            });
+            gnRefreshStartBtn();
+        });
+    });
+    document.querySelectorAll('#gnPlayerChips .gn-chip').forEach(function (b) {
+        b.addEventListener('click', function () {
+            if (isRolling && gnCandidates.length > 0) return;
+            gnPlayerCount = parseInt(b.dataset.players, 10);
+            // 重新构建输入卡片, 保留已有猜测
+            var prev = gnGuesses.slice();
+            gnGuesses = [];
+            for (var i = 0; i < gnPlayerCount; i++) {
+                gnGuesses.push(prev[i] !== undefined ? prev[i] : null);
+            }
+            document.querySelectorAll('#gnPlayerChips .gn-chip').forEach(function (x) {
+                x.classList.toggle('selected', x === b);
+            });
+            gnBuildGuessCards();
+            gnApplyCardStates();
+            gnRefreshStartBtn();
+        });
+    });
+    document.getElementById('btnGuessnumStart').addEventListener('click', gnStart);
+
     // ===================== 重置回合 =====================
     function resetRound() {
         chosenGuess = null; isRolling = false;
@@ -703,6 +958,28 @@
 
         } else if (mode === 'dice21') {
             init21();
+
+        } else if (mode === 'guessnum') {
+            // 重置猜点数面板: 清空选择、卡片、结果, 保留上次猜测值 (供方便继续玩)
+            gnDiceCount = 0;
+            gnPlayerCount = 0;
+            gnCandidates = [];
+            gnEliminated = [];
+            gnRound = 0;
+            gnLastResult = null;
+            document.querySelectorAll('#gnDiceChips .gn-chip').forEach(function (b) { b.classList.remove('selected'); });
+            document.querySelectorAll('#gnPlayerChips .gn-chip').forEach(function (b) { b.classList.remove('selected'); });
+            var area = document.getElementById('gnGuessArea');
+            if (area) area.innerHTML = '';
+            var row = document.getElementById('guessnumDiceRow');
+            if (row) row.innerHTML = '';
+            showResult('guessnum', '');
+            var btnStartG = document.getElementById('btnGuessnumStart');
+            if (btnStartG) {
+                btnStartG.disabled = true;
+                btnStartG.textContent = '🎮 开始游戏';
+            }
+            gnGuesses = [];
         }
     }
 
