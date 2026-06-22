@@ -503,9 +503,16 @@
         var btnDraw = document.getElementById('btnDraw');
         var btnA    = document.getElementById('btnStopA');
         var btnB    = document.getElementById('btnStopB');
-        // 再来一颗：游戏未结束、双方都没在摇、双方都还没停止
+        // 21点 面板里"开始游戏" 与 "再来一颗" 互斥显示
+        // 仅在"已开始但未结束"区间内才显示 btnDraw
+        var btnStart = document.getElementById('btnStart21');
+        var inProgress = !game21Over && btnStart && btnStart.style.display === 'none';
+        if (btnStart) btnStart.style.display = inProgress ? 'none' : '';
+        if (btnDraw)  btnDraw.style.display  = inProgress ? '' : 'none';
+
+        // 再来一颗：双方都没在摇、双方都还没停止
         // (单方停止后, 另一方仍可继续摇; 双方都停才禁用)
-        var canDraw = !game21Over && !rollingA && !rollingB && !(aStop && bStop);
+        var canDraw = inProgress && !rollingA && !rollingB && !(aStop && bStop);
         if (btnDraw) btnDraw.disabled = !canDraw;
         if (btnA)    btnA.disabled    = aStop || game21Over;
         if (btnB)    btnB.disabled    = bStop || game21Over;
@@ -615,20 +622,20 @@
             btnStart.textContent   = '🎮 开始游戏';
             btnStart.disabled = false;
         }
-        // 初始：仅显示「开始游戏」，隐藏「再来一颗」
-        var btnDraw = document.getElementById('btnDraw');
-        if (btnDraw) btnDraw.disabled = true;
         // 双方停止按钮在游戏未开始时禁用
         var btnA = document.getElementById('btnStopA');
         var btnB = document.getElementById('btnStopB');
         if (btnA) btnA.disabled = true;
         if (btnB) btnB.disabled = true;
+        // btnDraw 与 btnStart 互斥: 通过 display 控制, 由 refresh21Controls 同步
+        refresh21Controls();
     }
 
     function start21Game() {
         if (game21Over) return;
         var btnStart = document.getElementById('btnStart21');
         if (btnStart) btnStart.style.display = 'none';
+        refresh21Controls();
         rollBoth();
     }
 
