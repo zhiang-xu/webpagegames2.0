@@ -253,7 +253,7 @@ header {
     background: radial-gradient(ellipse 100% 60% at 50% 100%, rgba(162,155,254,0.12) 0%, transparent 70%);
 }
 .dice-tray-21 {
-    width: 320px;
+    width: 280px;
     height: 110px;
 }
 
@@ -448,6 +448,25 @@ header {
     font-weight: 800;
     color: rgba(255, 211, 42, 0.85);
     text-shadow: 0 0 12px rgba(255, 211, 42, 0.4);
+}
+
+.side-score-inline {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 10px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #ffd32a;
+    text-shadow: 1px 1px 0 rgba(255,107,53,0.4);
+    background: rgba(255, 211, 42, 0.1);
+    border: 1px solid rgba(255, 211, 42, 0.3);
+    border-radius: 10px;
+    vertical-align: middle;
+}
+.side-score-inline.bust {
+    color: #ff6b6b;
+    border-color: rgba(255, 107, 107, 0.4);
+    background: rgba(255, 107, 107, 0.1);
 }
 
 /* 21点 */

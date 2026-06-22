@@ -102,18 +102,20 @@
 
             <!-- 21点 面板 -->
             <div class="panel panel-21" id="panel21" style="display:none;">
-                <div class="score-display">
-                    <div class="score-box">
-                        <div class="score-label">你的点数</div>
-                        <div class="score-value" id="player21Score">0</div>
+                <div class="compare-trays">
+                    <div class="compare-tray-wrap">
+                        <div class="tray-label">👤 玩家A <span class="side-score-inline" id="player21ScoreInline">0</span></div>
+                        <div class="dice-tray dice-tray-player dice-tray-21" id="tray21Player">
+                            <div class="dice-zone" id="player21DiceRow"></div>
+                        </div>
                     </div>
-                    <div class="score-box">
-                        <div class="score-label">电脑点数</div>
-                        <div class="score-value" id="ai21Score">?</div>
+                    <div class="side-vs">VS</div>
+                    <div class="compare-tray-wrap">
+                        <div class="tray-label">🤖 玩家B <span class="side-score-inline" id="ai21ScoreInline">?</span></div>
+                        <div class="dice-tray dice-tray-ai dice-tray-21" id="tray21AI">
+                            <div class="dice-zone" id="ai21DiceRow"></div>
+                        </div>
                     </div>
-                </div>
-                <div class="dice-tray dice-tray-21" id="tray21">
-                    <div class="dice-zone" id="dice21Row"></div>
                 </div>
                 <div class="result-display" id="result21Display"></div>
                 <button class="btn btn-action btn-start21" id="btnStart21">🎮 开始游戏</button>

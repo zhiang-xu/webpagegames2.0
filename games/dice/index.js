@@ -469,11 +469,16 @@
         p21Dice = []; ai21Dice = []; ai21Stopped = false; game21Over = false;
         clearAIDiceContainer();
 
-        document.getElementById('dice21Row').innerHTML = '';
-        document.getElementById('player21Score').textContent = '0';
-        document.getElementById('player21Score').classList.remove('bust');
-        document.getElementById('ai21Score').textContent = '?';
-        document.getElementById('ai21Score').classList.remove('bust');
+        var pRow = document.getElementById('player21DiceRow');
+        var aRow = document.getElementById('ai21DiceRow');
+        if (pRow) pRow.innerHTML = '';
+        if (aRow) aRow.innerHTML = '';
+
+        var psEl = document.getElementById('player21ScoreInline');
+        var asEl = document.getElementById('ai21ScoreInline');
+        if (psEl) { psEl.textContent = '0'; psEl.classList.remove('bust'); }
+        if (asEl) { asEl.textContent = '?'; asEl.classList.remove('bust'); }
+
         showResult('dice21', '');
         set21Buttons(false, false);
 
@@ -494,7 +499,10 @@
         p21Dice.push(rollDie());
         ai21Dice.push(rollDie());
 
-        animateRoll(document.getElementById('dice21Row'), p21Dice, 900, function () {
+        var pRow = document.getElementById('player21DiceRow');
+        var aRow = document.getElementById('ai21DiceRow');
+        animateRoll(pRow, p21Dice, 900, function () {
+            renderDiceStatic(pRow, p21Dice);
             update21Scores();
             isRolling = false;
             set21Buttons(true, true);
@@ -505,11 +513,11 @@
         var ps = sum21(p21Dice);
         var as = sum21(ai21Dice);
 
-        var elPS = document.getElementById('player21Score');
+        var elPS = document.getElementById('player21ScoreInline');
         elPS.textContent = ps;
         elPS.classList.toggle('bust', ps > 21);
 
-        var elAS = document.getElementById('ai21Score');
+        var elAS = document.getElementById('ai21ScoreInline');
         if (!ai21Stopped) {
             elAS.textContent = as;
             elAS.classList.toggle('bust', as > 21);
@@ -524,13 +532,15 @@
         var d = rollDie();
         p21Dice.push(d);
 
-        animateSingleDie(document.getElementById('dice21Row'), d, function () {
+        var pRow = document.getElementById('player21DiceRow');
+        animateSingleDie(pRow, d, function () {
+            renderDiceStatic(pRow, p21Dice);
             update21Scores();
             isRolling = false;
 
             var ps = sum21(p21Dice);
             if (ps > 21) {
-                showResult('dice21', resultHTML('你爆了！', 'lose', '点数 ' + ps + ' 超过 21'));
+                showResult('dice21', resultHTML('玩家A 爆了！', 'lose', '点数 ' + ps + ' 超过 21'));
                 pageAudio.play('error');
                 updateScore(-1);
                 set21Buttons(false, false);
@@ -553,18 +563,22 @@
 
     function aiPlay() {
         ai21Stopped = true;
-        var aiScoreEl = document.getElementById('ai21Score');
-        aiScoreEl.textContent = '?';
+        var aiScoreEl = document.getElementById('ai21ScoreInline');
+        var aRow = document.getElementById('ai21DiceRow');
 
         function tick() {
             var pts = sum21(ai21Dice);
             if (pts < 16 && ai21Dice.length < 8) {
                 ai21Dice.push(rollDie());
+                renderDiceStatic(aRow, ai21Dice);
                 aiScoreEl.textContent = sum21(ai21Dice);
+                aiScoreEl.classList.toggle('bust', sum21(ai21Dice) > 21);
                 setTimeout(tick, 320);
             } else {
                 setTimeout(function () {
+                    renderDiceStatic(aRow, ai21Dice);
                     aiScoreEl.textContent = sum21(ai21Dice);
+                    aiScoreEl.classList.toggle('bust', sum21(ai21Dice) > 21);
                     aiFinalize();
                 }, 300);
             }
@@ -579,54 +593,24 @@
         var cls, text;
 
         if (ps > 21) {
-            cls = 'lose'; text = '你爆了！';
+            cls = 'lose'; text = '玩家A 爆了！';
             updateScore(-1); pageAudio.play('error');
         } else if (as > 21) {
-            cls = 'win'; text = '电脑爆了，你赢！';
+            cls = 'win'; text = '玩家B 爆了，玩家A 赢！';
             updateScore(2); pageAudio.play('success');
         } else if (ps > as) {
-            cls = 'win'; text = '你赢了！';
+            cls = 'win'; text = '玩家A 赢了！';
             updateScore(2); pageAudio.play('success');
         } else if (ps < as) {
-            cls = 'lose'; text = '你输了！';
+            cls = 'lose'; text = '玩家A 输了！';
             updateScore(-1); pageAudio.play('error');
         } else {
             cls = 'draw'; text = '平局！';
             pageAudio.play('select');
         }
 
-        var panel21 = document.getElementById('panel21');
         clearAIDiceContainer();
-
-        var cont = document.createElement('div');
-        cont.id  = 'aiDiceContainer';
-        cont.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;';
-
-        var row = document.createElement('div');
-        row.style.cssText = 'display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;';
-
-        p21Dice.forEach(function (v) {
-            var el = createDieEl(v);
-            el.style.boxShadow = '0 4px 12px rgba(78,205,196,0.5)';
-            el.classList.add('placed');
-            row.appendChild(el);
-        });
-
-        var vs = document.createElement('span');
-        vs.textContent = 'vs';
-        vs.style.cssText = 'font-size:1.2rem;color:rgba(255,255,255,0.45);font-weight:700;';
-
-        ai21Dice.forEach(function (v) {
-            var el = createDieEl(v);
-            el.style.boxShadow = '0 4px 12px rgba(162,155,254,0.5)';
-            el.classList.add('placed');
-            row.appendChild(el);
-        });
-
-        cont.appendChild(row);
-        panel21.appendChild(cont);
-
-        showResult('dice21', resultHTML(text, cls, '你：' + ps + '  vs  电脑：' + as));
+        showResult('dice21', resultHTML(text, cls, '玩家A：' + ps + '  vs  玩家B：' + as));
     }
 
     document.getElementById('btnDraw').addEventListener('click',  dice21Draw);
