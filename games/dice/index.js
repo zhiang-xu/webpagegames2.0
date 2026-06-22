@@ -791,7 +791,7 @@
                 status.textContent = '淘汰';
                 input.disabled = true;
             } else if (gnCandidates.length > 0) {
-                status.textContent = '第 ' + gnRound + ' 轮';
+                status.textContent = '掷骰中…';
             } else {
                 status.textContent = '准备中';
             }
@@ -875,8 +875,17 @@
                     var d = Math.abs((gnGuesses[idx] || 0) - gnLastResult.sum);
                     if (d < maxDiff) keep.push(idx);
                 }
-                // 若 keep 仍含全部人 (说明全部差相同), keep = closest
-                if (keep.length === gnCandidates.length) keep = closest.slice();
+                // 若全部候选差相同 (极端平局), 无法淘汰任何人, 改为继续掷
+                if (keep.length === 0 || keep.length === gnCandidates.length) {
+                    showResult('guessnum', resultHTML(
+                        '🤝 全员平分！继续掷骰…',
+                        'draw',
+                        '骰子：' + gnLastResult.values.join(' + ') + ' = ' + gnLastResult.sum +
+                        '  |  候选：' + closest.map(function (i) { return names[i] + '(' + gnGuesses[i] + ')'; }).join(', ')
+                    ));
+                    setTimeout(function () { gnRollAndJudge(); }, 1100);
+                    return;
+                }
                 for (var i = 0; i < gnCandidates.length; i++) {
                     var idx = gnCandidates[i];
                     if (keep.indexOf(idx) === -1) gnEliminated.push(idx);
