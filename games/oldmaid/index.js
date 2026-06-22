@@ -43,8 +43,7 @@
     turnText: document.querySelector('.turn-text'),
     actionHint: document.getElementById('actionHint'),
     btnStart: document.getElementById('btnStart'),
-    btnNew: document.getElementById('btnNew'),
-    soundBtn: document.getElementById('soundBtn')
+    btnNew: document.getElementById('btnNew')
   };
 
   // 音频管理器
@@ -52,24 +51,10 @@
 
   function initAudio() {
     if (typeof GamePageUI !== 'undefined') {
-      const pageUI = GamePageUI.mount({
-        home: false,
-        sound: true,
-        muted: false
-      }, 'bar');
+      const pageUI = GamePageUI.mount({ home: true, sound: true }, 'bar');
       audio = {
-        play: function (type) {
-          pageUI.play(type);
-        }
+        play: function (type) { pageUI.play(type); }
       };
-      elements.soundBtn.textContent = pageUI.isMuted() ? '🔇' : '🔊';
-      elements.soundBtn.classList.toggle('is-muted', pageUI.isMuted());
-      elements.soundBtn.addEventListener('click', function () {
-        const muted = pageUI.toggle();
-        elements.soundBtn.textContent = muted ? '🔇' : '🔊';
-        elements.soundBtn.classList.toggle('is-muted', muted);
-        if (!muted) audio.play('tap');
-      });
     }
   }
 
@@ -113,7 +98,7 @@
       cardEl.className = 'card back';
       cardEl.innerHTML = `<div class="card-center">🎴</div>`;
     } else {
-      let cardClass = card.isGhost ? 'ghost' : (isRed ? 'red' : 'black');
+      let cardClass = 'card ' + (card.isGhost ? 'ghost' : (isRed ? 'red' : 'black'));
       if (clickable) cardClass += ' clickable';
 
       const ghostIcon = card.isGhost ? '🕷️' : card.suit;
@@ -533,7 +518,4 @@
   } else {
     init();
   }
-
-  // 统一工具栏：返回主页 + 音效开关
-  GamePageUI.mount({ home: true, sound: true }, 'bar');
 })();
