@@ -253,7 +253,8 @@ header {
     background: radial-gradient(ellipse 100% 60% at 50% 100%, rgba(162,155,254,0.12) 0%, transparent 70%);
 }
 .dice-tray-21 {
-    width: 280px;
+    width: 740px;
+    max-width: 100%;
     height: 110px;
 }
 
@@ -503,7 +504,7 @@ header {
     .info-box .value { font-size: 1.5rem; }
     .die { width: 52px; height: 52px; padding: 6px; }
     .dice-tray { width: 230px; height: 85px; }
-    .dice-tray-21 { width: 260px; height: 90px; }
+    .dice-tray-21 { width: 100%; max-width: 520px; height: 90px; }
     .btn-bet { width: 100px; height: 60px; font-size: 1.5rem; }
     .panel { padding: 20px 14px; }
     .compare-trays { gap: 8px; }

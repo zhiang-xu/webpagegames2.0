@@ -41,8 +41,10 @@
         var diceW  = 64;
         var gap    = 10;
         var num    = values.length;
-        var startX = (280 - num * diceW - (num - 1) * gap) / 2;
-        var finalY = (100 - diceW) / 2;
+        var trayW  = container.clientWidth  || 280;
+        var trayH  = container.clientHeight || 100;
+        var startX = (trayW - num * diceW - (num - 1) * gap) / 2;
+        var finalY = (trayH - diceW) / 2;
         for (var i = 0; i < values.length; i++) {
             var el = createDieEl(values[i]);
             el.classList.add('placed');
@@ -82,8 +84,8 @@
         var numDice = finalValues.length;
         var diceW   = 64;
         var gap     = 10;
-        var trayW   = 280;
-        var trayH   = 100;
+        var trayW   = container.clientWidth  || 280;
+        var trayH   = container.clientHeight || 100;
         var startX  = (trayW - numDice * diceW - (numDice - 1) * gap) / 2;
         var finalY  = (trayH - diceW) / 2;
         container.innerHTML = '';
@@ -209,16 +211,19 @@
         el.className = 'die placed';
         var dots = el.querySelectorAll('.dot');
         for (var i = 0; i < dots.length; i++) dots[i].className = 'dot';
+        var trayW   = container.clientWidth  || 280;
+        var trayH   = container.clientHeight || 100;
+        var finalY  = (trayH - 64) / 2;
+        var finalX  = (trayW - 64) / 2;
         el.style.position = 'absolute';
-        el.style.left    = '108px';
-        el.style.top     = '18px';
+        el.style.left    = finalX + 'px';
+        el.style.top     = finalY + 'px';
         el.style.opacity = '0';
         el.style.transform = 'translate(60px,-80px) rotate(360deg) scale(0.5)';
         container.appendChild(el);
 
         var startTime = null;
         var duration  = 700;
-        var trayH     = 100;
 
         function tick(ts) {
             if (!startTime) startTime = ts;
