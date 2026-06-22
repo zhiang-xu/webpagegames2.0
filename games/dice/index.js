@@ -350,7 +350,7 @@
     });
 
     document.getElementById('btnSwitch').addEventListener('click', function () {
-        var modes = ['bigsmall', 'guessnum', 'compare', 'oddeven', 'dice21'];
+        var modes = ['guessnum', 'bigsmall', 'oddeven', 'compare', 'dice21'];
         var idx   = modes.indexOf(mode);
         switchMode(modes[(idx + 1) % modes.length]);
     });
@@ -1022,7 +1022,6 @@
     document.getElementById('btnReplay').addEventListener('click', resetRound);
 
     // ===================== 初始化 =====================
-    showRules('bigsmall');
-    resetRound();
+    switchMode('guessnum');
 
 })();

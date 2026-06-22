@@ -25,10 +25,10 @@
 
     <!-- 模式切换 -->
     <div class="mode-tabs" id="modeTabs">
-        <button class="mode-tab active" data-mode="bigsmall">猜大小</button>
-        <button class="mode-tab" data-mode="guessnum">猜点数</button>
-        <button class="mode-tab" data-mode="compare">比大小</button>
+        <button class="mode-tab active" data-mode="guessnum">猜点数</button>
+        <button class="mode-tab" data-mode="bigsmall">猜大小</button>
         <button class="mode-tab" data-mode="oddeven">猜单双</button>
+        <button class="mode-tab" data-mode="compare">比大小</button>
         <button class="mode-tab" data-mode="dice21">21点</button>
     </div>
 
@@ -56,7 +56,7 @@
         <div class="play-area" id="playArea">
 
             <!-- 猜大小 / 猜单双 面板 -->
-            <div class="panel panel-guess" id="panelGuess">
+            <div class="panel panel-guess" id="panelGuess" style="display:none;">
                 <div class="dice-tray" id="trayGuess">
                     <div class="dice-zone" id="diceRow"></div>
                 </div>
@@ -134,7 +134,7 @@
             </div>
 
             <!-- 猜点数 面板 -->
-            <div class="panel panel-guessnum" id="panelGuessnum" style="display:none;">
+            <div class="panel panel-guessnum" id="panelGuessnum">
                 <div class="gn-setup">
                     <div class="gn-row">
                         <span class="gn-label">🎲 骰子数：</span>
