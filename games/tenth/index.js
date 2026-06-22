@@ -177,7 +177,9 @@
   function updateButtons() {
     els.hitBtn.disabled = !state.isPlayerTurn;
     els.standBtn.disabled = !state.isPlayerTurn;
-    els.newGameBtn.disabled = !state.gameOver;
+    // 开始游戏按钮: 游戏中(isPlayerTurn)或庄家行动中(playerStood)禁用, 其余可点
+    var inProgress = state.isPlayerTurn || state.playerStood;
+    els.newGameBtn.disabled = inProgress;
   }
 
   // ============ Win Animation ============
