@@ -538,7 +538,10 @@
       }
 
       canCapture(attacker, defender, targetRow, targetCol) {
-        if (this.isEnemyTrap(targetRow, targetCol, attacker.color)) return true;
+        const isInEnemyTrap = this.isEnemyTrap(targetRow, targetCol, attacker.color);
+        if (isInEnemyTrap) {
+          return this.hasAdjacentEnemy(attacker.row, attacker.col, targetRow, targetCol, attacker.color);
+        }
         const attackerMeta = PIECES[attacker.type];
         const defenderMeta = PIECES[defender.type];
         if (attacker.type === 'rat' && defender.type === 'elephant') return true;
@@ -546,8 +549,26 @@
         if (this.terrainAt(attacker.row, attacker.col) === 'river' && this.terrainAt(targetRow, targetCol) === 'river') {
           return attacker.type === 'rat' && defender.type === 'rat';
         }
-        const defenderRank = this.isEnemyTrap(targetRow, targetCol, attacker.color) ? 0 : defenderMeta.rank;
-        return attackerMeta.rank >= defenderRank;
+        return attackerMeta.rank >= defenderMeta.rank;
+      }
+
+      hasAdjacentEnemy(pieceRow, pieceCol, trapRow, trapCol, color) {
+        const dirs = [{ dr: -1, dc: 0 }, { dr: 1, dc: 0 }, { dr: 0, dc: -1 }, { dr: 0, dc: 1 }];
+        for (const dir of dirs) {
+          const ar = pieceRow + dir.dr;
+          const ac = pieceCol + dir.dc;
+          if (this.inBounds(ar, ac)) {
+            const adj = this.getPieceAt(ar, ac);
+            if (adj && adj.color !== color) return true;
+          }
+          const tr = trapRow + dir.dr;
+          const tc = trapCol + dir.dc;
+          if (this.inBounds(tr, tc)) {
+            const adjTrap = this.getPieceAt(tr, tc);
+            if (adjTrap && adjTrap.color !== color) return true;
+          }
+        }
+        return false;
       }
 
       getValidMoves(piece, state = this.pieces) {
@@ -588,6 +609,8 @@
             if (this.canCapture(piece, target, nr, nc)) {
               moves.push({ row: nr, col: nc, capture: true, targetId: target.id });
             }
+          } else if (this.isEnemyTrap(nr, nc, piece.color)) {
+            moves.push({ row: nr, col: nc, capture: false, targetId: null });
           } else {
             moves.push({ row: nr, col: nc, capture: false, targetId: null });
           }
@@ -855,6 +878,3 @@
     }
 
     const game = new DouShouQiGame();
-
-    // 统一工具栏：返回主页 + 音效开关
-    GamePageUI.mount({ home: true, sound: true }, 'bar');
