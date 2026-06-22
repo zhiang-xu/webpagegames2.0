@@ -503,8 +503,9 @@
         var btnDraw = document.getElementById('btnDraw');
         var btnA    = document.getElementById('btnStopA');
         var btnB    = document.getElementById('btnStopB');
-        // 再来一颗：游戏未结束、双方都没停、双方都没在摇
-        var canDraw = !game21Over && !aStop && !bStop && !rollingA && !rollingB;
+        // 再来一颗：游戏未结束、双方都没在摇、双方都还没停止
+        // (单方停止后, 另一方仍可继续摇; 双方都停才禁用)
+        var canDraw = !game21Over && !rollingA && !rollingB && !(aStop && bStop);
         if (btnDraw) btnDraw.disabled = !canDraw;
         if (btnA)    btnA.disabled    = aStop || game21Over;
         if (btnB)    btnB.disabled    = bStop || game21Over;
