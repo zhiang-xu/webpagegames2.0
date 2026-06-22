@@ -540,7 +540,7 @@
       canCapture(attacker, defender, targetRow, targetCol) {
         const isInEnemyTrap = this.isEnemyTrap(targetRow, targetCol, attacker.color);
         if (isInEnemyTrap) {
-          return this.hasAdjacentEnemy(attacker.row, attacker.col, targetRow, targetCol, attacker.color);
+          return this.isAdjacentTo(attacker.row, attacker.col, targetRow, targetCol);
         }
         const attackerMeta = PIECES[attacker.type];
         const defenderMeta = PIECES[defender.type];
@@ -552,23 +552,8 @@
         return attackerMeta.rank >= defenderMeta.rank;
       }
 
-      hasAdjacentEnemy(pieceRow, pieceCol, trapRow, trapCol, color) {
-        const dirs = [{ dr: -1, dc: 0 }, { dr: 1, dc: 0 }, { dr: 0, dc: -1 }, { dr: 0, dc: 1 }];
-        for (const dir of dirs) {
-          const ar = pieceRow + dir.dr;
-          const ac = pieceCol + dir.dc;
-          if (this.inBounds(ar, ac)) {
-            const adj = this.getPieceAt(ar, ac);
-            if (adj && adj.color !== color) return true;
-          }
-          const tr = trapRow + dir.dr;
-          const tc = trapCol + dir.dc;
-          if (this.inBounds(tr, tc)) {
-            const adjTrap = this.getPieceAt(tr, tc);
-            if (adjTrap && adjTrap.color !== color) return true;
-          }
-        }
-        return false;
+      isAdjacentTo(r1, c1, r2, c2) {
+        return Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1;
       }
 
       getValidMoves(piece, state = this.pieces) {
