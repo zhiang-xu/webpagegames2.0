@@ -687,6 +687,7 @@
     var gnRound       = 0;     // 第几轮 (从 1 开始)
     var gnGameOver    = false; // true = 已决出冠军
     var gnLastResult  = null;  // {values:[...], sum: n}
+    var gnStarted     = false; // true = 已首次开始 (骰子数/玩家数锁定, 只能"新开一局"重置)
 
     function gnRange() {
         return { lo: gnDiceCount, hi: gnDiceCount * 6 };
@@ -720,6 +721,23 @@
         // idle: 未开始
         btn.disabled = !gnAllInputValid();
         btn.textContent = '🎮 开始游戏';
+    }
+
+    // 已开局后锁住骰子数/玩家数 chips (只能通过底部"新开一局"重置)
+    function gnRefreshSetupChips() {
+        var lock = gnStarted;
+        document.querySelectorAll('#gnDiceChips .gn-chip').forEach(function (b) {
+            b.classList.toggle('locked', lock);
+            b.disabled = lock;
+        });
+        document.querySelectorAll('#gnPlayerChips .gn-chip').forEach(function (b) {
+            b.classList.toggle('locked', lock);
+            b.disabled = lock;
+        });
+        var diceRow = document.getElementById('gnDiceChips');
+        var playerRow = document.getElementById('gnPlayerChips');
+        if (diceRow) diceRow.title = lock ? '已开局, 请点下方"新开一局"重置' : '';
+        if (playerRow) playerRow.title = lock ? '已开局, 请点下方"新开一局"重置' : '';
     }
 
     function gnBuildGuessCards() {
@@ -783,9 +801,8 @@
                 status.textContent = '淘汰';
                 input.disabled = true;
             } else if (gnGameOver) {
-                // 局结束但本玩家既非冠军也非淘汰(理论上不会出现, 兜底)
-                status.textContent = '—';
-                input.disabled = true;
+                // 局结束, 玩家可继续掷前调整输入 (兜底分支, 通常不应进入)
+                status.textContent = '准备中';
             } else if (gnEliminated.indexOf(idx) > -1) {
                 card.classList.add('eliminated');
                 status.textContent = '淘汰';
@@ -916,36 +933,28 @@
         if (isRolling) return;
         if (gnDiceCount < 1 || gnPlayerCount < 2) return;
 
-        if (gnGameOver) {
-            // 新一轮: 全部玩家重新参与, 清空淘汰与候选
-            gnCandidates = [];
-            for (var i = 0; i < gnPlayerCount; i++) gnCandidates.push(i);
-            gnEliminated = [];
-            gnRound = 0;
-            gnGameOver = false;
-            gnLastResult = null;
-            isRolling = true;
-            gnRefreshStartBtn();
-            gnApplyCardStates();
-            gnRollAndJudge();
-        } else {
-            // 首轮
-            gnCandidates = [];
-            for (var i = 0; i < gnPlayerCount; i++) gnCandidates.push(i);
-            gnEliminated = [];
-            gnRound = 0;
-            gnGameOver = false;
-            gnLastResult = null;
-            isRolling = true;
-            gnRefreshStartBtn();
-            gnApplyCardStates();
-            gnRollAndJudge();
+        if (!gnGameOver) {
+            // 首轮: 标记为已开局, 骰子数/玩家数锁定
+            gnStarted = true;
         }
+        // 无论首轮还是继续, 重置候选/淘汰/轮次/结果
+        gnCandidates = [];
+        for (var i = 0; i < gnPlayerCount; i++) gnCandidates.push(i);
+        gnEliminated = [];
+        gnRound = 0;
+        gnGameOver = false;
+        gnLastResult = null;
+        isRolling = true;
+        gnRefreshSetupChips();
+        gnRefreshStartBtn();
+        gnApplyCardStates();
+        gnRollAndJudge();
     }
 
     // 绑定骰子数/玩家数 chip
     document.querySelectorAll('#gnDiceChips .gn-chip').forEach(function (b) {
         b.addEventListener('click', function () {
+            if (gnStarted) return; // 已开局锁定, 只能"新开一局"重置
             if (isRolling && gnCandidates.length > 0) return;
             gnDiceCount = parseInt(b.dataset.dice, 10);
             document.querySelectorAll('#gnDiceChips .gn-chip').forEach(function (x) {
@@ -956,6 +965,7 @@
     });
     document.querySelectorAll('#gnPlayerChips .gn-chip').forEach(function (b) {
         b.addEventListener('click', function () {
+            if (gnStarted) return; // 已开局锁定, 只能"新开一局"重置
             if (isRolling && gnCandidates.length > 0) return;
             gnPlayerCount = parseInt(b.dataset.players, 10);
             // 重新构建输入卡片, 保留已有猜测
@@ -1012,6 +1022,7 @@
             gnRound = 0;
             gnGameOver = false;
             gnLastResult = null;
+            gnStarted = false;
             gnGuesses = [];
             document.querySelectorAll('#gnDiceChips .gn-chip').forEach(function (b) { b.classList.remove('selected'); });
             document.querySelectorAll('#gnPlayerChips .gn-chip').forEach(function (b) { b.classList.remove('selected'); });
@@ -1025,6 +1036,7 @@
                 btnStartG.disabled = true;
                 btnStartG.textContent = '🎮 开始游戏';
             }
+            gnRefreshSetupChips();
         }
     }
 

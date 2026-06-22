@@ -1,0 +1,7 @@
+feat(dice): 锁定骰子/玩家数 chips + 修复 gameOver 后输入锁死
+
+- 新增 gnStarted 标志: 首次开始掷骰后置 true, 锁定骰子数/玩家数 chips
+- 锁定后需点底部 "新开一局" 才能修改 (resetRound 中重置 gnStarted)
+- 新增 gnRefreshSetupChips() 控制锁定态视觉 (.locked + disabled)
+- 修复 gnApplyCardStates gameOver 兑底分支: 不再锁住所有 input, 允许用户继续掷前调整输入
+- gnAllInputValid 已检查空值, 按钮在有空时自动禁用 (需求 2 已 OK)
