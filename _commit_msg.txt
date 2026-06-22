@@ -1,7 +1,0 @@
-fix(fishpond): 修复重复工具栏和牌样式
-
-- 移除手写 page-bar 和独立 soundBtn (由 GamePageUI 统一管理)
-- 统一 initAudio 和底部重复 mount 调用
-- 修复 createCardElement: className 缺少 "card" 前缀导致红黑样式不生效
-- 删除 index.css 中 game-ui.js 已有的重复 .page-bar 样式
-- 移除 elements 中无用的 soundBtn 引用
