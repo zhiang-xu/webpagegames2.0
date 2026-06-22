@@ -1,6 +1,0 @@
-refactor(dice): 重新排列 tab 顺序为 猜点数 / 猜大小 / 猜单双 / 比大小 / 21点
-
-- HTML: tab 顺序调整, 默认激活猜点数
-- HTML: 默认显示 panelGuessnum, 隐藏 panelGuess
-- JS: btnSwitch 循环顺序同步
-- JS: 初始化改为 switchMode('guessnum'), 面板与 tab 状态完全同步
