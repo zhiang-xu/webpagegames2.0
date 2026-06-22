@@ -1,6 +1,0 @@
-fix(tenth): 开始游戏按钮初始状态错误
-
-- 修复 updateButtons 中 newGameBtn.disabled = !state.gameOver 逻辑
-- 初始 state.gameOver=false 导致按钮一直 disabled 无法点击
-- 改为: 游戏中禁用, 其他状态 (初始/局结束) 启用
-- 路径: games/tenth/index.js
