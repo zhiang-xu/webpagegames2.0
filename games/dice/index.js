@@ -849,12 +849,12 @@
         gnRound++;
         var res = gnFindClosest();
         var closest = res.closest;
+        var names = ['玩家A', '玩家B', '玩家C', '玩家D'];
         gnApplyCardStates();
 
         if (closest.length === 1) {
             // 单人最接近, 胜出
             var winner = closest[0];
-            var names = ['玩家A', '玩家B', '玩家C', '玩家D'];
             updateScore(2); pageAudio.play('success');
             gnCandidates = [winner];
             gnGameOver = true;
@@ -908,12 +908,11 @@
                     if (keep.indexOf(idx) === -1) gnEliminated.push(idx);
                 }
                 gnCandidates = keep;
-                var names2 = ['玩家A', '玩家B', '玩家C', '玩家D'];
                 showResult('guessnum', resultHTML(
                     '💥 平分！淘汰差最大者',
                     'lose',
                     '骰子：' + gnLastResult.values.join(' + ') + ' = ' + gnLastResult.sum +
-                    '  |  晋级：' + gnCandidates.map(function (i) { return names2[i] + '(' + gnGuesses[i] + ')'; }).join(', ')
+                    '  |  晋级：' + gnCandidates.map(function (i) { return names[i] + '(' + gnGuesses[i] + ')'; }).join(', ')
                 ));
                 pageAudio.play('error');
                 gnApplyCardStates();

@@ -1,0 +1,5 @@
+fix(dice): 修复平分时 names 变量未定义导致的 TypeError
+
+- 将 names 数组声明从单 winner 分支提到 gnJudgeAndContinue 顶部
+- 删除平分/淘汰分支中重复的 names2 声明, 统一使用 names
+- 影响: 2人猜数差相同/3-4人平分时不再抛 "Cannot read properties of undefined (reading '0')", 按钮不再卡在 "掷骰中"
