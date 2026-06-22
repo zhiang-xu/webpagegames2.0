@@ -1,5 +1,0 @@
-fix(dice): 修复全员平局卡死 + 移除中间态轮次显示
-
-- bug: 3~4 人且全部候选差相同时, keep 为空数组, 原代码靠 keep.length === gnCandidates.length 兑底失败, 导致 gnCandidates = [] 锁死、按钮卡在 “挪挪中”
-- 修复: keep 为空 或 keep === gnCandidates 时转为 “继续挪能” 路径 (不动候选、不淘汰)
-- 卡片状态: 移除 “第 N 轮” 中间态, 进入比赛后只显 “挪能中…”, 出结果后才显胜出/淘汰
