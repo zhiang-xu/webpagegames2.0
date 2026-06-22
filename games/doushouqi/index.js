@@ -541,9 +541,12 @@
         const attackerMeta = PIECES[attacker.type];
         const defenderMeta = PIECES[defender.type];
         const targetTerrain = this.terrainAt(targetRow, targetCol);
-        const isTargetTrap = targetTerrain === 'trap';
-        if (isTargetTrap) {
-          return this.isAdjacentTo(attacker.row, attacker.col, targetRow, targetCol);
+        if (targetTerrain === 'trap') {
+          const trapOwner = targetRow <= 1 ? 'blue' : 'red';
+          if (attacker.color === trapOwner) {
+            return this.isAdjacentTo(attacker.row, attacker.col, targetRow, targetCol);
+          }
+          return false;
         }
         if (attacker.type === 'rat' && defender.type === 'elephant') return true;
         if (attacker.type === 'elephant' && defender.type === 'rat') return false;
