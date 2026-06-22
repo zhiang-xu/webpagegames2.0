@@ -679,14 +679,14 @@
 
     // ===================== 猜点数 =====================
     // 状态
-    var gnDiceCount  = 0;     // 1~3
-    var gnPlayerCount = 0;    // 2~4
-    var gnGuesses    = [];    // 玩家猜测输入数组, 长度 = gnPlayerCount
-    var gnCandidates = [];    // 当前轮仍在竞争的玩家下标集合 (尚未淘汰)
-    var gnEliminated = [];    // 已淘汰下标
-    var gnRound      = 0;     // 第几轮 (从 1 开始)
-    var gnTotalRounds = 0;
-    var gnLastResult = null;  // {values:[...], sum: n}
+    var gnDiceCount   = 0;     // 1~3
+    var gnPlayerCount = 0;     // 2~4
+    var gnGuesses     = [];    // 玩家猜测输入数组, 长度 = gnPlayerCount
+    var gnCandidates  = [];    // 当前轮仍在竞争的玩家下标集合 (尚未淘汰)
+    var gnEliminated  = [];    // 已淘汰下标 (本局内累计)
+    var gnRound       = 0;     // 第几轮 (从 1 开始)
+    var gnGameOver    = false; // true = 已决出冠军
+    var gnLastResult  = null;  // {values:[...], sum: n}
 
     function gnRange() {
         return { lo: gnDiceCount, hi: gnDiceCount * 6 };
@@ -705,14 +705,21 @@
     function gnRefreshStartBtn() {
         var btn = document.getElementById('btnGuessnumStart');
         if (!btn) return;
-        var inGame = gnCandidates.length > 0;
-        if (inGame) {
+        // rolling: 掷骰中, 不可点
+        if (isRolling && gnCandidates.length > 0) {
             btn.disabled = true;
             btn.textContent = '🎲 掷骰中…';
-        } else {
-            btn.disabled = !gnAllInputValid();
-            btn.textContent = '🎮 开始游戏';
+            return;
         }
+        // over: 已决出冠军, 可继续
+        if (gnGameOver) {
+            btn.disabled = !gnAllInputValid();
+            btn.textContent = '🎲 继续掷骰';
+            return;
+        }
+        // idle: 未开始
+        btn.disabled = !gnAllInputValid();
+        btn.textContent = '🎮 开始游戏';
     }
 
     function gnBuildGuessCards() {
@@ -766,9 +773,18 @@
                 diffEl.textContent = '差 —';
             }
 
-            if (gnCandidates.length === 1 && gnCandidates[0] === idx) {
+            if (gnGameOver && gnCandidates.length === 1 && gnCandidates[0] === idx) {
                 card.classList.add('winner');
                 status.textContent = '🏆 胜出';
+                input.disabled = true;
+            } else if (gnGameOver && gnEliminated.indexOf(idx) > -1) {
+                // 本局已被淘汰 (但本局已结束, 显示留作记录)
+                card.classList.add('eliminated');
+                status.textContent = '淘汰';
+                input.disabled = true;
+            } else if (gnGameOver) {
+                // 局结束但本玩家既非冠军也非淘汰(理论上不会出现, 兜底)
+                status.textContent = '—';
                 input.disabled = true;
             } else if (gnEliminated.indexOf(idx) > -1) {
                 card.classList.add('eliminated');
@@ -824,7 +840,10 @@
             var names = ['玩家A', '玩家B', '玩家C', '玩家D'];
             updateScore(2); pageAudio.play('success');
             gnCandidates = [winner];
+            gnGameOver = true;
+            isRolling = false;
             gnApplyCardStates();
+            gnRefreshStartBtn();
             showResult('guessnum', resultHTML(
                 '🏆 ' + names[winner] + ' 获胜！',
                 'win',
@@ -883,20 +902,36 @@
         });
     }
 
-    function gnStart() {
+    function gnHandleStart() {
         if (!gnAllInputValid()) return;
         if (isRolling) return;
         if (gnDiceCount < 1 || gnPlayerCount < 2) return;
-        // 重置玩家状态 (重新开始游戏时, 输入保留)
-        gnCandidates = [];
-        for (var i = 0; i < gnPlayerCount; i++) gnCandidates.push(i);
-        gnEliminated = [];
-        gnRound = 0;
-        gnLastResult = null;
-        gnRefreshStartBtn();
-        gnApplyCardStates();
-        isRolling = true;
-        gnRollAndJudge();
+
+        if (gnGameOver) {
+            // 新一轮: 全部玩家重新参与, 清空淘汰与候选
+            gnCandidates = [];
+            for (var i = 0; i < gnPlayerCount; i++) gnCandidates.push(i);
+            gnEliminated = [];
+            gnRound = 0;
+            gnGameOver = false;
+            gnLastResult = null;
+            isRolling = true;
+            gnRefreshStartBtn();
+            gnApplyCardStates();
+            gnRollAndJudge();
+        } else {
+            // 首轮
+            gnCandidates = [];
+            for (var i = 0; i < gnPlayerCount; i++) gnCandidates.push(i);
+            gnEliminated = [];
+            gnRound = 0;
+            gnGameOver = false;
+            gnLastResult = null;
+            isRolling = true;
+            gnRefreshStartBtn();
+            gnApplyCardStates();
+            gnRollAndJudge();
+        }
     }
 
     // 绑定骰子数/玩家数 chip
@@ -928,7 +963,7 @@
             gnRefreshStartBtn();
         });
     });
-    document.getElementById('btnGuessnumStart').addEventListener('click', gnStart);
+    document.getElementById('btnGuessnumStart').addEventListener('click', gnHandleStart);
 
     // ===================== 重置回合 =====================
     function resetRound() {
@@ -960,13 +995,15 @@
             init21();
 
         } else if (mode === 'guessnum') {
-            // 重置猜点数面板: 清空选择、卡片、结果, 保留上次猜测值 (供方便继续玩)
+            // 新开一局: 清空所有参数与状态, 让用户重新设置
             gnDiceCount = 0;
             gnPlayerCount = 0;
             gnCandidates = [];
             gnEliminated = [];
             gnRound = 0;
+            gnGameOver = false;
             gnLastResult = null;
+            gnGuesses = [];
             document.querySelectorAll('#gnDiceChips .gn-chip').forEach(function (b) { b.classList.remove('selected'); });
             document.querySelectorAll('#gnPlayerChips .gn-chip').forEach(function (b) { b.classList.remove('selected'); });
             var area = document.getElementById('gnGuessArea');
@@ -979,7 +1016,6 @@
                 btnStartG.disabled = true;
                 btnStartG.textContent = '🎮 开始游戏';
             }
-            gnGuesses = [];
         }
     }
 
