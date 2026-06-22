@@ -1,0 +1,5 @@
+fix(dice): 继续掷骰时允许 winner 修改输入
+
+- 移除 gnApplyCardStates 中 winner 分支的 input.disabled = true
+- winner 在 gameOver 后继续掷骰前可以修改猜测值
+- 与之前 gameOver 兑底分支一致: 仅锁定已淘汰玩家

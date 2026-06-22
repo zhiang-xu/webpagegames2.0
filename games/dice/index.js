@@ -794,7 +794,7 @@
             if (gnGameOver && gnCandidates.length === 1 && gnCandidates[0] === idx) {
                 card.classList.add('winner');
                 status.textContent = '🏆 胜出';
-                input.disabled = true;
+                // 继续掷前允许 winner 修改输入, 不锁
             } else if (gnGameOver && gnEliminated.indexOf(idx) > -1) {
                 // 本局已被淘汰 (但本局已结束, 显示留作记录)
                 card.classList.add('eliminated');
