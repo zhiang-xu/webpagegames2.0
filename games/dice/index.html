@@ -104,14 +104,22 @@
             <div class="panel panel-21" id="panel21" style="display:none;">
                 <div class="compare-trays">
                     <div class="compare-tray-wrap">
-                        <div class="tray-label">👤 玩家A <span class="side-score-inline" id="player21ScoreInline">0</span></div>
+                        <div class="tray-label-row">
+                            <div class="tray-label">👤 玩家A <span class="side-score-inline" id="player21ScoreInline">0</span></div>
+                            <div class="rolling-slot" id="rollingSlotA"></div>
+                            <button class="btn btn-action btn-stop-side" id="btnStopA">✋ 玩家A 停止</button>
+                        </div>
                         <div class="dice-tray dice-tray-player dice-tray-21" id="tray21Player">
                             <div class="dice-zone" id="player21DiceRow"></div>
                         </div>
                     </div>
                     <div class="side-vs">VS</div>
                     <div class="compare-tray-wrap">
-                        <div class="tray-label">🤖 玩家B <span class="side-score-inline" id="ai21ScoreInline">?</span></div>
+                        <div class="tray-label-row">
+                            <div class="tray-label">🤖 玩家B <span class="side-score-inline" id="ai21ScoreInline">?</span></div>
+                            <div class="rolling-slot" id="rollingSlotB"></div>
+                            <button class="btn btn-action btn-stop-side" id="btnStopB">✋ 玩家B 停止</button>
+                        </div>
                         <div class="dice-tray dice-tray-ai dice-tray-21" id="tray21AI">
                             <div class="dice-zone" id="ai21DiceRow"></div>
                         </div>
@@ -121,7 +129,6 @@
                 <button class="btn btn-action btn-start21" id="btnStart21">🎮 开始游戏</button>
                 <div class="action-buttons" id="dice21Actions">
                     <button class="btn btn-action btn-roll-more" id="btnDraw">➕ 再来一颗</button>
-                    <button class="btn btn-action btn-stand" id="btnStand">✋ 够了，停</button>
                 </div>
             </div>
         </div>

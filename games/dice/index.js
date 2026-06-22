@@ -272,7 +272,11 @@
     var aiDice     = [];
     var p21Dice    = [];
     var ai21Dice   = [];
+    var p21Stopped  = false;
     var ai21Stopped = false;
+    var game21Over  = false;
+    var rollingA    = false;
+    var rollingB    = false;
     var game21Over  = false;
 
     var elScore = document.getElementById('scoreDisplay');
@@ -460,32 +464,151 @@
     }
 
     // ===================== 21点 =====================
-    function set21Buttons(canDraw, canStand) {
-        document.getElementById('btnDraw').disabled  = !canDraw;
-        document.getElementById('btnStand').disabled = !canStand;
-    }
-
+    // 双方独立停止标志；只有 p21Stopped && ai21Stopped 才进入结算
+    // 摇骰子动作：把"转动中的骰子"投到该方的 rollingSlot，
+    // 动画结束后静态搬到该方 dice-zone（一字排开）。
     function clearAIDiceContainer() {
         var old = document.getElementById('aiDiceContainer');
         if (old) old.parentNode.removeChild(old);
     }
 
+    function clearRollingSlot(side) {
+        var slot = document.getElementById('rollingSlot' + side);
+        if (slot) slot.innerHTML = '';
+    }
+
+    function getSlotEl(side) { return document.getElementById('rollingSlot' + side); }
+    function getZoneEl(side) {
+        return document.getElementById(side === 'A' ? 'player21DiceRow' : 'ai21DiceRow');
+    }
+    function getScoreEl(side) {
+        return document.getElementById(side === 'A' ? 'player21ScoreInline' : 'ai21ScoreInline');
+    }
+    function getDiceArr(side)  { return side === 'A' ? p21Dice  : ai21Dice;  }
+    function isStopped(side)   { return side === 'A' ? p21Stopped : ai21Stopped; }
+    function setStopped(side, v) {
+        if (side === 'A') p21Stopped = v; else ai21Stopped = v;
+    }
+
+    function updateSideScore(side) {
+        var arr = getDiceArr(side);
+        var pts = sum21(arr);
+        var el  = getScoreEl(side);
+        el.textContent = pts;
+        el.classList.toggle('bust', pts > 21);
+    }
+
+    function refresh21Controls() {
+        var aStop = isStopped('A'), bStop = isStopped('B');
+        var btnDraw = document.getElementById('btnDraw');
+        var btnA    = document.getElementById('btnStopA');
+        var btnB    = document.getElementById('btnStopB');
+        // 再来一颗：游戏未结束、双方都没停、双方都没在摇
+        var canDraw = !game21Over && !aStop && !bStop && !rollingA && !rollingB;
+        if (btnDraw) btnDraw.disabled = !canDraw;
+        if (btnA)    btnA.disabled    = aStop || game21Over;
+        if (btnB)    btnB.disabled    = bStop || game21Over;
+    }
+
+    function maybeFinalize21() {
+        if (p21Stopped && ai21Stopped) {
+            game21Over = true;
+            refresh21Controls();
+            aiFinalize();
+        } else {
+            refresh21Controls();
+        }
+    }
+
+    // 一方抽一颗：投到该方 rollingSlot，动画结束静态搬到 dice-zone
+    function rollForSide(side) {
+        if (game21Over) return;
+        if (isStopped(side)) return;
+        if (side === 'A' ? rollingA : rollingB) return;
+        if (getDiceArr(side).length >= 10) {
+            // 上限 10 颗，超出则自动停止
+            setStopped(side, true);
+            maybeFinalize21();
+            return;
+        }
+
+        if (side === 'A') rollingA = true; else rollingB = true;
+        refresh21Controls();
+
+        var d   = rollDie();
+        var arr = getDiceArr(side);
+        arr.push(d);
+
+        var slot = getSlotEl(side);
+        var zone = getZoneEl(side);
+        clearRollingSlot(side);
+
+        animateSingleDie(slot, d, function () {
+            // 动画结束：把 slot 里的骰子 DOM 搬到 zone 一字排开
+            while (slot.firstChild) zone.appendChild(slot.firstChild);
+            renderDiceStatic(zone, arr);
+            updateSideScore(side);
+            if (side === 'A') rollingA = false; else rollingB = false;
+
+            var pts = sum21(arr);
+            if (pts > 21) {
+                // 爆了：自动停止该方
+                setStopped(side, true);
+                pageAudio.play('error');
+                showResult('dice21', resultHTML(
+                    '玩家' + (side === 'A' ? 'A' : 'B') + ' 爆了！点数 ' + pts,
+                    'lose',
+                    ''
+                ));
+                maybeFinalize21();
+            } else {
+                maybeFinalize21();
+            }
+        });
+    }
+
+    // 双方同时抽一颗（开始/再来一颗）
+    function rollBoth() {
+        if (game21Over) return;
+        var aStop = isStopped('A'), bStop = isStopped('B');
+        if (aStop && bStop) return;
+        if (aStop) { rollForSide('B'); return; }
+        if (bStop) { rollForSide('A'); return; }
+        // 同时抽：A、B 各自独立锁，互不阻塞
+        rollForSide('A');
+        rollForSide('B');
+    }
+
+    function stopSide(side) {
+        if (game21Over) return;
+        if (isStopped(side)) return;
+        setStopped(side, true);
+        clearRollingSlot(side);
+        updateSideScore(side);
+        maybeFinalize21();
+    }
+
     function init21() {
-        p21Dice = []; ai21Dice = []; ai21Stopped = false; game21Over = false;
+        p21Dice = []; ai21Dice = [];
+        p21Stopped = false; ai21Stopped = false;
+        game21Over = false;
+        rollingA = false; rollingB = false;
         clearAIDiceContainer();
 
         var pRow = document.getElementById('player21DiceRow');
         var aRow = document.getElementById('ai21DiceRow');
         if (pRow) pRow.innerHTML = '';
         if (aRow) aRow.innerHTML = '';
+        clearRollingSlot('A');
+        clearRollingSlot('B');
 
         var psEl = document.getElementById('player21ScoreInline');
         var asEl = document.getElementById('ai21ScoreInline');
         if (psEl) { psEl.textContent = '0'; psEl.classList.remove('bust'); }
-        if (asEl) { asEl.textContent = '?'; asEl.classList.remove('bust'); }
+        if (asEl) { asEl.textContent = '0'; asEl.classList.remove('bust'); }
 
         showResult('dice21', '');
-        set21Buttons(false, false);
+        refresh21Controls();
 
         var btnStart = document.getElementById('btnStart21');
         if (btnStart) {
@@ -496,100 +619,10 @@
     }
 
     function start21Game() {
-        if (isRolling || game21Over) return;
-        isRolling = true;
+        if (game21Over) return;
         var btnStart = document.getElementById('btnStart21');
         if (btnStart) btnStart.style.display = 'none';
-
-        p21Dice.push(rollDie());
-        ai21Dice.push(rollDie());
-
-        var pRow = document.getElementById('player21DiceRow');
-        var aRow = document.getElementById('ai21DiceRow');
-        animateRoll(pRow, p21Dice, 900, function () {
-            renderDiceStatic(pRow, p21Dice);
-            update21Scores();
-            isRolling = false;
-            set21Buttons(true, true);
-        });
-    }
-
-    function update21Scores() {
-        var ps = sum21(p21Dice);
-        var as = sum21(ai21Dice);
-
-        var elPS = document.getElementById('player21ScoreInline');
-        elPS.textContent = ps;
-        elPS.classList.toggle('bust', ps > 21);
-
-        var elAS = document.getElementById('ai21ScoreInline');
-        if (!ai21Stopped) {
-            elAS.textContent = as;
-            elAS.classList.toggle('bust', as > 21);
-        }
-    }
-
-    function dice21Draw() {
-        if (isRolling || game21Over) return;
-        isRolling = true;
-        set21Buttons(false, false);
-
-        var d = rollDie();
-        p21Dice.push(d);
-
-        var pRow = document.getElementById('player21DiceRow');
-        animateSingleDie(pRow, d, function () {
-            renderDiceStatic(pRow, p21Dice);
-            update21Scores();
-            isRolling = false;
-
-            var ps = sum21(p21Dice);
-            if (ps > 21) {
-                showResult('dice21', resultHTML('玩家A 爆了！', 'lose', '点数 ' + ps + ' 超过 21'));
-                pageAudio.play('error');
-                updateScore(-1);
-                set21Buttons(false, false);
-                game21Over = true;
-                aiPlay();
-            } else if (ps === 21) {
-                dice21Stand();
-            } else {
-                set21Buttons(true, true);
-            }
-        });
-    }
-
-    function dice21Stand() {
-        if (isRolling || game21Over) return;
-        set21Buttons(false, false);
-        game21Over = true;
-        aiPlay();
-    }
-
-    function aiPlay() {
-        ai21Stopped = true;
-        var aiScoreEl = document.getElementById('ai21ScoreInline');
-        var aRow = document.getElementById('ai21DiceRow');
-
-        function tick() {
-            var pts = sum21(ai21Dice);
-            if (pts < 16 && ai21Dice.length < 8) {
-                ai21Dice.push(rollDie());
-                renderDiceStatic(aRow, ai21Dice);
-                aiScoreEl.textContent = sum21(ai21Dice);
-                aiScoreEl.classList.toggle('bust', sum21(ai21Dice) > 21);
-                setTimeout(tick, 320);
-            } else {
-                setTimeout(function () {
-                    renderDiceStatic(aRow, ai21Dice);
-                    aiScoreEl.textContent = sum21(ai21Dice);
-                    aiScoreEl.classList.toggle('bust', sum21(ai21Dice) > 21);
-                    aiFinalize();
-                }, 300);
-            }
-        }
-        aiScoreEl.textContent = sum21(ai21Dice);
-        setTimeout(tick, 280);
+        rollBoth();
     }
 
     function aiFinalize() {
@@ -597,8 +630,11 @@
         var as = sum21(ai21Dice);
         var cls, text;
 
-        if (ps > 21) {
-            cls = 'lose'; text = '玩家A 爆了！';
+        if (ps > 21 && as > 21) {
+            cls = 'draw'; text = '双方都爆了，平局！';
+            pageAudio.play('select');
+        } else if (ps > 21) {
+            cls = 'lose'; text = '玩家A 爆了，玩家B 赢！';
             updateScore(-1); pageAudio.play('error');
         } else if (as > 21) {
             cls = 'win'; text = '玩家B 爆了，玩家A 赢！';
@@ -607,19 +643,20 @@
             cls = 'win'; text = '玩家A 赢了！';
             updateScore(2); pageAudio.play('success');
         } else if (ps < as) {
-            cls = 'lose'; text = '玩家A 输了！';
+            cls = 'lose'; text = '玩家B 赢了！';
             updateScore(-1); pageAudio.play('error');
         } else {
             cls = 'draw'; text = '平局！';
             pageAudio.play('select');
         }
 
-        clearAIDiceContainer();
         showResult('dice21', resultHTML(text, cls, '玩家A：' + ps + '  vs  玩家B：' + as));
     }
 
-    document.getElementById('btnDraw').addEventListener('click',  dice21Draw);
-    document.getElementById('btnStand').addEventListener('click', dice21Stand);
+    document.getElementById('btnStart21').addEventListener('click', start21Game);
+    document.getElementById('btnDraw').addEventListener('click',    rollBoth);
+    document.getElementById('btnStopA').addEventListener('click',   function () { stopSide('A'); });
+    document.getElementById('btnStopB').addEventListener('click',   function () { stopSide('B'); });
 
     // ===================== 重置回合 =====================
     function resetRound() {

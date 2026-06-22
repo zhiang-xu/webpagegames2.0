@@ -244,6 +244,32 @@ header {
     font-weight: 700;
     color: rgba(255,255,255,0.7);
 }
+.tray-label-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    min-height: 72px;
+}
+.rolling-slot {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    flex: 0 0 auto;
+}
+.rolling-slot .die {
+    position: absolute;
+    left: 0; top: 0;
+}
+.btn-stop-side {
+    padding: 8px 14px;
+    font-size: 0.9rem;
+}
+.btn-stop-side:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
 .dice-tray-player {
     border-color: rgba(78, 205, 196, 0.3);
     background: radial-gradient(ellipse 100% 60% at 50% 100%, rgba(78,205,196,0.12) 0%, transparent 70%);
