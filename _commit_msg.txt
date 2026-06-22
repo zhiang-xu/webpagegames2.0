@@ -1,7 +1,0 @@
-style(dice): 调整猜点数卡片宽度使 4 玩家同行显示
-
-- gn-guess-area max-width: 520 -> 720
-- grid minmax(150px, 1fr) -> minmax(120px, 1fr)
-- gap: 10 -> 8
-- card padding 略减, 加 min-width: 0 防子项撑爆
-- 结果: 4 玩家能挤在同 1 行, 不再换行
