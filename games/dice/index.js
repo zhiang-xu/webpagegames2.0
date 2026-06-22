@@ -552,15 +552,14 @@
 
             var pts = sum21(arr);
             if (pts > 21) {
-                // 爆了：自动停止该方
+                // 爆了：立即结算，对手赢
                 setStopped(side, true);
+                // 另一方也标记为停止，避免对方继续抽
+                var other = side === 'A' ? 'B' : 'A';
+                setStopped(other, true);
+                clearRollingSlot(other);
                 pageAudio.play('error');
-                showResult('dice21', resultHTML(
-                    '玩家' + (side === 'A' ? 'A' : 'B') + ' 爆了！点数 ' + pts,
-                    'lose',
-                    ''
-                ));
-                maybeFinalize21();
+                aiFinalize();
             } else {
                 maybeFinalize21();
             }
@@ -608,7 +607,6 @@
         if (asEl) { asEl.textContent = '0'; asEl.classList.remove('bust'); }
 
         showResult('dice21', '');
-        refresh21Controls();
 
         var btnStart = document.getElementById('btnStart21');
         if (btnStart) {
@@ -616,6 +614,14 @@
             btnStart.textContent   = '🎮 开始游戏';
             btnStart.disabled = false;
         }
+        // 初始：仅显示「开始游戏」，隐藏「再来一颗」
+        var btnDraw = document.getElementById('btnDraw');
+        if (btnDraw) btnDraw.disabled = true;
+        // 双方停止按钮在游戏未开始时禁用
+        var btnA = document.getElementById('btnStopA');
+        var btnB = document.getElementById('btnStopB');
+        if (btnA) btnA.disabled = true;
+        if (btnB) btnB.disabled = true;
     }
 
     function start21Game() {
@@ -649,6 +655,9 @@
             cls = 'draw'; text = '平局！';
             pageAudio.play('select');
         }
+
+        game21Over = true;
+        refresh21Controls();
 
         showResult('dice21', resultHTML(text, cls, '玩家A：' + ps + '  vs  玩家B：' + as));
     }
