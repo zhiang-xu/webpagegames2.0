@@ -632,13 +632,18 @@ header {
     gap: 8px;
 }
 .gn-guess-card .gn-card-status {
-    font-size: 0.78rem;
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.12);
+    margin-top: 2px;
+    padding: 5px 8px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.10);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.5px;
+    transition: all 0.2s ease;
 }
-.gn-guess-card.winner .gn-card-status { background: rgba(46, 213, 115, 0.35); color: #d8ffe5; }
-.gn-guess-card.eliminated .gn-card-status { background: rgba(255, 107, 107, 0.35); color: #ffe1e1; }
+.gn-guess-card.winner .gn-card-status { background: rgba(46, 213, 115, 0.45); color: #ffffff; }
+.gn-guess-card.eliminated .gn-card-status { background: rgba(255, 107, 107, 0.45); color: #ffffff; }
 .gn-guess-card input.gn-input {
     width: 100%;
     padding: 8px 10px;

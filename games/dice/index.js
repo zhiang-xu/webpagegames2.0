@@ -729,10 +729,10 @@
             card.innerHTML =
                 '<div class="gn-card-label">' +
                     '<span>' + (emoji[i] || '👤') + ' ' + names[i] + '</span>' +
-                    '<span class="gn-card-status">准备中</span>' +
                 '</div>' +
                 '<input class="gn-input" type="number" min="' + r.lo + '" max="' + r.hi + '" placeholder="' + r.lo + '~' + r.hi + '" />' +
-                '<div class="gn-meta"><span>猜测</span><span data-meta="diff">差 —</span></div>';
+                '<div class="gn-meta"><span>猜测</span><span data-meta="diff">差 —</span></div>' +
+                '<div class="gn-card-status">准备中</div>';
             wrap.appendChild(card);
             var input = card.querySelector('input');
             (function (idx, inp) {
@@ -768,7 +768,7 @@
 
             if (gnCandidates.length === 1 && gnCandidates[0] === idx) {
                 card.classList.add('winner');
-                status.textContent = '🏆 冠军';
+                status.textContent = '🏆 胜出';
                 input.disabled = true;
             } else if (gnEliminated.indexOf(idx) > -1) {
                 card.classList.add('eliminated');
